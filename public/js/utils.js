@@ -113,6 +113,28 @@ function closeMobileNav() {
 }
 
 /**
+ * Close open modal dialogs when Escape is pressed
+ */
+function handleEscapeForModals(event) {
+  if (event.key !== "Escape") return;
+
+  const modalIds = ["modal", "envModal"];
+  modalIds.forEach((modalId) => {
+    const modal = document.getElementById(modalId);
+    if (modal && modal.style.display !== "none") {
+      modal.style.display = "none";
+    }
+  });
+}
+
+/**
+ * Initialize shared keyboard shortcuts
+ */
+function initSharedKeyboardShortcuts() {
+  document.addEventListener("keydown", handleEscapeForModals);
+}
+
+/**
  * Validate a feature key
  * @param {string} key - The feature key to validate
  * @returns {object} { valid: boolean, message: string }
@@ -136,3 +158,5 @@ function validateFeatureKey(key) {
 window._envs = [];
 window._features = [];
 window._loadFlagsSeq = 0;
+
+document.addEventListener("DOMContentLoaded", initSharedKeyboardShortcuts);

@@ -6,6 +6,7 @@ let editingEnvId = null;
  * Initialize environments module
  */
 function initEnvironmentsModule() {
+  const envForm = document.getElementById("envModalForm");
   const openCreateBtn = document.getElementById("openCreateEnv");
   const closeBtn = document.getElementById("modalEnvClose");
   const saveBtn = document.getElementById("modalEnvSave");
@@ -16,9 +17,16 @@ function initEnvironmentsModule() {
   if (closeBtn) {
     closeBtn.onclick = handleCloseEnvModal;
   }
-  if (saveBtn) {
+  if (envForm) {
+    envForm.addEventListener("submit", handleSaveEnvSubmit);
+  } else if (saveBtn) {
     saveBtn.onclick = handleSaveEnv;
   }
+}
+
+function handleSaveEnvSubmit(event) {
+  event.preventDefault();
+  return handleSaveEnv();
 }
 
 /**

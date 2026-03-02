@@ -2,53 +2,57 @@
 <!-- Create Feature Modal -->
 <div id="modal" class="modal" style="display: none">
   <div class="modal-content max-w-lg">
-    <h3 class="text-xl font-bold text-slate-100">Create Feature</h3>
-    <input
-      id="modalFeatureKey"
-      placeholder="Feature key (e.g., new_ui)"
-      type="text"
-    />
-    <input id="modalFeatureDesc" placeholder="Description" type="text" />
-    <label class="small muted block mt-3">
-      Initialize for environment (optional)
-    </label>
-    <select id="modalEnvSelect">
-      <option value="">-- none --</option>
-    </select>
-    <div class="mt-4 flex items-center gap-3">
-      <label class="toggle-switch">
-        <input id="modalEnvToggle" type="checkbox" />
-        <span class="slider"></span>
+    <form id="featureModalForm">
+      <h3 class="text-xl font-bold text-slate-100">Create Feature</h3>
+      <input
+        id="modalFeatureKey"
+        placeholder="Feature key (e.g., new_ui)"
+        type="text"
+      />
+      <input id="modalFeatureDesc" placeholder="Description" type="text" />
+      <label class="small muted block mt-3">
+        Initialize for environment (optional)
       </label>
-      <div class="small muted">Activate in selected environment</div>
-    </div>
-    <div id="modalMsg" class="text-sm mt-3"></div>
-    <div
-      class="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-6 space-y-reverse"
-    >
-      <button id="modalClose" class="ghost" type="button">Cancel</button>
-      <button id="modalCreate" class="primary" type="button">Create</button>
-    </div>
+      <select id="modalEnvSelect">
+        <option value="">-- none --</option>
+      </select>
+      <div class="mt-4 flex items-center gap-3">
+        <label class="toggle-switch">
+          <input id="modalEnvToggle" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+        <div class="small muted">Activate in selected environment</div>
+      </div>
+      <div id="modalMsg" class="text-sm mt-3"></div>
+      <div
+        class="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-6 space-y-reverse"
+      >
+        <button id="modalClose" class="ghost" type="button">Cancel</button>
+        <button id="modalCreate" class="primary" type="submit">Create</button>
+      </div>
+    </form>
   </div>
 </div>
 
 <!-- Create / Edit Environment Modal -->
 <div id="envModal" class="modal" style="display: none">
   <div class="modal-content max-w-lg">
-    <h3 id="envModalTitle" class="text-xl font-bold text-slate-100">
-      Create Environment
-    </h3>
-    <input
-      id="envModalName"
-      placeholder="Environment name (e.g., staging)"
-      type="text"
-    />
-    <div id="envModalMsg" class="text-sm mt-3"></div>
-    <div
-      class="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-6 space-y-reverse"
-    >
-      <button id="modalEnvClose" class="ghost" type="button">Cancel</button>
-      <button id="modalEnvSave" class="primary" type="button">Save</button>
-    </div>
+    <form id="envModalForm">
+      <h3 id="envModalTitle" class="text-xl font-bold text-slate-100">
+        Create Environment
+      </h3>
+      <input
+        id="envModalName"
+        placeholder="Environment name (e.g., staging)"
+        type="text"
+      />
+      <div id="envModalMsg" class="text-sm mt-3"></div>
+      <div
+        class="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-6 space-y-reverse"
+      >
+        <button id="modalEnvClose" class="ghost" type="button">Cancel</button>
+        <button id="modalEnvSave" class="primary" type="submit">Save</button>
+      </div>
+    </form>
   </div>
 </div>

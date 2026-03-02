@@ -4,6 +4,7 @@
  * Initialize features module
  */
 function initFeaturesModule() {
+  const featureForm = document.getElementById("featureModalForm");
   const openCreateBtn = document.getElementById("openCreateFeature");
   const closeBtn = document.getElementById("modalClose");
   const createBtn = document.getElementById("modalCreate");
@@ -15,13 +16,20 @@ function initFeaturesModule() {
   if (closeBtn) {
     closeBtn.onclick = handleCloseFeatureModal;
   }
-  if (createBtn) {
+  if (featureForm) {
+    featureForm.addEventListener("submit", handleCreateFeatureSubmit);
+  } else if (createBtn) {
     createBtn.onclick = handleCreateFeature;
   }
   if (keyInput) {
     keyInput.addEventListener("input", handleKeyInput);
     keyInput.addEventListener("blur", updateCreateButtonState);
   }
+}
+
+function handleCreateFeatureSubmit(event) {
+  event.preventDefault();
+  return handleCreateFeature();
 }
 
 /**

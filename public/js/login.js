@@ -4,16 +4,24 @@
  * Initialize login event handlers
  */
 function initLoginModule() {
+  const loginForm = document.getElementById("loginForm");
   const loginBtn = document.getElementById("btnLogin");
   const logoutBtn = document.getElementById("btnLogout");
 
-  if (loginBtn) {
+  if (loginForm) {
+    loginForm.addEventListener("submit", handleLoginSubmit);
+  } else if (loginBtn) {
     loginBtn.onclick = handleLogin;
   }
 
   if (logoutBtn) {
     logoutBtn.onclick = handleLogout;
   }
+}
+
+function handleLoginSubmit(event) {
+  event.preventDefault();
+  return handleLogin();
 }
 
 /**
