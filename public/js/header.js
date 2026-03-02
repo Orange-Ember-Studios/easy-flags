@@ -12,6 +12,7 @@ function initHeaderModule() {
  * Initialize navigation button handlers
  */
 function initNavigation() {
+  const logoutBtn = document.getElementById("btnLogout");
   // Set active nav on page load
   document.addEventListener("DOMContentLoaded", setActiveNav);
   setActiveNav();
@@ -20,6 +21,10 @@ function initNavigation() {
   document
     .querySelectorAll("button[data-nav]")
     .forEach((b) => b.addEventListener("click", handleNavClick));
+
+  if (logoutBtn) {
+    logoutBtn.onclick = handleLogout;
+  }
 }
 
 /**
@@ -42,6 +47,22 @@ function initMobileMenu() {
     hamburger.addEventListener("click", handleHamburgerClick);
     document.addEventListener("click", handleBodyClick);
   }
+}
+
+/**
+ * Handle logout
+ */
+async function handleLogout() {
+  try {
+    await fetch("/auth/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include", // Include cookies
+    });
+  } catch (err) {
+    console.error("Logout error:", err);
+  }
+  window.location.href = "/";
 }
 
 /**

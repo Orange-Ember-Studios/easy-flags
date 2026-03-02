@@ -1,4 +1,4 @@
-// Login module - handles login/logout functionality
+// Login module - handles login functionality
 
 /**
  * Initialize login event handlers
@@ -6,16 +6,11 @@
 function initLoginModule() {
   const loginForm = document.getElementById("loginForm");
   const loginBtn = document.getElementById("btnLogin");
-  const logoutBtn = document.getElementById("btnLogout");
 
   if (loginForm) {
     loginForm.addEventListener("submit", handleLoginSubmit);
   } else if (loginBtn) {
     loginBtn.onclick = handleLogin;
-  }
-
-  if (logoutBtn) {
-    logoutBtn.onclick = handleLogout;
   }
 }
 
@@ -48,22 +43,6 @@ async function handleLogin() {
       lm.setAttribute("role", "alert");
     }
   }
-}
-
-/**
- * Handle logout
- */
-async function handleLogout() {
-  try {
-    await fetch("/auth/logout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include", // Include cookies
-    });
-  } catch (err) {
-    console.error("Logout error:", err);
-  }
-  window.location.href = "/";
 }
 
 // Initialize on DOMContentLoaded

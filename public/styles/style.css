@@ -225,6 +225,9 @@
   .mt-6 {
     margin-top: calc(var(--spacing) * 6);
   }
+  .mt-12 {
+    margin-top: calc(var(--spacing) * 12);
+  }
   .mb-1 {
     margin-bottom: calc(var(--spacing) * 1);
   }
@@ -522,7 +525,6 @@
     min-height: 100vh;
     width: 100%;
     background: var(--bg);
-    padding: 1rem 1.25rem;
   }
   .container {
     margin-inline: auto;
@@ -530,7 +532,6 @@
     max-width: var(--container-7xl);
   }
   .card {
-    border-radius: var(--radius-xl);
     border-style: var(--tw-border-style);
     border-width: 1px;
     padding: calc(var(--spacing) * 4.5);

@@ -57,7 +57,6 @@
     .root {
         @apply min-h-screen w-full;
         background: var(--bg);
-        padding: 1rem 1.25rem;
     }
 
     .container {
@@ -66,7 +65,7 @@
 
     /* Card Component */
     .card {
-        @apply rounded-xl p-4.5 shadow-lg border;
+        @apply p-4.5 shadow-lg border;
         background: var(--card);
         border-color: var(--muted-border);
         margin-bottom: 1rem;
