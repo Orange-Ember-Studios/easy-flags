@@ -1,0 +1,62 @@
+<!-- Header / Navigation -->
+<div class="top">
+  <div class="flex items-center gap-3 flex-1 min-w-0">
+    <div class="logo header">FF</div>
+    <h2 class="text-base sm:text-xl md:text-2xl font-bold truncate">
+      Feature Flags
+    </h2>
+  </div>
+  <div class="flex items-center gap-2">
+    <button
+      id="hamburger"
+      class="icon-btn sm:hidden"
+      aria-label="Menu"
+      aria-controls="mainNav"
+      aria-expanded="false"
+      type="button"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M3 6h18"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M3 12h18"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M3 18h18"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+    <nav class="nav hidden sm:flex" id="mainNav">
+      <button data-nav="envs" type="button" class="nav-btn">
+        Environments
+      </button>
+      <button data-nav="features" type="button" class="nav-btn">
+        Feature Flags
+      </button>
+      <button data-nav="docs" type="button" class="nav-btn">Docs</button>
+      <button id="btnLogout" type="button" class="nav-btn">Logout</button>
+    </nav>
+  </div>
+</div>
+
+<script src="/js/header.js"></script>

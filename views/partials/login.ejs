@@ -1,0 +1,34 @@
+<!-- Login Screen -->
+<div id="login" class="fixed inset-0 flex items-center justify-center p-4">
+  <div class="login-card card max-w-lg">
+    <div id="loginMsg" class="space-y-1"></div>
+
+    <div class="login-brand">
+      <div class="logo login">FF</div>
+      <div>
+        <h2 class="text-cyan-accent mb-1 text-2xl font-bold">Welcome back</h2>
+        <p class="small muted">Manage feature flags across environments</p>
+      </div>
+    </div>
+
+    <div class="login-form">
+      <input
+        id="username"
+        placeholder="Username"
+        type="text"
+        autocomplete="username"
+      />
+      <input
+        id="password"
+        placeholder="Password"
+        type="password"
+        autocomplete="current-password"
+      />
+      <button id="btnLogin" class="primary w-full mt-6" type="button">
+        Sign in
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/login.js"></script>
