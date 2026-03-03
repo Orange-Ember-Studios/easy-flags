@@ -108,13 +108,21 @@ function handleHamburgerClick(e) {
   if (isOpen) {
     mobileNav.classList.remove("translate-x-0");
     mobileNav.classList.add("-translate-x-full");
+    if (backdrop) {
+      backdrop.classList.remove("opacity-100");
+      backdrop.classList.add("opacity-0");
+      backdrop.classList.remove("pointer-events-auto");
+      backdrop.classList.add("pointer-events-none");
+    }
   } else {
     mobileNav.classList.add("translate-x-0");
     mobileNav.classList.remove("-translate-x-full");
-  }
-  if (backdrop) {
-    backdrop.classList.toggle("opacity-100");
-    backdrop.classList.toggle("pointer-events-auto");
+    if (backdrop) {
+      backdrop.classList.remove("opacity-0");
+      backdrop.classList.add("opacity-100");
+      backdrop.classList.remove("pointer-events-none");
+      backdrop.classList.add("pointer-events-auto");
+    }
   }
   const hamb = document.getElementById("hamburger");
   if (hamb) hamb.setAttribute("aria-expanded", !isOpen ? "true" : "false");
@@ -136,7 +144,9 @@ function handleBodyClick(e) {
   const backdrop = document.getElementById("navBackdrop");
   if (backdrop) {
     backdrop.classList.remove("opacity-100");
+    backdrop.classList.add("opacity-0");
     backdrop.classList.remove("pointer-events-auto");
+    backdrop.classList.add("pointer-events-none");
   }
   if (hamb) hamb.setAttribute("aria-expanded", "false");
 }
@@ -154,7 +164,9 @@ function closeMobileNav() {
   }
   if (backdrop) {
     backdrop.classList.remove("opacity-100");
+    backdrop.classList.add("opacity-0");
     backdrop.classList.remove("pointer-events-auto");
+    backdrop.classList.add("pointer-events-none");
   }
   if (hamb) hamb.setAttribute("aria-expanded", "false");
 }
