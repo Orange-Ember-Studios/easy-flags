@@ -20,22 +20,24 @@
         <path d="M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
-  </div>
-</div>
 
-<!-- Nav is placed outside the header to avoid being clipped by header's backdrop-filter/sticky stacking context -->
-<nav class="nav" id="mainNav">
-  <% if (typeof user !== 'undefined' && user) { %>
-    <button data-nav="envs" type="button" class="nav-btn">Environments</button>
-    <button data-nav="features" type="button" class="nav-btn">Feature Flags</button>
-    <button data-nav="docs" type="button" class="nav-btn">Docs</button>
-    <button id="btnLogout" type="button" class="nav-btn">Logout</button>
-  <% } else { %>
-    <button type="button" class="nav-btn" onclick="window.location.href = '/billing'">Pricing</button>
-    <button type="button" class="nav-btn" onclick="window.location.href = '/api/openapi.json'">API</button>
-    <button type="button" class="nav-btn" onclick="window.location.href = '/login'">Login</button>
-  <% } %>
-</nav>
-<div id="navBackdrop" class="nav-backdrop" aria-hidden="true"></div>
+    <!-- Nav menu -->
+    <nav class="nav" id="mainNav">
+      <% if (typeof user !== 'undefined' && user) { %>
+        <button data-nav="envs" type="button" class="nav-btn">Environments</button>
+        <button data-nav="features" type="button" class="nav-btn">Feature Flags</button>
+        <button data-nav="docs" type="button" class="nav-btn">Docs</button>
+        <button id="btnLogout" type="button" class="nav-btn">Logout</button>
+      <% } else { %>
+        <button type="button" class="nav-btn" onclick="window.location.href = '/billing'">Pricing</button>
+        <button type="button" class="nav-btn" onclick="window.location.href = '/api/openapi.json'">API</button>
+        <button type="button" class="nav-btn" onclick="window.location.href = '/login'">Login</button>
+      <% } %>
+    </nav>
+  </div>
+
+  <!-- Backdrop for mobile drawer -->
+  <div id="navBackdrop" class="nav-backdrop" aria-hidden="true"></div>
+</div>
 
 <script src="/js/header.js"></script>

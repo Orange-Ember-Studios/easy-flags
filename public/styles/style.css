@@ -971,7 +971,7 @@
       padding: 1.25rem;
       background: linear-gradient(180deg, rgba(4, 6, 12, 0.98), rgba(3, 6, 10, 0.95));
       box-shadow: -18px 40px 80px rgba(2, 6, 23, 0.8);
-      z-index: 60;
+      z-index: 100;
       overflow-y: auto;
     }
 
@@ -992,7 +992,7 @@
       position: fixed;
       inset: 0;
       background: rgba(2, 6, 23, 0.6);
-      z-index: 50;
+      z-index: 99;
       transition: opacity 220ms ease;
       opacity: 0;
     }
@@ -1003,17 +1003,17 @@
     }
   }
 
-  /* Desktop nav styles - override mobile drawer styles */
+  /* Desktop nav styles - inline with header */
   @media (min-width: 640px) {
     .nav {
       display: flex !important;
-      position: fixed !important;
-      top: 0 !important;
-      right: calc(var(--spacing) * 4) !important;
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
       bottom: auto !important;
       width: auto !important;
       max-width: none !important;
-      height: calc(var(--spacing) * 12) !important;
+      height: auto !important;
       transform: none !important;
       transition: none !important;
       flex-direction: row !important;
@@ -1022,7 +1022,7 @@
       padding: 0 !important;
       background: transparent !important;
       box-shadow: none !important;
-      z-index: 41 !important;
+      z-index: auto !important;
       overflow: visible !important;
     }
 
