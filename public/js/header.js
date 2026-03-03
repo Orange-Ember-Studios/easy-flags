@@ -74,7 +74,8 @@ function handleHamburgerClick(e) {
   const nav = document.getElementById("mainNav");
   if (!nav) return;
   const isOpen = nav.classList.toggle("open");
-  e.target.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  const hamb = document.getElementById("hamburger");
+  if (hamb) hamb.setAttribute("aria-expanded", isOpen ? "true" : "false");
 }
 
 /**

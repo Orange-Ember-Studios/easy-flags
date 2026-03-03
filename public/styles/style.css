@@ -729,6 +729,26 @@
     background: var(--nav-hover);
     color: var(--accent);
   }
+  /* Mobile: show nav when open (toggled by hamburger) */
+  @media (max-width: 639px) {
+    .nav.open {
+      display: flex;
+      position: absolute;
+      top: calc(var(--spacing) * 12);
+      right: 1rem;
+      left: 1rem;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: rgba(2,6,23,0.6);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      z-index: 50;
+    }
+    .nav.open .nav-btn {
+      width: 100%;
+      text-align: left;
+    }
+  }
   button {
     cursor: pointer;
     border-radius: var(--radius-lg);
