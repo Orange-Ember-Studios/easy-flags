@@ -19,6 +19,8 @@ const authService = new AuthService(userRepository);
 
 const app = express();
 app.use(cors());
+// Use raw body parser for Stripe webhooks on the webhook path, then JSON for others
+app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -82,6 +84,13 @@ ensureAdmin()
     app.post("/auth/logout", (req, res) => {
       res.clearCookie("ff_token");
       res.json({ success: true });
+    });
+
+    app.get("/billing", (req, res) => {
+      res.render("layout", {
+        title: "Billing | Feature Flags",
+        pageView: "billing",
+      });
     });
 
     // Protected page routes
