@@ -135,8 +135,16 @@ function handleHamburgerClick(e) {
       backdrop.classList.add("opacity-0");
       backdrop.classList.remove("pointer-events-auto");
       backdrop.classList.add("pointer-events-none");
+      // hide after transition
+      setTimeout(() => {
+        try {
+          backdrop.style.display = "none";
+        } catch (err) {}
+      }, 220);
     }
   } else {
+    // ensure backdrop is visible for transition
+    if (backdrop) backdrop.style.display = "block";
     mobileNav.classList.add("translate-x-0");
     mobileNav.classList.remove("-translate-x-full");
     if (backdrop) {
@@ -169,6 +177,11 @@ function handleBodyClick(e) {
     backdrop.classList.add("opacity-0");
     backdrop.classList.remove("pointer-events-auto");
     backdrop.classList.add("pointer-events-none");
+    setTimeout(() => {
+      try {
+        backdrop.style.display = "none";
+      } catch (err) {}
+    }, 220);
   }
   if (hamb) hamb.setAttribute("aria-expanded", "false");
 }
@@ -189,6 +202,11 @@ function closeMobileNav() {
     backdrop.classList.add("opacity-0");
     backdrop.classList.remove("pointer-events-auto");
     backdrop.classList.add("pointer-events-none");
+    setTimeout(() => {
+      try {
+        backdrop.style.display = "none";
+      } catch (err) {}
+    }, 220);
   }
   if (hamb) hamb.setAttribute("aria-expanded", "false");
 }
