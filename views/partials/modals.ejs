@@ -1,7 +1,10 @@
 <!-- Modals -->
 <!-- Create Feature Modal -->
-<div id="modal" class="modal" style="display: none">
-  <div class="modal-content max-w-lg">
+<div
+  id="modal"
+  class="fixed inset-0 flex items-center justify-center p-4 hidden"
+>
+  <div class="bg-white/6 rounded-lg p-6 w-full max-w-lg">
     <form id="featureModalForm">
       <h3 class="text-xl font-bold text-slate-100">Create Feature</h3>
       <input
@@ -10,7 +13,7 @@
         type="text"
       />
       <input id="modalFeatureDesc" placeholder="Description" type="text" />
-      <label class="small muted block mt-3">
+      <label class="text-sm text-slate-400 block mt-3">
         Initialize for environment (optional)
       </label>
       <select id="modalEnvSelect">
@@ -21,22 +24,39 @@
           <input id="modalEnvToggle" type="checkbox" />
           <span class="slider"></span>
         </label>
-        <div class="small muted">Activate in selected environment</div>
+        <div class="text-sm text-slate-400">
+          Activate in selected environment
+        </div>
       </div>
       <div id="modalMsg" class="text-sm mt-3"></div>
       <div
         class="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-6 space-y-reverse"
       >
-        <button id="modalCreate" class="primary" type="submit">Create</button>
-        <button id="modalClose" class="ghost" type="button">Cancel</button>
+        <button
+          id="modalCreate"
+          class="bg-cyan-500 text-white px-4 py-2 rounded-md"
+          type="submit"
+        >
+          Create
+        </button>
+        <button
+          id="modalClose"
+          class="border border-white/10 text-white px-4 py-2 rounded-md"
+          type="button"
+        >
+          Cancel
+        </button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Create / Edit Environment Modal -->
-<div id="envModal" class="modal" style="display: none">
-  <div class="modal-content max-w-lg">
+<div
+  id="envModal"
+  class="fixed inset-0 flex items-center justify-center p-4 hidden"
+>
+  <div class="bg-white/6 rounded-lg p-6 w-full max-w-lg">
     <form id="envModalForm">
       <h3 id="envModalTitle" class="text-xl font-bold text-slate-100">
         Create Environment
@@ -50,8 +70,20 @@
       <div
         class="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-6 space-y-reverse"
       >
-        <button id="modalEnvSave" class="primary" type="submit">Save</button>
-        <button id="modalEnvClose" class="ghost" type="button">Cancel</button>
+        <button
+          id="modalEnvSave"
+          class="bg-cyan-500 text-white px-4 py-2 rounded-md"
+          type="submit"
+        >
+          Save
+        </button>
+        <button
+          id="modalEnvClose"
+          class="border border-white/10 text-white px-4 py-2 rounded-md"
+          type="button"
+        >
+          Cancel
+        </button>
       </div>
     </form>
   </div>

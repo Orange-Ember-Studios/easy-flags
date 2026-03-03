@@ -1,7 +1,7 @@
 <!-- Header / Navigation (unified) -->
-<div class="top">
+<div class="top flex items-center justify-between py-4">
   <div class="flex items-center gap-3 flex-1 min-w-0">
-    <a href="/" class="logo header" aria-label="Home">EF</a>
+    <a href="/" class="logo header text-lg font-bold text-white no-underline" aria-label="Home">EF</a>
     <h2 class="text-base sm:text-xl md:text-2xl font-bold truncate">Easy Flags</h2>
   </div>
 
@@ -21,17 +21,17 @@
       </svg>
     </button>
     <!-- Nav menu (inside header; styled as drawer on mobile) -->
-    <div class="nav-placeholder" aria-hidden="true">
-      <nav class="nav" id="mainNav" role="navigation" aria-label="Main navigation">
+    <div class="nav-placeholder hidden sm:block" aria-hidden="true">
+      <nav class="nav flex gap-2 items-center" id="mainNav" role="navigation" aria-label="Main navigation">
         <% if (typeof user !== 'undefined' && user) { %>
-          <button data-nav="envs" type="button" class="nav-btn">Environments</button>
-          <button data-nav="features" type="button" class="nav-btn">Feature Flags</button>
-          <button data-nav="docs" type="button" class="nav-btn">Docs</button>
-          <button id="btnLogout" type="button" class="nav-btn">Logout</button>
+          <button data-nav="envs" type="button" class="nav-btn text-sm text-slate-200 px-3 py-1 hover:bg-white/2 rounded">Environments</button>
+          <button data-nav="features" type="button" class="nav-btn text-sm text-slate-200 px-3 py-1 hover:bg-white/2 rounded">Feature Flags</button>
+          <button data-nav="docs" type="button" class="nav-btn text-sm text-slate-200 px-3 py-1 hover:bg-white/2 rounded">Docs</button>
+          <button id="btnLogout" type="button" class="nav-btn text-sm text-slate-200 px-3 py-1 hover:bg-white/2 rounded">Logout</button>
         <% } else { %>
-          <button data-nav="pricing" type="button" class="nav-btn" onclick="window.location.href = '/billing'">Pricing</button>
-          <button data-nav="docs" type="button" class="nav-btn" onclick="window.location.href = '/api/openapi.json'">API</button>
-          <button data-nav="login" type="button" class="nav-btn" onclick="window.location.href = '/login'">Login</button>
+          <button data-nav="pricing" type="button" class="nav-btn text-sm text-slate-200 px-3 py-1 hover:bg-white/2 rounded" onclick="window.location.href = '/billing'">Pricing</button>
+          <button data-nav="docs" type="button" class="nav-btn text-sm text-slate-200 px-3 py-1 hover:bg-white/2 rounded" onclick="window.location.href = '/api/openapi.json'">API</button>
+          <button data-nav="login" type="button" class="nav-btn text-sm text-slate-200 px-3 py-1 hover:bg-white/2 rounded" onclick="window.location.href = '/login'">Login</button>
         <% } %>
       </nav>
     </div>

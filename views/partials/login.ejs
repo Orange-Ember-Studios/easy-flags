@@ -1,20 +1,11 @@
 <!-- Login Screen -->
 <div id="login" class="fixed inset-0 flex items-center justify-center p-4">
-  <div class="login-card card max-w-lg relative">
+  <div class="bg-white/5 rounded-lg p-6 max-w-lg relative">
     <div id="loginMsg" class="space-y-1"></div>
 
     <a
       href="/"
-      class="small muted back-link"
-      style="
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      "
+      class="absolute top-3 left-3 flex items-center gap-2 text-sm text-slate-400 no-underline"
       aria-label="Back to home"
     >
       <svg
@@ -37,11 +28,13 @@
       <span>Back to home</span>
     </a>
 
-    <div class="login-brand">
+    <div class="flex items-center gap-4 mb-4">
       <div class="logo login">FF</div>
       <div>
         <h2 class="text-cyan-accent mb-1 text-2xl font-bold">Welcome back</h2>
-        <p class="small muted">Manage feature flags across environments</p>
+        <p class="text-sm text-slate-400">
+          Manage feature flags across environments
+        </p>
       </div>
     </div>
 
@@ -58,7 +51,11 @@
         type="password"
         autocomplete="current-password"
       />
-      <button id="btnLogin" class="primary w-full mt-6" type="submit">
+      <button
+        id="btnLogin"
+        class="bg-cyan-500 text-white px-4 py-2 rounded-md hover:shadow-md transition w-full mt-6"
+        type="submit"
+      >
         Sign in
       </button>
     </form>

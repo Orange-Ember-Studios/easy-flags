@@ -11,7 +11,6 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/styles/style.css" />
-    <link rel="stylesheet" href="/styles/landing.css" />
   </head>
   <body
     class="antialiased bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-950"
@@ -23,7 +22,7 @@
         <!-- Hero -->
         <section class="mt-6">
           <div class="space-y-4">
-            <div class="w-full hero-panel">
+            <div class="w-full rounded-xl bg-white/5 p-6 shadow-2xl">
               <!-- External SVG: hero illustration -->
               <img
                 class="hero-illustration"
@@ -36,7 +35,7 @@
               <h1 class="text-cyan-accent text-2xl font-bold mb-1">
                 Launch new ideas without the stress.
               </h1>
-              <p class="small muted">
+              <p class="text-sm text-slate-400">
                 Release in smaller steps, stay in control, and adapt instantly.
               </p>
             </div>
@@ -44,14 +43,14 @@
             <div class="flex flex-col sm:flex-row gap-2">
               <button
                 type="button"
-                class="primary w-full sm:w-auto"
+                class="bg-cyan-500 text-white px-4 py-2 rounded-md hover:shadow-md transition transform hover:-translate-y-1 w-full sm:w-auto"
                 onclick="window.location.href = '/login'"
               >
                 Get Started
               </button>
               <button
                 type="button"
-                class="ghost w-full sm:w-auto"
+                class="border border-white/10 text-white px-4 py-2 rounded-md hover:bg-white/3 transition w-full sm:w-auto"
                 onclick="window.location.href = '/api/openapi.json'"
               >
                 API Reference
@@ -64,35 +63,49 @@
         <section class="mt-6">
           <div class="mb-4">
             <h3 class="mb-1">Why people love using Easy Flags</h3>
-            <p class="small muted">Simple, clear, and built for fast teams.</p>
+            <p class="text-sm text-slate-400">
+              Simple, clear, and built for fast teams.
+            </p>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-3 mt-6">
-            <div class="flex-1 feature-tile">
-              <div class="feature-badge badge-accent">
+            <div
+              class="flex-1 rounded-lg bg-white/5 p-4 flex items-center gap-3"
+            >
+              <div
+                class="w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg bg-cyan-200/20"
+              >
                 <img class="icon" src="/icons/rocket.svg" alt="Rocket" />
               </div>
               <div>
-                <p class="small small-strong">Faster releases</p>
-                <p class="small muted">Ship in smaller steps.</p>
+                <p class="text-sm font-semibold text-white">Faster releases</p>
+                <p class="text-sm text-slate-400">Ship in smaller steps.</p>
               </div>
             </div>
-            <div class="flex-1 feature-tile">
-              <div class="feature-badge badge-green">
+            <div
+              class="flex-1 rounded-lg bg-white/5 p-4 flex items-center gap-3"
+            >
+              <div
+                class="w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg bg-green-400/20"
+              >
                 <img class="icon" src="/icons/target.svg" alt="Target" />
               </div>
               <div>
-                <p class="small small-strong">More control</p>
-                <p class="small muted">Toggle anytime.</p>
+                <p class="text-sm font-semibold text-white">More control</p>
+                <p class="text-sm text-slate-400">Toggle anytime.</p>
               </div>
             </div>
-            <div class="flex-1 feature-tile">
-              <div class="feature-badge badge-purple">
+            <div
+              class="flex-1 rounded-lg bg-white/5 p-4 flex items-center gap-3"
+            >
+              <div
+                class="w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg bg-purple-500/20"
+              >
                 <img class="icon" src="/icons/heart.svg" alt="Heart" />
               </div>
               <div>
-                <p class="small small-strong">Better UX</p>
-                <p class="small muted">Improve what users feel.</p>
+                <p class="text-sm font-semibold text-white">Better UX</p>
+                <p class="text-sm text-slate-400">Improve what users feel.</p>
               </div>
             </div>
           </div>
@@ -102,22 +115,26 @@
         <section class="mt-6">
           <div class="mb-4">
             <h3 class="mb-1">Simple journeys, real impact</h3>
-            <p class="small muted">
+            <p class="text-sm text-slate-400">
               Each comparison shows how Easy Flags turns friction into faster,
               safer delivery.
             </p>
           </div>
 
-          <div class="comparisons-grid">
-            <div class="comparison-tile mt-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">
+            <div
+              class="rounded-lg bg-white/5 p-6 flex flex-col min-h-full mt-6"
+            >
               <div class="flex items-center justify-between tile-header">
                 <div class="flex items-center gap-3">
-                  <div class="comparison-badge badge-accent">
+                  <div
+                    class="w-12 h-12 rounded-full flex items-center justify-center text-xl bg-cyan-200/20 shadow-md"
+                  >
                     <img class="icon" src="/icons/check.svg" alt="Check" />
                   </div>
-                  <p class="small small-strong">Launches</p>
+                  <p class="text-sm font-semibold text-white">Launches</p>
                 </div>
-                <p class="small muted">Before → After</p>
+                <p class="text-sm text-slate-400">Before → After</p>
               </div>
               <div
                 class="cmp-graph"
@@ -130,25 +147,29 @@
                   alt="Launches before and after"
                 />
               </div>
-              <p class="small muted mt-3">
+              <p class="text-sm text-slate-400 mt-3">
                 Move from risky all-at-once launches to progressive rollouts
                 with better control.
               </p>
             </div>
 
-            <div class="comparison-tile mt-6">
+            <div
+              class="rounded-lg bg-white/5 p-6 flex flex-col min-h-full mt-6"
+            >
               <div class="flex items-center justify-between tile-header">
                 <div class="flex items-center gap-3">
-                  <div class="comparison-badge badge-green">
+                  <div
+                    class="w-12 h-12 rounded-full flex items-center justify-center text-xl bg-green-400/20 shadow-md"
+                  >
                     <img
                       class="icon"
                       src="/icons/lifebuoy.svg"
                       alt="Lifebuoy"
                     />
                   </div>
-                  <p class="small small-strong">Reliability</p>
+                  <p class="text-sm font-semibold text-white">Reliability</p>
                 </div>
-                <p class="small muted">Before → After</p>
+                <p class="text-sm text-slate-400">Before → After</p>
               </div>
               <div
                 class="cmp-graph"
@@ -161,25 +182,29 @@
                   alt="Reliability before and after"
                 />
               </div>
-              <p class="small muted mt-3">
+              <p class="text-sm text-slate-400 mt-3">
                 Reduce downtime by switching unstable features off instantly
                 instead of waiting for a redeploy.
               </p>
             </div>
 
-            <div class="comparison-tile mt-6">
+            <div
+              class="rounded-lg bg-white/5 p-6 flex flex-col min-h-full mt-6"
+            >
               <div class="flex items-center justify-between tile-header">
                 <div class="flex items-center gap-3">
-                  <div class="comparison-badge badge-purple">
+                  <div
+                    class="w-12 h-12 rounded-full flex items-center justify-center text-xl bg-purple-500/20 shadow-md"
+                  >
                     <img
                       class="icon"
                       src="/icons/sparkles.svg"
                       alt="Sparkles"
                     />
                   </div>
-                  <p class="small small-strong">Product fit</p>
+                  <p class="text-sm font-semibold text-white">Product fit</p>
                 </div>
-                <p class="small muted">Before → After</p>
+                <p class="text-sm text-slate-400">Before → After</p>
               </div>
               <div
                 class="cmp-graph"
@@ -192,21 +217,27 @@
                   alt="Product fit before and after"
                 />
               </div>
-              <p class="small muted mt-3">
+              <p class="text-sm text-slate-400 mt-3">
                 Replace guesswork with fast experiments and measurable learning
                 across environments.
               </p>
             </div>
 
-            <div class="comparison-tile mt-6">
+            <div
+              class="rounded-lg bg-white/5 p-6 flex flex-col min-h-full mt-6"
+            >
               <div class="flex items-center justify-between tile-header">
                 <div class="flex items-center gap-3 justify-center">
-                  <div class="comparison-badge badge-accent">
+                  <div
+                    class="w-12 h-12 rounded-full flex items-center justify-center text-xl bg-cyan-200/20 shadow-md"
+                  >
                     <img class="icon" src="/icons/bolt.svg" alt="Bolt" />
                   </div>
-                  <p class="small small-strong">Deployment Frequency</p>
+                  <p class="text-sm font-semibold text-white">
+                    Deployment Frequency
+                  </p>
                 </div>
-                <p class="small muted">Before → After</p>
+                <p class="text-sm text-slate-400">Before → After</p>
               </div>
               <div
                 class="cmp-graph"
@@ -219,7 +250,7 @@
                   alt="Deployment frequency before and after"
                 />
               </div>
-              <p class="small muted mt-3">
+              <p class="text-sm text-slate-400 mt-3">
                 Deploy changes multiple times a day instead of waiting for
                 weekly releases.
               </p>
@@ -232,19 +263,21 @@
           <div class="flex flex-col md:flex-row gap-4">
             <div class="flex-1 space-y-4">
               <div class="flex items-center gap-3">
-                <div class="cta-badge">
+                <div
+                  class="w-12 h-12 rounded-full flex items-center justify-center text-xl bg-cyan-200/20 shadow-lg"
+                >
                   <img class="icon" src="/icons/bolt.svg" alt="Bolt" />
                 </div>
                 <div>
                   <h3>Ready to launch with confidence?</h3>
-                  <p class="small muted">
+                  <p class="text-sm text-slate-400">
                     Fast setup. Clear control. Safer releases.
                   </p>
                 </div>
               </div>
 
-              <div class="checklist-panel">
-                <p class="small muted">
+              <div class="rounded-lg bg-white/5 p-3">
+                <p class="text-sm text-slate-400">
                   <img
                     class="icon inline-check"
                     src="/icons/check.svg"
@@ -252,7 +285,7 @@
                   />
                   Manage all flags in one place
                 </p>
-                <p class="small muted">
+                <p class="text-sm text-slate-400">
                   <img
                     class="icon inline-check"
                     src="/icons/check.svg"
@@ -260,7 +293,7 @@
                   />
                   Roll out changes with less risk
                 </p>
-                <p class="small muted">
+                <p class="text-sm text-slate-400">
                   <img
                     class="icon inline-check"
                     src="/icons/check.svg"
@@ -269,30 +302,29 @@
                   Improve user experience continuously
                 </p>
               </div>
-
               <div class="flex flex-col sm:flex-row gap-2">
                 <button
                   type="button"
-                  class="primary w-full sm:w-auto"
+                  class="bg-cyan-500 text-white px-4 py-2 rounded-md hover:shadow-md transition transform hover:-translate-y-1 w-full sm:w-auto"
                   onclick="window.location.href = '/login'"
                 >
                   Start Now
                 </button>
                 <button
                   type="button"
-                  class="ghost w-full sm:w-auto"
+                  class="border border-white/10 text-white px-4 py-2 rounded-md hover:bg-white/3 transition w-full sm:w-auto"
                   onclick="window.location.href = '/api/openapi.json'"
                 >
                   View API Spec
                 </button>
               </div>
 
-              <p class="small muted">
+              <p class="text-sm text-slate-400">
                 No complex setup. Create flags and ship.
               </p>
             </div>
 
-            <div class="w-full max-w-lg panel-right">
+            <div class="w-full max-w-lg rounded-lg bg-white/5 p-4 shadow-2xl">
               <!-- External SVG: quickstart illustration -->
               <img
                 class="qs-illustration"
