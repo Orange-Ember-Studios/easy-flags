@@ -1817,3 +1817,17 @@
         display: block;
     }
 }
+
+/* Icon helpers for replaced emojis */
+.icon {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    vertical-align: -0.125em;
+}
+
+.inline-check {
+    width: 0.9em;
+    height: 0.9em;
+    margin-right: 0.45em;
+}
