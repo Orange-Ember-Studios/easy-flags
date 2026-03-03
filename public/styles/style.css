@@ -288,9 +288,6 @@
   .flex-col-reverse {
     flex-direction: column-reverse;
   }
-  .flex-row {
-    flex-direction: row;
-  }
   .items-center {
     align-items: center;
   }
@@ -431,11 +428,6 @@
       max-width: var(--container-xs);
     }
   }
-  .sm\:flex-col {
-    @media (width >= 40rem) {
-      flex-direction: column;
-    }
-  }
   .sm\:flex-row {
     @media (width >= 40rem) {
       flex-direction: row;
@@ -465,11 +457,6 @@
     @media (width >= 40rem) {
       font-size: var(--text-xl);
       line-height: var(--tw-leading, var(--text-xl--line-height));
-    }
-  }
-  .md\:flex-row {
-    @media (width >= 48rem) {
-      flex-direction: row;
     }
   }
   .md\:text-2xl {
@@ -2183,6 +2170,16 @@
     width: 100%;
     box-sizing: border-box;
     padding: 0.35rem 0.5rem;
+  }
+  .container>section:last-of-type .flex {
+    display: flex;
+    flex-direction: column;
+  }
+  .container>section:last-of-type .flex > .flex-1 {
+    order: 1;
+  }
+  .container>section:last-of-type .flex > .panel-right {
+    order: 2;
   }
 }
 @property --tw-space-y-reverse {
