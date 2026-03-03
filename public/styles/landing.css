@@ -56,6 +56,7 @@
 }
 
 .small-strong {
+
     font-weight: 700;
 }
 
@@ -216,4 +217,231 @@
     margin-left: calc(var(--spacing) * 3);
     padding-left: calc(var(--spacing) * 3);
     border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Hero SVG micro-animations (subtle, accessible) */
+.hero-dot {
+    transform-origin: center;
+    animation: hero-bob 4800ms cubic-bezier(.22, .9, .36, 1) infinite;
+    will-change: transform, opacity;
+}
+
+.hero-dot-1 {
+    animation-delay: 0ms;
+}
+
+.hero-dot-2 {
+    animation-delay: 320ms;
+}
+
+.hero-dot-3 {
+    animation-delay: 640ms;
+}
+
+/* Pause animations when user hovers the hero SVG to avoid motion surprises */
+.hero-panel svg:hover .hero-dot,
+.hero-panel svg:hover .hero-cta {
+    animation-play-state: paused;
+}
+
+.hero-cta {
+    transform-origin: center;
+    animation: hero-pulse 3800ms cubic-bezier(.22, .9, .36, 1) infinite;
+    will-change: transform, opacity, filter;
+}
+
+@keyframes hero-bob {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateY(-3px) scale(1.01);
+        opacity: 0.98;
+    }
+}
+
+@keyframes hero-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.98;
+        filter: drop-shadow(0 0 0 rgba(6, 182, 212, 0));
+    }
+
+    50% {
+        transform: scale(1.02);
+        opacity: 1;
+        filter: drop-shadow(0 6px 18px rgba(6, 182, 212, 0.06));
+    }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .hero-dot,
+    .hero-cta {
+        animation: none !important;
+    }
+}
+
+/* Comparison SVG subtle animations */
+.comparison-tile .cmp-after {
+    transform-origin: left center;
+    animation: cmp-panel-swell 4200ms ease-in-out infinite;
+    will-change: transform, opacity;
+}
+
+.comparison-tile .cmp-after-bar {
+    transform-origin: left center;
+    animation: cmp-bar-grow 3000ms cubic-bezier(.22, .9, .36, 1) infinite;
+    will-change: transform, opacity;
+}
+
+.comparison-tile .cmp-after-dot {
+    transform-origin: center;
+    animation: cmp-dot-pop 2600ms ease-in-out infinite;
+}
+
+.comparison-tile .cmp-before-path {
+    stroke-dasharray: 240;
+    stroke-dashoffset: 240;
+    animation: cmp-path-draw 2000ms ease forwards;
+}
+
+/* Animations for the red 'before' graphics to indicate instability */
+.comparison-tile .cmp-before-bar {
+    transform-origin: left center;
+    animation: cmp-before-shift 3600ms ease-in-out infinite;
+    will-change: transform, opacity;
+}
+
+.comparison-tile .cmp-before-dot {
+    transform-origin: center;
+    animation: cmp-dot-flicker 3000ms ease-in-out infinite;
+    will-change: transform, opacity;
+}
+
+@keyframes cmp-panel-swell {
+
+    0%,
+    100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scaleY(1.01);
+        opacity: 0.995;
+    }
+}
+
+@keyframes cmp-bar-grow {
+    0% {
+        transform: scaleX(0.98);
+        opacity: 0.96;
+    }
+
+    50% {
+        transform: scaleX(1.02);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scaleX(0.98);
+        opacity: 0.98;
+    }
+}
+
+@keyframes cmp-dot-pop {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.98;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+}
+
+@keyframes cmp-path-draw {
+    0% {
+        stroke-dashoffset: 240;
+        opacity: 0.6;
+    }
+
+    60% {
+        stroke-dashoffset: 24;
+        opacity: 0.95;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+/* Pause comparison animations on hover to reduce distraction */
+.comparison-tile:hover .cmp-after,
+.comparison-tile:hover .cmp-after-bar,
+.comparison-tile:hover .cmp-after-dot,
+.comparison-tile:hover .cmp-before-path,
+.comparison-tile:hover .cmp-before-bar,
+.comparison-tile:hover .cmp-before-dot {
+    animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .comparison-tile .cmp-after,
+    .comparison-tile .cmp-after-bar,
+    .comparison-tile .cmp-after-dot,
+    .comparison-tile .cmp-before-path,
+    .comparison-tile .cmp-before-bar,
+    .comparison-tile .cmp-before-dot {
+        animation: none !important;
+    }
+}
+
+@keyframes cmp-before-shift {
+    0% {
+        transform: translateX(0) scaleX(1);
+        opacity: 0.96;
+    }
+
+    50% {
+        transform: translateX(-2px) scaleX(0.995);
+        opacity: 0.88;
+    }
+
+    100% {
+        transform: translateX(0) scaleX(1);
+        opacity: 0.95;
+    }
+}
+
+@keyframes cmp-dot-flicker {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.9;
+    }
+
+    40% {
+        transform: scale(1.12);
+        opacity: 1;
+    }
+
+    60% {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
 }

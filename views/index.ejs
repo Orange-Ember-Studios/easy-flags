@@ -156,9 +156,27 @@
                   stroke="rgba(255,255,255,0.18)"
                   stroke-width="2"
                 />
-                <circle cx="197" cy="229" r="13" fill="url(#heroGradient)" />
-                <circle cx="435" cy="229" r="13" fill="url(#heroGradient)" />
-                <circle cx="640" cy="229" r="13" fill="url(#heroGradient)" />
+                <circle
+                  class="hero-dot hero-dot-1"
+                  cx="197"
+                  cy="229"
+                  r="13"
+                  fill="url(#heroGradient)"
+                />
+                <circle
+                  class="hero-dot hero-dot-2"
+                  cx="435"
+                  cy="229"
+                  r="13"
+                  fill="url(#heroGradient)"
+                />
+                <circle
+                  class="hero-dot hero-dot-3"
+                  cx="640"
+                  cy="229"
+                  r="13"
+                  fill="url(#heroGradient)"
+                />
                 <rect
                   x="118"
                   y="242"
@@ -176,6 +194,7 @@
                   fill="rgba(255,255,255,0.18)"
                 />
                 <rect
+                  class="hero-cta"
                   x="596"
                   y="212"
                   width="88"
@@ -275,6 +294,7 @@
                 aria-label="Launches before and after"
               >
                 <rect
+                  class="cmp-before"
                   x="16"
                   y="12"
                   width="244"
@@ -284,6 +304,7 @@
                   stroke="rgba(255,255,255,0.1)"
                 />
                 <rect
+                  class="cmp-before-bar"
                   x="40"
                   y="30"
                   width="188"
@@ -306,6 +327,7 @@
                   fill="none"
                 />
                 <rect
+                  class="cmp-after"
                   x="360"
                   y="12"
                   width="244"
@@ -315,6 +337,7 @@
                   stroke="rgba(255,255,255,0.1)"
                 />
                 <rect
+                  class="cmp-after-bar"
                   x="384"
                   y="30"
                   width="128"
@@ -322,7 +345,13 @@
                   rx="4"
                   fill="rgba(6,182,212,0.72)"
                 />
-                <circle cx="558" cy="34" r="7" fill="rgba(6,182,212,0.82)" />
+                <circle
+                  class="cmp-after-dot"
+                  cx="558"
+                  cy="34"
+                  r="7"
+                  fill="rgba(6,182,212,0.82)"
+                />
               </svg>
               <p class="small muted mt-3">
                 Move from risky all-at-once launches to progressive rollouts
@@ -344,6 +373,7 @@
                 aria-label="Reliability before and after"
               >
                 <rect
+                  class="cmp-before"
                   x="16"
                   y="12"
                   width="244"
@@ -353,6 +383,7 @@
                   stroke="rgba(255,255,255,0.1)"
                 />
                 <path
+                  class="cmp-before-path"
                   d="M40 44 L84 24 L126 44 L170 22 L228 44"
                   stroke="rgba(248,113,113,0.68)"
                   stroke-width="4"
@@ -375,6 +406,7 @@
                   fill="none"
                 />
                 <rect
+                  class="cmp-after"
                   x="360"
                   y="12"
                   width="244"
@@ -384,6 +416,7 @@
                   stroke="rgba(255,255,255,0.1)"
                 />
                 <rect
+                  class="cmp-after-bar"
                   x="406"
                   y="24"
                   width="126"
@@ -392,7 +425,13 @@
                   fill="rgba(6,182,212,0.25)"
                   stroke="rgba(6,182,212,0.5)"
                 />
-                <circle cx="512" cy="36" r="9" fill="rgba(6,182,212,0.86)" />
+                <circle
+                  class="cmp-after-dot"
+                  cx="512"
+                  cy="36"
+                  r="9"
+                  fill="rgba(6,182,212,0.86)"
+                />
               </svg>
               <p class="small muted mt-3">
                 Reduce downtime by switching unstable features off instantly
@@ -414,6 +453,7 @@
                 aria-label="Product fit before and after"
               >
                 <rect
+                  class="cmp-before"
                   x="16"
                   y="12"
                   width="244"
@@ -422,10 +462,34 @@
                   fill="rgba(255,255,255,0.04)"
                   stroke="rgba(255,255,255,0.1)"
                 />
-                <circle cx="58" cy="36" r="6" fill="rgba(248,113,113,0.7)" />
-                <circle cx="84" cy="36" r="6" fill="rgba(248,113,113,0.45)" />
-                <circle cx="110" cy="36" r="6" fill="rgba(248,113,113,0.35)" />
-                <circle cx="136" cy="36" r="6" fill="rgba(248,113,113,0.28)" />
+                <circle
+                  class="cmp-before-dot"
+                  cx="58"
+                  cy="36"
+                  r="6"
+                  fill="rgba(248,113,113,0.7)"
+                />
+                <circle
+                  class="cmp-before-dot"
+                  cx="84"
+                  cy="36"
+                  r="6"
+                  fill="rgba(248,113,113,0.45)"
+                />
+                <circle
+                  class="cmp-before-dot"
+                  cx="110"
+                  cy="36"
+                  r="6"
+                  fill="rgba(248,113,113,0.35)"
+                />
+                <circle
+                  class="cmp-before-dot"
+                  cx="136"
+                  cy="36"
+                  r="6"
+                  fill="rgba(248,113,113,0.28)"
+                />
                 <path
                   d="M290 36 L336 36"
                   stroke="rgba(255,255,255,0.5)"
@@ -441,6 +505,7 @@
                   fill="none"
                 />
                 <rect
+                  class="cmp-after"
                   x="360"
                   y="12"
                   width="244"
@@ -449,11 +514,41 @@
                   fill="rgba(255,255,255,0.04)"
                   stroke="rgba(255,255,255,0.1)"
                 />
-                <circle cx="402" cy="36" r="6" fill="rgba(6,182,212,0.48)" />
-                <circle cx="428" cy="36" r="6" fill="rgba(6,182,212,0.62)" />
-                <circle cx="454" cy="36" r="6" fill="rgba(6,182,212,0.76)" />
-                <circle cx="480" cy="36" r="6" fill="rgba(6,182,212,0.88)" />
-                <circle cx="506" cy="36" r="6" fill="rgba(6,182,212,0.96)" />
+                <circle
+                  class="cmp-after-dot"
+                  cx="402"
+                  cy="36"
+                  r="6"
+                  fill="rgba(6,182,212,0.48)"
+                />
+                <circle
+                  class="cmp-after-dot"
+                  cx="428"
+                  cy="36"
+                  r="6"
+                  fill="rgba(6,182,212,0.62)"
+                />
+                <circle
+                  class="cmp-after-dot"
+                  cx="454"
+                  cy="36"
+                  r="6"
+                  fill="rgba(6,182,212,0.76)"
+                />
+                <circle
+                  class="cmp-after-dot"
+                  cx="480"
+                  cy="36"
+                  r="6"
+                  fill="rgba(6,182,212,0.88)"
+                />
+                <circle
+                  class="cmp-after-dot"
+                  cx="506"
+                  cy="36"
+                  r="6"
+                  fill="rgba(6,182,212,0.96)"
+                />
               </svg>
               <p class="small muted mt-3">
                 Replace guesswork with fast experiments and measurable learning
@@ -514,6 +609,7 @@
                 aria-label="Quick start illustration"
               >
                 <rect
+                  class="qs-card"
                   x="16"
                   y="16"
                   width="388"
@@ -523,6 +619,7 @@
                   stroke="rgba(255,255,255,0.1)"
                 />
                 <rect
+                  class="qs-topbar"
                   x="40"
                   y="46"
                   width="152"
@@ -531,6 +628,7 @@
                   fill="rgba(6,182,212,0.75)"
                 />
                 <rect
+                  class="qs-line"
                   x="40"
                   y="72"
                   width="230"
@@ -539,6 +637,7 @@
                   fill="rgba(255,255,255,0.2)"
                 />
                 <rect
+                  class="qs-line"
                   x="40"
                   y="96"
                   width="188"
@@ -547,6 +646,7 @@
                   fill="rgba(255,255,255,0.14)"
                 />
                 <rect
+                  class="qs-chip"
                   x="40"
                   y="128"
                   width="104"
@@ -555,6 +655,7 @@
                   fill="rgba(255,255,255,0.06)"
                 />
                 <rect
+                  class="qs-chip"
                   x="158"
                   y="128"
                   width="104"
@@ -563,6 +664,7 @@
                   fill="rgba(255,255,255,0.06)"
                 />
                 <rect
+                  class="qs-chip"
                   x="276"
                   y="128"
                   width="104"
@@ -570,8 +672,15 @@
                   rx="12"
                   fill="rgba(255,255,255,0.06)"
                 />
-                <circle cx="332" cy="54" r="11" fill="rgba(6,182,212,0.78)" />
+                <circle
+                  class="qs-badge"
+                  cx="332"
+                  cy="54"
+                  r="11"
+                  fill="rgba(6,182,212,0.78)"
+                />
                 <rect
+                  class="qs-cta"
                   x="300"
                   y="84"
                   width="72"
@@ -580,22 +689,19 @@
                   fill="rgba(6,182,212,0.2)"
                   stroke="rgba(6,182,212,0.5)"
                 />
-                <circle cx="355" cy="99" r="10" fill="rgba(6,182,212,0.9)" />
+                <circle
+                  class="qs-cta-dot"
+                  cx="355"
+                  cy="99"
+                  r="10"
+                  fill="rgba(6,182,212,0.9)"
+                />
               </svg>
             </div>
           </div>
         </section>
       </div>
-      <footer class="site-footer">
-        <div class="container">
-          <div class="flex items-center gap-4 footer-links">
-            <a href="/login" class="muted small">Login</a>
-            <a href="/api/openapi.json" class="muted small">API</a>
-            <a href="/docs" class="muted small">Docs</a>
-          </div>
-          <p class="small muted">© 2026 Easy Flags — Built with care.</p>
-        </div>
-      </footer>
+      <%- include('partials/footer') %>
     </div>
   </body>
 </html>
