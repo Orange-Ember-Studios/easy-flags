@@ -71,12 +71,11 @@ function initMobileMenu() {
     const backdrop = document.getElementById("navBackdrop");
     if (backdrop) {
       backdrop.addEventListener("click", function () {
-        const nav = document.getElementById("mainNav");
-        if (nav) nav.classList.remove("open");
-        backdrop.classList.remove("visible");
-        hamburger.setAttribute("aria-expanded", "false");
+        closeMobileNav();
       });
     }
+    const mobileClose = document.getElementById("mobileClose");
+    if (mobileClose) mobileClose.addEventListener("click", closeMobileNav);
   }
 }
 
@@ -102,15 +101,23 @@ async function handleLogout() {
  */
 function handleHamburgerClick(e) {
   e.stopPropagation();
-  const nav = document.getElementById("mainNav");
-  if (!nav) return;
-  const isOpen = nav.classList.toggle("open");
-  const hamb = document.getElementById("hamburger");
+  const mobileNav = document.getElementById("mobileNav");
+  if (!mobileNav) return;
   const backdrop = document.getElementById("navBackdrop");
-  if (backdrop) {
-    backdrop.classList.toggle("visible", isOpen);
+  const isOpen = mobileNav.classList.contains("translate-x-0");
+  if (isOpen) {
+    mobileNav.classList.remove("translate-x-0");
+    mobileNav.classList.add("-translate-x-full");
+  } else {
+    mobileNav.classList.add("translate-x-0");
+    mobileNav.classList.remove("-translate-x-full");
   }
-  if (hamb) hamb.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  if (backdrop) {
+    backdrop.classList.toggle("opacity-100");
+    backdrop.classList.toggle("pointer-events-auto");
+  }
+  const hamb = document.getElementById("hamburger");
+  if (hamb) hamb.setAttribute("aria-expanded", !isOpen ? "true" : "false");
 }
 
 /**
@@ -118,15 +125,19 @@ function handleHamburgerClick(e) {
  * @param {Event} e - The click event
  */
 function handleBodyClick(e) {
-  const nav = document.getElementById("mainNav");
-  if (!nav) return;
+  const mobileNav = document.getElementById("mobileNav");
+  if (!mobileNav) return;
   const hamb = document.getElementById("hamburger");
-  if (!nav.classList.contains("open")) return;
+  if (!mobileNav.classList.contains("translate-x-0")) return;
   const target = e.target;
-  if (nav.contains(target) || (hamb && hamb.contains(target))) return;
-  nav.classList.remove("open");
+  if (mobileNav.contains(target) || (hamb && hamb.contains(target))) return;
+  mobileNav.classList.remove("translate-x-0");
+  mobileNav.classList.add("-translate-x-full");
   const backdrop = document.getElementById("navBackdrop");
-  if (backdrop) backdrop.classList.remove("visible");
+  if (backdrop) {
+    backdrop.classList.remove("opacity-100");
+    backdrop.classList.remove("pointer-events-auto");
+  }
   if (hamb) hamb.setAttribute("aria-expanded", "false");
 }
 
@@ -134,11 +145,17 @@ function handleBodyClick(e) {
  * Close mobile nav/drawer and hide backdrop.
  */
 function closeMobileNav() {
-  const nav = document.getElementById("mainNav");
+  const mobileNav = document.getElementById("mobileNav");
   const backdrop = document.getElementById("navBackdrop");
   const hamb = document.getElementById("hamburger");
-  if (nav) nav.classList.remove("open");
-  if (backdrop) backdrop.classList.remove("visible");
+  if (mobileNav) {
+    mobileNav.classList.remove("translate-x-0");
+    mobileNav.classList.add("-translate-x-full");
+  }
+  if (backdrop) {
+    backdrop.classList.remove("opacity-100");
+    backdrop.classList.remove("pointer-events-auto");
+  }
   if (hamb) hamb.setAttribute("aria-expanded", "false");
 }
 
