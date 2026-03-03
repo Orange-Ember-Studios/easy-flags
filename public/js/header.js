@@ -46,6 +46,16 @@ function initMobileMenu() {
   if (hamburger) {
     hamburger.addEventListener("click", handleHamburgerClick);
     document.addEventListener("click", handleBodyClick);
+    // Backdrop closes the drawer when tapped
+    const backdrop = document.getElementById("navBackdrop");
+    if (backdrop) {
+      backdrop.addEventListener("click", function () {
+        const nav = document.getElementById("mainNav");
+        if (nav) nav.classList.remove("open");
+        backdrop.classList.remove("visible");
+        hamburger.setAttribute("aria-expanded", "false");
+      });
+    }
   }
 }
 
@@ -99,19 +109,9 @@ function handleBodyClick(e) {
   if (hamb) hamb.setAttribute("aria-expanded", "false");
 }
 
-// Close drawer when clicking the backdrop (supports tapping the overlay)
-document.addEventListener("DOMContentLoaded", function () {
-  const backdrop = document.getElementById("navBackdrop");
-  if (backdrop) {
-    backdrop.addEventListener("click", function () {
-      const nav = document.getElementById("mainNav");
-      const hamb = document.getElementById("hamburger");
-      if (nav) nav.classList.remove("open");
-      backdrop.classList.remove("visible");
-      if (hamb) hamb.setAttribute("aria-expanded", "false");
-    });
-  }
-});
-
-// Initialize on DOMContentLoaded
-document.addEventListener("DOMContentLoaded", initHeaderModule);
+// Initialize on DOMContentLoaded or immediately if DOM already ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initHeaderModule);
+} else {
+  initHeaderModule();
+}
