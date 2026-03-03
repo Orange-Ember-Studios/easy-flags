@@ -62,7 +62,7 @@ async function handleLogout() {
   } catch (err) {
     console.error("Logout error:", err);
   }
-  window.location.href = "/";
+  window.location.href = "/login";
 }
 
 /**

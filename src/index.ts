@@ -7,7 +7,7 @@ import path from "path";
 dotenv.config();
 
 import routes from "./routes";
-import { signToken } from "./authMiddlewares";
+import { signToken, verifyToken } from "./authMiddlewares";
 import { pageAuthMiddleware } from "./pageMiddlewares";
 import { UserRepository } from "./infrastructure/repositories/userRepository";
 import { AuthService } from "./application/services/authService";
@@ -39,9 +39,24 @@ async function ensureAdmin() {
 // Ensure DB and admin then start server
 ensureAdmin()
   .then(() => {
-    // Login page (public)
+    // Landing page (public)
     app.get("/", (req, res) => {
       res.render("index");
+    });
+
+    // Login page (public)
+    app.get("/login", (req, res) => {
+      const token = req.cookies.ff_token;
+      if (token) {
+        try {
+          verifyToken(token);
+          return res.redirect("/environments");
+        } catch (err) {
+          // Invalid cookie token, show login page
+        }
+      }
+
+      res.render("login");
     });
 
     app.post("/auth/login", async (req, res) => {

@@ -17,4 +17,4 @@ pnpm install
 pnpm run dev
 ```
 
-Open http://localhost:3000 and login with `ADMIN_USER` / `ADMIN_PASS` from your `.env`.
+Open http://localhost:3000 for the landing page, then go to http://localhost:3000/login and sign in with `ADMIN_USER` / `ADMIN_PASS` from your `.env`.

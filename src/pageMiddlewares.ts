@@ -12,13 +12,13 @@ export function pageAuthMiddleware(
 ) {
   const token = req.cookies.ff_token;
   if (!token) {
-    return res.redirect("/");
+    return res.redirect("/login");
   }
   try {
     const decoded = verifyToken(token);
     (req as any).user = decoded;
     next();
   } catch (err) {
-    return res.redirect("/");
+    return res.redirect("/login");
   }
 }
