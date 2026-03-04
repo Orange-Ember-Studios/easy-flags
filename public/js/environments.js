@@ -119,11 +119,15 @@ async function loadEnvs() {
       tdActions.style.padding = "12px";
       tdActions.style.textAlign = "center";
 
-      const editBtn = createEditButton(e);
-      const delBtn = createDeleteButton(e);
-
-      tdActions.appendChild(editBtn);
-      tdActions.appendChild(delBtn);
+      const perms = window.USER_PERMISSIONS || [];
+      if (perms.includes("update_environments")) {
+        const editBtn = createEditButton(e);
+        tdActions.appendChild(editBtn);
+      }
+      if (perms.includes("delete_environments")) {
+        const delBtn = createDeleteButton(e);
+        tdActions.appendChild(delBtn);
+      }
       tr.appendChild(tdName);
       tr.appendChild(tdActions);
       tbody.appendChild(tr);

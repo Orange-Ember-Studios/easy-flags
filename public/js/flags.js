@@ -57,23 +57,29 @@ function createFlagRow(flag, environment) {
   const tdToggle = document.createElement("td");
   tdToggle.style.padding = "12px";
   tdToggle.style.textAlign = "center";
+  const perms = window.USER_PERMISSIONS || [];
   const label = document.createElement("label");
   label.className = "toggle-switch";
   const chk = document.createElement("input");
   chk.type = "checkbox";
   chk.checked = flag.value;
   chk.setAttribute("aria-label", `Toggle ${flag.key}`);
+  if (!perms.includes("manage_flags")) {
+    chk.disabled = true;
+    chk.title = "You do not have permission to change this flag.";
+  } else {
+    chk.onchange = async () => {
+      await authFetch(api + `/features/${flag.id}/value`, {
+        method: "PUT",
+        body: JSON.stringify({
+          environmentId: environment.id,
+          value: chk.checked,
+        }),
+      });
+    };
+  }
   const span = document.createElement("span");
   span.className = "slider";
-  chk.onchange = async () => {
-    await authFetch(api + `/features/${flag.id}/value`, {
-      method: "PUT",
-      body: JSON.stringify({
-        environmentId: environment.id,
-        value: chk.checked,
-      }),
-    });
-  };
   label.appendChild(chk);
   label.appendChild(span);
   tdToggle.appendChild(label);
@@ -82,8 +88,10 @@ function createFlagRow(flag, environment) {
   const tdActions = document.createElement("td");
   tdActions.style.padding = "12px";
   tdActions.style.textAlign = "center";
-  const delBtn = createDeleteFlagButton(flag);
-  tdActions.appendChild(delBtn);
+  if (perms.includes("delete_features")) {
+    const delBtn = createDeleteFlagButton(flag);
+    tdActions.appendChild(delBtn);
+  }
 
   tr.appendChild(tdKey);
   tr.appendChild(tdDesc);

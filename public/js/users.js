@@ -108,11 +108,15 @@ async function loadUsers() {
       tdActions.style.padding = "12px";
       tdActions.style.textAlign = "center";
 
-      const editBtn = createEditButton(u);
-      const delBtn = createDeleteButton(u);
-
-      tdActions.appendChild(editBtn);
-      tdActions.appendChild(delBtn);
+      const perms = window.USER_PERMISSIONS || [];
+      if (perms.includes("update_users")) {
+        const editBtn = createEditButton(u);
+        tdActions.appendChild(editBtn);
+      }
+      if (perms.includes("delete_users")) {
+        const delBtn = createDeleteButton(u);
+        tdActions.appendChild(delBtn);
+      }
       tr.appendChild(tdName);
       tr.appendChild(tdActions);
       tbody.appendChild(tr);

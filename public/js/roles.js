@@ -96,13 +96,19 @@ async function loadRoles() {
         tdActions.style.justifyContent = "center";
         tdActions.style.gap = "8px";
 
-        const permBtn = createPermissionsButton(role);
-        const editBtn = createEditButton(role);
-        const delBtn = createDeleteButton(role);
-
-        tdActions.appendChild(permBtn);
-        tdActions.appendChild(editBtn);
-        tdActions.appendChild(delBtn);
+        const perms = window.USER_PERMISSIONS || [];
+        if (perms.includes("manage_permissions")) {
+          const permBtn = createPermissionsButton(role);
+          tdActions.appendChild(permBtn);
+        }
+        if (perms.includes("update_roles")) {
+          const editBtn = createEditButton(role);
+          tdActions.appendChild(editBtn);
+        }
+        if (perms.includes("delete_roles")) {
+          const delBtn = createDeleteButton(role);
+          tdActions.appendChild(delBtn);
+        }
         tr.appendChild(tdName);
         tr.appendChild(tdDesc);
         tr.appendChild(tdActions);

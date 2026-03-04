@@ -4,6 +4,7 @@
       class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
     >
       <h3>Environments</h3>
+      <% if (permissions && permissions.includes('create_environments')) { %>
       <button
         id="openCreateEnv"
         class="bg-cyan-500 text-white px-4 py-2 rounded-md w-full sm:w-auto"
@@ -11,6 +12,7 @@
       >
         Create Environment
       </button>
+      <% } %>
     </div>
   </section>
 
