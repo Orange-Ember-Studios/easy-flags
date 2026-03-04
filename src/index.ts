@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { Request, Response, NextFunction } from "express";
+import { JwtPayload } from "jsonwebtoken";
 
 dotenv.config();
 
@@ -13,10 +14,16 @@ import { pageAuthMiddleware } from "./pageMiddlewares";
 import { UserRepository } from "./infrastructure/repositories/userRepository";
 import { AuthService } from "./application/services/authService";
 import { UserService } from "./application/services/userService";
+import { PermissionRepository } from "./infrastructure/repositories/permissionRepository";
+import { errorHandler, asyncHandler } from "./utils/errorHandler";
+import { validateUserInput } from "./utils/validators";
+import { HTTP_STATUS, ERROR_MESSAGES } from "./utils/constants";
 
 const PORT = Number(process.env.PORT || 3000);
 
+// Singleton instances
 const userRepository = new UserRepository();
+const permissionRepository = new PermissionRepository();
 const userService = new UserService(userRepository);
 const authService = new AuthService(userRepository);
 
@@ -28,9 +35,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Expose `user` and their permissions to EJS templates when a valid auth cookie is present
-import { PermissionRepository } from "./infrastructure/repositories/permissionRepository";
-import { JwtPayload } from "jsonwebtoken";
-
 app.use(async (req, res, next) => {
   const token = (req.cookies as any)?.ff_token;
   if (token) {
@@ -40,11 +44,9 @@ app.use(async (req, res, next) => {
       (res as any).locals.user = user;
       // Fetch permissions for the user's role
       if (user && user.id) {
-        const userRepo = new UserRepository();
-        const permRepo = new PermissionRepository();
-        const userRecord = await userRepo.findById(user.id);
+        const userRecord = await userRepository.findById(user.id);
         if (userRecord && userRecord.role_id) {
-          const perms = await permRepo.getRolePermissions(userRecord.role_id);
+          const perms = await permissionRepository.getRolePermissions(userRecord.role_id);
           (res as any).locals.permissions = perms.map((p: any) => p.name);
         } else {
           (res as any).locals.permissions = [];
@@ -100,33 +102,25 @@ ensureAdmin()
       res.render("create-account");
     });
 
-    app.post("/auth/register", async (req, res) => {
+    app.post("/auth/register", validateUserInput, asyncHandler(async (req, res) => {
       const { username, password } = req.body;
-      if (!username || !password) {
-        return res
-          .status(400)
-          .render("create-account", { error: "All fields are required." });
-      }
       try {
-        // You may want to check for existing user/email here
         await userService.createUser(username, password);
         // Optionally, auto-login after registration
         // const token = signToken({ username, id: user.id });
         // res.cookie("ff_token", token, { httpOnly: true, ... });
         return res.redirect("/login");
       } catch (err) {
-        return res.status(400).render("create-account", { error: err.message });
+        let errorMsg = ERROR_MESSAGES.REGISTRATION_FAILED;
+        if (err instanceof Error) errorMsg = err.message;
+        return res.status(HTTP_STATUS.BAD_REQUEST).render("create-account", { error: errorMsg });
       }
-    });
+    }));
 
-    app.post("/auth/login", async (req, res) => {
+    app.post("/auth/login", validateUserInput, asyncHandler(async (req, res) => {
       const { username, password } = req.body;
-      if (!username || !password)
-        return res
-          .status(400)
-          .json({ error: "Username and Password required" });
       const user = await authService.authenticate(username, password);
-      if (!user) return res.status(401).json({ error: "Invalid credentials" });
+      if (!user) return res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: ERROR_MESSAGES.INVALID_CREDENTIALS });
       const token = signToken({ username: user.username, id: user.id });
       // Set secure httpOnly cookie
       res.cookie("ff_token", token, {
@@ -136,7 +130,7 @@ ensureAdmin()
         maxAge: 8 * 60 * 60 * 1000, // 8 hours
       });
       res.json({ token });
-    });
+    }));
 
     // Add logout endpoint to clear cookie
     app.post("/auth/logout", (req, res) => {
@@ -200,11 +194,14 @@ ensureAdmin()
 
     // Error handler for forbidden (403) on page routes
     app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-      if (err && err.status === 403) {
-        return res.status(403).render("forbidden", { title: "Forbidden" });
+      if (err && err.status === HTTP_STATUS.FORBIDDEN) {
+        return res.status(HTTP_STATUS.FORBIDDEN).render("forbidden", { title: "Forbidden" });
       }
       next(err);
     });
+
+    // Centralized error handler (must be last)
+    app.use(errorHandler);
 
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
