@@ -12,10 +12,12 @@ import { signToken, verifyToken } from "./authMiddlewares";
 import { pageAuthMiddleware } from "./pageMiddlewares";
 import { UserRepository } from "./infrastructure/repositories/userRepository";
 import { AuthService } from "./application/services/authService";
+import { UserService } from "./application/services/userService";
 
 const PORT = Number(process.env.PORT || 3000);
 
 const userRepository = new UserRepository();
+const userService = new UserService(userRepository);
 const authService = new AuthService(userRepository);
 
 const app = express();
@@ -92,6 +94,29 @@ ensureAdmin()
       }
 
       res.render("login");
+    });
+
+    app.get("/create-account", (req, res) => {
+      res.render("create-account");
+    });
+
+    app.post("/auth/register", async (req, res) => {
+      const { username, password } = req.body;
+      if (!username || !password) {
+        return res
+          .status(400)
+          .render("create-account", { error: "All fields are required." });
+      }
+      try {
+        // You may want to check for existing user/email here
+        await userService.createUser(username, password);
+        // Optionally, auto-login after registration
+        // const token = signToken({ username, id: user.id });
+        // res.cookie("ff_token", token, { httpOnly: true, ... });
+        return res.redirect("/login");
+      } catch (err) {
+        return res.status(400).render("create-account", { error: err.message });
+      }
     });
 
     app.post("/auth/login", async (req, res) => {
