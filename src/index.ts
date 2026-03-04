@@ -126,6 +126,14 @@ ensureAdmin()
       });
     });
 
+    // API Reference page (public)
+    app.get("/api-reference", (req, res) => {
+      res.render("layout", {
+        title: "API Reference | Feature Flags",
+        pageView: "api-reference",
+      });
+    });
+
     // Protected page routes
     app.get("/environments", pageAuthMiddleware, (req, res) => {
       res.render("layout", {
@@ -166,14 +174,12 @@ ensureAdmin()
     app.use("/api", routes);
 
     // Error handler for forbidden (403) on page routes
-    app.use(
-      (err: any, req: Request, res: Response, next: NextFunction) => {
-        if (err && err.status === 403) {
-          return res.status(403).render("forbidden", { title: "Forbidden" });
-        }
-        next(err);
+    app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+      if (err && err.status === 403) {
+        return res.status(403).render("forbidden", { title: "Forbidden" });
       }
-    );
+      next(err);
+    });
 
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);

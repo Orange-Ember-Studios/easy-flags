@@ -1,18 +1,4 @@
-// Header/Navigation module - handles navigation and mobile menu
-
-/**
- * Initialize header and navigation
- */
-function initHeaderModule() {
-  initNavigation();
-  moveDrawerToBody();
-  initMobileMenu();
-}
-
-/**
- * Move mobile drawer and backdrop to document.body to avoid stacking-context issues
- * that can cause the drawer to appear behind transformed/positioned ancestors.
- */
+// Minimal mobile menu logic only
 function moveDrawerToBody() {
   if (typeof document === "undefined") return;
   const mobileNav = document.getElementById("mobileNav");
@@ -26,157 +12,9 @@ function moveDrawerToBody() {
     }
   } catch (err) {
     // ignore errors if DOM modifications are not allowed
-    console.error("moveDrawerToBody error:", err);
   }
 }
 
-/**
- * Initialize navigation button handlers
- */
-function initNavigation() {
-  const logoutBtn = document.getElementById("btnLogout");
-  const logoutMobileBtn = document.getElementById("btnLogoutMobile");
-
-  // Set active nav on page load - use multiple strategies to ensure it runs
-  document.addEventListener("DOMContentLoaded", setActiveNav);
-  window.addEventListener("load", setActiveNav);
-
-  // Call immediately if DOM is already loaded
-  if (
-    document.readyState === "interactive" ||
-    document.readyState === "complete"
-  ) {
-    requestAnimationFrame(setActiveNav);
-  } else {
-    try {
-      setActiveNav();
-    } catch (err) {
-      // in case DOM isn't ready yet or setActiveNav isn't defined, ignore
-    }
-  }
-
-  // Handle navigation button clicks
-  document
-    .querySelectorAll("button[data-nav]")
-    .forEach((b) => b.addEventListener("click", handleNavClick));
-
-  if (logoutBtn) {
-    logoutBtn.onclick = handleLogout;
-  }
-  if (logoutMobileBtn) {
-    logoutMobileBtn.onclick = handleLogout;
-  }
-}
-
-/**
- * Handle navigation button click
- * @param {Event} e - The click event
- */
-function showPermissionError() {
-  let el = document.getElementById("permissionError");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "permissionError";
-    el.className =
-      "fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50";
-    el.style.transition = "opacity 0.3s";
-    document.body.appendChild(el);
-  }
-  el.textContent = "You are not authorized to access this page.";
-  el.style.opacity = 1;
-  setTimeout(() => {
-    el.style.opacity = 0;
-  }, 2500);
-}
-
-const NAV_PERMISSIONS = {
-  envs: "view_environments",
-  features: "view_features",
-  users: "view_users",
-  roles: "view_roles",
-};
-
-function handleNavClick(e) {
-  const p = e.target.closest("button[data-nav]").dataset.nav;
-  // Check permission for protected pages
-  if (NAV_PERMISSIONS[p]) {
-    const perms = window.USER_PERMISSIONS || [];
-    if (!perms.includes(NAV_PERMISSIONS[p])) {
-      showPermissionError();
-      closeMobileNav();
-      return;
-    }
-  }
-  if (p === "docs") {
-    closeMobileNav();
-    return (window.location.href = "/docs");
-  }
-  if (p === "envs") {
-    closeMobileNav();
-    return (window.location.href = "/environments");
-  }
-  if (p === "features") {
-    closeMobileNav();
-    return (window.location.href = "/features");
-  }
-  if (p === "users") {
-    closeMobileNav();
-    return (window.location.href = "/users");
-  }
-  if (p === "roles") {
-    closeMobileNav();
-    return (window.location.href = "/roles");
-  }
-  if (p === "pricing") {
-    closeMobileNav();
-    return (window.location.href = "/billing");
-  }
-  if (p === "login") {
-    closeMobileNav();
-    return (window.location.href = "/login");
-  }
-}
-
-/**
- * Initialize mobile menu toggle
- */
-function initMobileMenu() {
-  const hamburger = document.getElementById("hamburger");
-  if (hamburger) {
-    hamburger.addEventListener("click", handleHamburgerClick);
-    document.addEventListener("click", handleBodyClick);
-    // Backdrop closes the drawer when tapped
-    const backdrop = document.getElementById("navBackdrop");
-    if (backdrop) {
-      backdrop.addEventListener("click", function () {
-        closeMobileNav();
-      });
-    }
-    const mobileClose = document.getElementById("mobileClose");
-    if (mobileClose) mobileClose.addEventListener("click", closeMobileNav);
-  }
-}
-
-/**
- * Handle logout
- */
-async function handleLogout() {
-  try {
-    await fetch("/auth/logout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include", // Include cookies
-    });
-  } catch (err) {
-    console.error("Logout error:", err);
-  }
-  window.location.href = "/login";
-}
-
-/**
- * Handle hamburger menu toggle
- * @param {Event} e - The click event
- */
 function handleHamburgerClick(e) {
   e.stopPropagation();
   const mobileNav = document.getElementById("mobileNav");
@@ -191,7 +29,6 @@ function handleHamburgerClick(e) {
       backdrop.classList.add("opacity-0");
       backdrop.classList.remove("pointer-events-auto");
       backdrop.classList.add("pointer-events-none");
-      // hide after transition
       setTimeout(() => {
         try {
           backdrop.style.display = "none";
@@ -199,7 +36,6 @@ function handleHamburgerClick(e) {
       }, 220);
     }
   } else {
-    // ensure backdrop is visible for transition
     if (backdrop) backdrop.style.display = "block";
     mobileNav.classList.add("translate-x-0");
     mobileNav.classList.remove("-translate-x-full");
@@ -214,10 +50,6 @@ function handleHamburgerClick(e) {
   if (hamb) hamb.setAttribute("aria-expanded", !isOpen ? "true" : "false");
 }
 
-/**
- * Handle clicks outside mobile menu
- * @param {Event} e - The click event
- */
 function handleBodyClick(e) {
   const mobileNav = document.getElementById("mobileNav");
   if (!mobileNav) return;
@@ -242,9 +74,6 @@ function handleBodyClick(e) {
   if (hamb) hamb.setAttribute("aria-expanded", "false");
 }
 
-/**
- * Close mobile nav/drawer and hide backdrop.
- */
 function closeMobileNav() {
   const mobileNav = document.getElementById("mobileNav");
   const backdrop = document.getElementById("navBackdrop");
@@ -267,32 +96,27 @@ function closeMobileNav() {
   if (hamb) hamb.setAttribute("aria-expanded", "false");
 }
 
-/**
- * Highlight the active nav button based on current path.
- */
-function setActiveNav() {
-  if (typeof window === "undefined") return;
-  const path = window.location.pathname || "/";
-  let target = null;
-  if (path.startsWith("/environments")) target = "envs";
-  else if (path.startsWith("/features")) target = "features";
-  else if (path.startsWith("/users")) target = "users";
-  else if (path.startsWith("/roles")) target = "roles";
-  else if (path.startsWith("/docs") || path.startsWith("/api")) target = "docs";
-  else if (path.startsWith("/billing")) target = "pricing";
-  else if (path.startsWith("/login")) target = "login";
-
-  document.querySelectorAll("button[data-nav]").forEach((b) => {
-    try {
-      if (b.dataset && b.dataset.nav === target) b.classList.add("active");
-      else b.classList.remove("active");
-    } catch (err) {
-      // ignore individual element issues
+function initMobileMenu() {
+  const hamburger = document.getElementById("hamburger");
+  if (hamburger) {
+    hamburger.addEventListener("click", handleHamburgerClick);
+    document.addEventListener("click", handleBodyClick);
+    const backdrop = document.getElementById("navBackdrop");
+    if (backdrop) {
+      backdrop.addEventListener("click", function () {
+        closeMobileNav();
+      });
     }
-  });
+    const mobileClose = document.getElementById("mobileClose");
+    if (mobileClose) mobileClose.addEventListener("click", closeMobileNav);
+  }
 }
 
-// Initialize on DOMContentLoaded or immediately if DOM already ready
+function initHeaderModule() {
+  moveDrawerToBody();
+  initMobileMenu();
+}
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initHeaderModule);
 } else {

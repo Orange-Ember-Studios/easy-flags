@@ -25,23 +25,24 @@
       <nav class="nav flex gap-2 items-center" id="mainNav" role="navigation" aria-label="Main navigation">
         <% if (typeof user !== 'undefined' && user) { %>
           <% if (permissions && permissions.includes('view_environments')) { %>
-            <button data-nav="envs" type="button" class="nav-btn">Environments</button>
+            <a href="/environments" class="nav-btn" data-nav="envs">Environments</a>
           <% } %>
           <% if (permissions && permissions.includes('view_features')) { %>
-            <button data-nav="features" type="button" class="nav-btn">Feature Flags</button>
+            <a href="/features" class="nav-btn" data-nav="features">Feature Flags</a>
           <% } %>
           <% if (permissions && permissions.includes('view_users')) { %>
-            <button data-nav="users" type="button" class="nav-btn">Users</button>
+            <a href="/users" class="nav-btn" data-nav="users">Users</a>
           <% } %>
           <% if (permissions && permissions.includes('view_roles')) { %>
-            <button data-nav="roles" type="button" class="nav-btn">Roles</button>
+            <a href="/roles" class="nav-btn" data-nav="roles">Roles</a>
           <% } %>
-          <button data-nav="docs" type="button" class="nav-btn">Docs</button>
+          <a href="/docs" class="nav-btn" data-nav="docs">Docs</a>
+          <a href="/api-reference" class="nav-btn">API</a>
           <button id="btnLogout" type="button" class="nav-btn">Logout</button>
         <% } else { %>
-          <button data-nav="pricing" type="button" class="nav-btn" onclick="window.location.href = '/billing'">Pricing</button>
-          <button data-nav="docs" type="button" class="nav-btn" onclick="window.location.href = '/api/openapi.json'">API</button>
-          <button data-nav="login" type="button" class="nav-btn" onclick="window.location.href = '/login'">Login</button>
+          <a href="/billing" class="nav-btn" data-nav="pricing">Pricing</a>
+          <a href="/api-reference" class="nav-btn" data-nav="docs">API</a>
+          <a href="/login" class="nav-btn" data-nav="login">Login</a>
         <% } %>
       </nav>
     </div>
@@ -59,23 +60,24 @@
   </div>
   <% if (typeof user !== 'undefined' && user) { %>
     <% if (permissions && permissions.includes('view_environments')) { %>
-      <button data-nav="envs" type="button" class="nav-btn block w-full text-left py-2">Environments</button>
+      <a href="/environments" class="nav-btn block w-full text-left py-2" data-nav="envs">Environments</a>
     <% } %>
     <% if (permissions && permissions.includes('view_features')) { %>
-      <button data-nav="features" type="button" class="nav-btn block w-full text-left py-2">Feature Flags</button>
+      <a href="/features" class="nav-btn block w-full text-left py-2" data-nav="features">Feature Flags</a>
     <% } %>
     <% if (permissions && permissions.includes('view_users')) { %>
-      <button data-nav="users" type="button" class="nav-btn block w-full text-left py-2">Users</button>
+      <a href="/users" class="nav-btn block w-full text-left py-2" data-nav="users">Users</a>
     <% } %>
     <% if (permissions && permissions.includes('view_roles')) { %>
-      <button data-nav="roles" type="button" class="nav-btn block w-full text-left py-2">Roles</button>
+      <a href="/roles" class="nav-btn block w-full text-left py-2" data-nav="roles">Roles</a>
     <% } %>
-    <button data-nav="docs" type="button" class="nav-btn block w-full text-left py-2">Docs</button>
+    <a href="/docs" class="nav-btn block w-full text-left py-2" data-nav="docs">Docs</a>
+    <a href="/api-reference" class="nav-btn block w-full text-left py-2">API</a>
     <button id="btnLogoutMobile" type="button" class="nav-btn block w-full text-left py-2">Logout</button>
   <% } else { %>
-    <button data-nav="pricing" type="button" class="nav-btn block w-full text-left py-2" onclick="window.location.href = '/billing'">Pricing</button>
-    <button data-nav="docs" type="button" class="nav-btn block w-full text-left py-2" onclick="window.location.href = '/api/openapi.json'">API</button>
-    <button data-nav="login" type="button" class="nav-btn block w-full text-left py-2" onclick="window.location.href = '/login'">Login</button>
+    <a href="/billing" class="nav-btn block w-full text-left py-2" data-nav="pricing">Pricing</a>
+    <a href="/api-reference" class="nav-btn block w-full text-left py-2" data-nav="docs">API</a>
+    <a href="/login" class="nav-btn block w-full text-left py-2" data-nav="login">Login</a>
   <% } %>
 </nav>
 
