@@ -153,6 +153,21 @@ ensureAdmin()
       });
     });
 
+    // Privacy page (public)
+    app.get("/privacy", (req, res) => {
+      res.render("privacy", { title: "Privacy Policy | Easy Flags" });
+    });
+
+    // Terms page (public)
+    app.get("/terms", (req, res) => {
+      res.render("terms", { title: "Terms of Service | Easy Flags" });
+    });
+
+    // Contact page (public)
+    app.get("/contact", (req, res) => {
+      res.render("contact", { title: "Contact Us | Easy Flags" });
+    });
+
     // Protected page routes
     app.get("/environments", pageAuthMiddleware, (req, res) => {
       res.render("layout", {
