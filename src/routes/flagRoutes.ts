@@ -4,6 +4,7 @@ import { FeatureService } from "../application/services/featureService";
 import { FlagQueryService } from "../application/services/flagQueryService";
 import { asyncHandler } from "../utils/errorHandler";
 import { HTTP_STATUS, ERROR_MESSAGES } from "../utils/constants";
+import { ok, fail } from "../utils/apiResponse";
 
 export default function createFlagRouter(
   environmentService: EnvironmentService,
@@ -17,15 +18,15 @@ export default function createFlagRouter(
     if (!env) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: "env query parameter required (name)" });
+        .json(fail("ENV_QUERY_REQUIRED", "env query parameter required (name)"));
     }
 
     const flags = await flagQueryService.getFlagsByEnvironmentName(env);
     if (!flags) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: ERROR_MESSAGES.ENVIRONMENT_NOT_FOUND });
+      return res.status(HTTP_STATUS.NOT_FOUND).json(fail("ENVIRONMENT_NOT_FOUND", ERROR_MESSAGES.ENVIRONMENT_NOT_FOUND));
     }
 
-    res.json(flags);
+    res.json(ok(flags));
   }));
 
   router.get("/:env/:key", asyncHandler(async (req, res) => {
@@ -35,25 +36,25 @@ export default function createFlagRouter(
     if (!envName || !key) {
       return res
         .status(HTTP_STATUS.BAD_REQUEST)
-        .json({ error: "env and key path parameters required" });
+        .json(fail("ENV_AND_KEY_REQUIRED", "env and key path parameters required"));
     }
 
     const environment = await environmentService.findByName(envName);
     if (!environment) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: ERROR_MESSAGES.ENVIRONMENT_NOT_FOUND });
+      return res.status(HTTP_STATUS.NOT_FOUND).json(fail("ENVIRONMENT_NOT_FOUND", ERROR_MESSAGES.ENVIRONMENT_NOT_FOUND));
     }
 
     const feature = await featureService.findByKey(key);
     if (!feature) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: ERROR_MESSAGES.FEATURE_NOT_FOUND });
+      return res.status(HTTP_STATUS.NOT_FOUND).json(fail("FEATURE_NOT_FOUND", ERROR_MESSAGES.FEATURE_NOT_FOUND));
     }
 
     const result = await flagQueryService.isFeatureEnabled(envName, key);
     if (!result) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "feature value not found" });
+      return res.status(HTTP_STATUS.NOT_FOUND).json(fail("FEATURE_VALUE_NOT_FOUND", "feature value not found"));
     }
 
-    res.json(result);
+    res.json(ok(result));
   }));
 
   return router;

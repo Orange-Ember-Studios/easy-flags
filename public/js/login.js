@@ -32,7 +32,7 @@ async function handleLogin() {
     credentials: "include", // Include cookies
   });
   const data = await res.json();
-  if (data.token || res.ok) {
+  if (data && (data.success || data.token || res.ok)) {
     // Cookie is automatically set by server, navigate to protected area
     window.location.href = "/environments";
   } else {

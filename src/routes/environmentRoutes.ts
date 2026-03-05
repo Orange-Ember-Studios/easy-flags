@@ -3,6 +3,7 @@ import { EnvironmentService } from "../application/services/environmentService";
 import { requirePermission } from "../authorizationMiddlewares";
 import { asyncHandler } from "../utils/errorHandler";
 import { HTTP_STATUS, ERROR_MESSAGES } from "../utils/constants";
+import { ok, created, fail } from "../utils/apiResponse";
 
 export default function createEnvironmentRouter(
   environmentService: EnvironmentService,
@@ -12,7 +13,7 @@ export default function createEnvironmentRouter(
   // List environments
   router.get("/", requirePermission("view_environments"), asyncHandler(async (req, res) => {
     const rows = await environmentService.listEnvironments();
-    res.json(rows);
+    res.json(ok(rows));
   }));
 
   // Create environment
@@ -21,9 +22,9 @@ export default function createEnvironmentRouter(
     requirePermission("create_environments"),
     asyncHandler(async (req, res) => {
       const { name } = req.body;
-      if (!name) return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "name required" });
+      if (!name) return res.status(HTTP_STATUS.BAD_REQUEST).json(fail("NAME_REQUIRED", "name required"));
       const env = await environmentService.createEnvironment(name);
-      res.status(HTTP_STATUS.CREATED).json(env);
+      res.status(HTTP_STATUS.CREATED).json(created(env));
     }),
   );
 
@@ -34,8 +35,8 @@ export default function createEnvironmentRouter(
     asyncHandler(async (req, res) => {
       const id = Number(req.params.id);
       const deleted = await environmentService.deleteEnvironment(id);
-      if (deleted) return res.json({ success: true });
-      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: ERROR_MESSAGES.ENVIRONMENT_NOT_FOUND });
+      if (deleted) return res.json(ok({ success: true }));
+      return res.status(HTTP_STATUS.NOT_FOUND).json(fail("ENVIRONMENT_NOT_FOUND", ERROR_MESSAGES.ENVIRONMENT_NOT_FOUND));
     }),
   );
 
@@ -46,10 +47,10 @@ export default function createEnvironmentRouter(
     asyncHandler(async (req, res) => {
       const id = Number(req.params.id);
       const { name } = req.body;
-      if (!name) return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "name required" });
+      if (!name) return res.status(HTTP_STATUS.BAD_REQUEST).json(fail("NAME_REQUIRED", "name required"));
       const env = await environmentService.updateEnvironmentName(id, name);
-      if (env) return res.json(env);
-      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: ERROR_MESSAGES.ENVIRONMENT_NOT_FOUND });
+      if (env) return res.json(ok(env));
+      return res.status(HTTP_STATUS.NOT_FOUND).json(fail("ENVIRONMENT_NOT_FOUND", ERROR_MESSAGES.ENVIRONMENT_NOT_FOUND));
     }),
   );
 

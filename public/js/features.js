@@ -123,28 +123,21 @@ async function handleCreateFeature() {
       method: "POST",
       body: JSON.stringify({ key, description: desc }),
     });
-    if (created.error) {
-      const msgEl = document.getElementById("modalMsg");
-      if (msgEl) msgEl.innerText = created.error;
-      const keyEl = document.getElementById("modalFeatureKey");
-      if (keyEl) keyEl.classList.add("invalid");
-    } else {
-      const envSel = document.getElementById("modalEnvSelect");
-      const envId = envSel ? envSel.value : null;
-      const initialValue = document.getElementById("modalEnvToggle").checked;
-      if (envId) {
-        await authFetch(api + `/features/${created.id}/value`, {
-          method: "PUT",
-          body: JSON.stringify({
-            environmentId: Number(envId),
-            value: initialValue,
-          }),
-        });
-      }
-      document.getElementById("modalMsg").innerText = "Created " + created.key;
-      document.getElementById("modal").style.display = "none";
-      await loadFeatures();
+    const envSel = document.getElementById("modalEnvSelect");
+    const envId = envSel ? envSel.value : null;
+    const initialValue = document.getElementById("modalEnvToggle").checked;
+    if (envId) {
+      await authFetch(api + `/features/${created.id}/value`, {
+        method: "PUT",
+        body: JSON.stringify({
+          environmentId: Number(envId),
+          value: initialValue,
+        }),
+      });
     }
+    document.getElementById("modalMsg").innerText = "Created " + created.key;
+    document.getElementById("modal").style.display = "none";
+    await loadFeatures();
   } catch (err) {
     document.getElementById("modalMsg").innerText =
       err.message || "Error creating feature";

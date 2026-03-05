@@ -174,12 +174,8 @@ function createDeleteButton(u) {
   btn.onclick = async () => {
     if (!confirm('Delete user "' + u.username + '"?')) return;
     try {
-      const res = await authFetch(api + "/users/" + u.id, { method: "DELETE" });
-      if (res && res.error) {
-        alert("Error deleting user: " + res.error);
-      } else {
-        await loadUsers();
-      }
+      await authFetch(api + "/users/" + u.id, { method: "DELETE" });
+      await loadUsers();
     } catch (err) {
       alert("Error deleting user. Please try again.");
     }

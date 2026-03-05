@@ -119,10 +119,11 @@ function initLogoutButtons() {
   async function handleLogout() {
     try {
       const response = await fetch("/auth/logout", { method: "POST" });
-      if (response.ok) {
+      const data = await response.json();
+      if (data && data.success) {
         window.location.href = "/login";
       } else {
-        console.error("Logout failed");
+        console.error("Logout failed", data && data.error);
       }
     } catch (err) {
       console.error("Logout error:", err);

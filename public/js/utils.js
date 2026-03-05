@@ -13,7 +13,20 @@ function authFetch(url, opts = {}) {
   opts.headers = opts.headers || {};
   opts.headers["Content-Type"] = "application/json";
   opts.credentials = "include"; // Include cookies in request
-  return fetch(url, opts).then((r) => r.json());
+  return fetch(url, opts)
+    .then((r) => r.json())
+    .then((resp) => {
+      if (resp && resp.success) {
+        return resp.data !== undefined ? resp.data : resp;
+      } else if (resp && resp.error) {
+        // Throw error with code and message for catch blocks
+        const err = new Error(resp.error);
+        err.code = resp.code;
+        throw err;
+      } else {
+        return resp;
+      }
+    });
 }
 
 /**
