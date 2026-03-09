@@ -72,10 +72,18 @@ app.use((req, res, next) => {
 
 // Set view engine
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "..", "views"));
+
+// Determine paths based on whether running from dist (production) or src (development)
+const isDist = __dirname.includes("dist");
+const baseDir = isDist ? path.join(__dirname, "..") : process.cwd();
+
+const viewsPath = path.join(baseDir, "views");
+const publicPath = path.join(baseDir, "public");
+
+app.set("views", viewsPath);
 
 // Static assets
-app.use(express.static(path.join(__dirname, "..", "public")));
+app.use(express.static(publicPath));
 
 // Ensure admin user exists from env
 async function ensureAdmin() {
