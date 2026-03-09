@@ -3,7 +3,22 @@ import fs from "fs";
 import initSqlJs, { Database as SqlJsDatabase } from "sql.js";
 import { runMigrations, DatabaseWrapper } from "./migrations/runner";
 
-const dbFile = path.resolve(process.cwd(), "data.db");
+// Get database path from environment variable or use default
+const getDatabasePath = (): string => {
+  const dbUrl = process.env.DATABASE_URL || "./data.db";
+  // If it's a relative path starting with ./, resolve it from cwd
+  if (dbUrl.startsWith("./") || dbUrl.startsWith("../")) {
+    return path.resolve(process.cwd(), dbUrl);
+  }
+  // If it's an absolute path, use it directly
+  if (dbUrl.startsWith("/")) {
+    return dbUrl;
+  }
+  // Default: resolve relative to cwd
+  return path.resolve(process.cwd(), dbUrl);
+};
+
+const dbFile = getDatabasePath();
 
 let dbInstance: DatabaseWrapper | null = null;
 let sqlJsInstance: SqlJsDatabase | null = null;
