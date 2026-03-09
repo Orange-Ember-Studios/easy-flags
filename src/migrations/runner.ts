@@ -144,12 +144,16 @@ export async function runMigrations(
     )
   `);
 
-  // Get all migration files (from compiled .js files)
+  // Get all migration files (from compiled .js files in production or .ts in development)
   const files = fs
     .readdirSync(migrationsDir)
     .filter(
       (file) =>
-        file.endsWith(".js") && file !== "runner.js" && file !== "index.js",
+        (file.endsWith(".js") || file.endsWith(".ts")) &&
+        file !== "runner.js" &&
+        file !== "runner.ts" &&
+        file !== "index.js" &&
+        file !== "index.ts",
     )
     .sort();
 
@@ -185,10 +189,10 @@ export async function runMigrations(
     }
 
     try {
-      // Dynamically import the migration
-      const migrationModule = await import(
-        path.join(migrationsDir, migrationName)
-      );
+      // Dynamically import the migration - works with both .ts and .js files
+      // ts-node handles .ts files, node handles .js files
+      const migrationPath = path.join(migrationsDir, migrationName);
+      const migrationModule = await import(migrationPath);
       const migration = migrationModule.default as Migration;
 
       process.stdout.write(`  → ${migrationName} ... `);
@@ -232,9 +236,8 @@ export async function rollbackMigration(
   }
 
   try {
-    const migrationModule = await import(
-      path.join(migrationsDir, lastMigration.name)
-    );
+    const migrationPath = path.join(migrationsDir, lastMigration.name);
+    const migrationModule = await import(migrationPath);
     const migration = migrationModule.default as Migration;
 
     console.log(`→ Rolling back migration: ${lastMigration.name}`);
@@ -268,7 +271,11 @@ export async function getMigrationStatus(
     .readdirSync(migrationsDir)
     .filter(
       (file) =>
-        file.endsWith(".ts") && file !== "runner.ts" && file !== "index.ts",
+        (file.endsWith(".js") || file.endsWith(".ts")) &&
+        file !== "runner.js" &&
+        file !== "runner.ts" &&
+        file !== "index.js" &&
+        file !== "index.ts",
     )
     .sort();
 
