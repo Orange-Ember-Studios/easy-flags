@@ -207,6 +207,26 @@ const migration: Migration = {
         );
       }
     }
+
+    // Seed default admin user with all permissions
+    const adminUserExists = await db.get<{ id: number }>(
+      "SELECT id FROM users WHERE username = ?",
+      ["admin"],
+    );
+
+    if (!adminUserExists) {
+      const adminRole = await db.get<{ id: number }>(
+        "SELECT id FROM roles WHERE name = ?",
+        ["Admin"],
+      );
+
+      // Create admin user with placeholder password
+      // This will be replaced when user logs in or sets a new password
+      await db.run(
+        "INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)",
+        ["admin", "$2a$10$DEFAULT_ADMIN_PLACEHOLDER", adminRole?.id],
+      );
+    }
   },
 
   async down(db: DatabaseWrapper) {
