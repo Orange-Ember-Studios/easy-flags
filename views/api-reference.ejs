@@ -51,13 +51,13 @@ const endpoints = [
 ];
 %>
 <div class="page space-y-8">
-  <section class="bg-slate-900 rounded-2xl p-10 shadow-2xl border border-cyan-700/30">
+  <section class="bg-slate-900 rounded-none md:rounded-2xl p-4 md:p-10 shadow-2xl border border-cyan-700/30">
     <h1 class="text-4xl font-extrabold text-cyan-300 mb-4 drop-shadow-lg tracking-tight">API Reference</h1>
     <p class="text-lg text-slate-200 mb-6">A complete guide to using the <span class="font-mono text-cyan-400">Feature Flags API</span>. All endpoints are under <span class="font-mono text-cyan-300">/api</span>.</p>
     <div class="mb-10">
       <h2 class="text-2xl font-bold text-cyan-400 mb-3">Authentication</h2>
       <p class="text-slate-300 mb-3">Authenticate via JWT. Obtain a token by logging in:</p>
-      <div class="bg-slate-800 rounded-xl p-5 border border-cyan-700/40 shadow-lg">
+      <div class="bg-slate-800 rounded-none md:rounded-xl p-3 md:p-5 border border-cyan-700/40 shadow-lg overflow-x-auto w-full">
         <pre><code class="language-bash">curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"password"}'</code></pre>
@@ -68,7 +68,7 @@ const endpoints = [
       <h2 class="text-2xl font-bold text-cyan-400 mb-3">Endpoints</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <% endpoints.forEach(ep => { %>
-        <div class="endpoint-card bg-slate-800 rounded-xl p-6 border border-cyan-700/30 shadow-lg flex flex-col gap-2">
+        <div class="endpoint-card bg-slate-800 rounded-none md:rounded-xl p-4 md:p-6 border border-cyan-700/30 shadow-lg flex flex-col gap-2">
           <div class="flex items-center gap-2 mb-1">
             <% if (ep.method === 'GET') { %>
               <span class="inline-block px-3 py-1 rounded-full bg-blue-500 text-white text-xs font-bold">GET</span>
@@ -98,7 +98,7 @@ const endpoints = [
       
       <h3 class="text-xl font-semibold text-white mb-3 mt-6">Using EasyFlags JavaScript Library (Recommended)</h3>
       <p class="text-slate-300 mb-3">The easiest way to interact with the Feature Flags API is using the <span class="font-mono text-cyan-400">EasyFlags</span> library. It handles authentication, errors, and provides a clean API.</p>
-      <div class="bg-slate-800 rounded-xl p-5 border border-cyan-700/40 shadow-lg">
+      <div class="bg-slate-800 rounded-none md:rounded-xl p-3 md:p-5 border border-cyan-700/40 shadow-lg overflow-x-auto w-full">
         <pre><code class="language-js">// Instantiate EasyFlags before use
 const easyFlags = new EasyFlags();
 
@@ -137,7 +137,7 @@ await easyFlags.setFeatureValue(feature.id, 2, false); // Disable in staging
       </p>
 
       <h3 class="text-xl font-semibold text-white mb-3 mt-6">JavaScript/Node.js (Manual Fetch)</h3>
-      <div class="bg-slate-800 rounded-xl p-5 border border-cyan-700/40 shadow-lg">
+      <div class="bg-slate-800 rounded-none md:rounded-xl p-3 md:p-5 border border-cyan-700/40 shadow-lg overflow-x-auto w-full">
         <pre><code class="language-js">// Login and get token
 const loginRes = await fetch('/api/auth/login', {
   method: 'POST',
@@ -168,7 +168,7 @@ if (enabled) {
 </code></pre>
       </div>
       <h3 class="text-xl font-semibold text-white mb-3 mt-6">cURL</h3>
-      <div class="bg-slate-800 rounded-xl p-5 border border-cyan-700/40 shadow-lg">
+      <div class="bg-slate-800 rounded-none md:rounded-xl p-3 md:p-5 border border-cyan-700/40 shadow-lg overflow-x-auto w-full">
         <pre><code class="language-bash"># Login
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
