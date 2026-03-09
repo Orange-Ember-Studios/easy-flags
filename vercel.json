@@ -5,11 +5,6 @@
     "env": {
         "NODE_ENV": "production"
     },
-    "functions": {
-        "src/index.ts": {
-            "runtime": "nodejs18.x"
-        }
-    },
     "headers": [
         {
             "source": "/lib/(.*)",
