@@ -43,6 +43,7 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
   const [inviteRole, setInviteRole] = useState<"admin" | "editor" | "viewer">("editor");
   const [selectedMemberForEdit, setSelectedMemberForEdit] = useState<TeamMember | null>(null);
   const [editingRole, setEditingRole] = useState<"admin" | "editor" | "viewer">("editor");
+  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
 
   const handleInviteMember = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +82,7 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
   const handleRemoveMember = (memberId: number) => {
     setMembers(members.filter((m) => m.id !== memberId));
     setSelectedMemberForEdit(null);
+    setMemberToRemove(null);
   };
 
   const roleDescriptions: Record<string, string> = {
@@ -150,7 +152,7 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                       <p className="font-semibold text-white">{member.name}</p>
                       <p className="text-xs text-slate-400">{member.email}</p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span
                         className={`flex items-center justify-center gap-1 w-24 px-3 py-1 rounded text-xs font-semibold border ${roleColors[member.role].bg} ${roleColors[member.role].text} ${roleColors[member.role].border}`}
                       >
@@ -159,10 +161,17 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                       </span>
                       <button
                         onClick={() => handleEditMember(member)}
-                        className="text-slate-500 hover:text-slate-300 p-1 hover:bg-slate-800 rounded transition"
+                        className="text-slate-500 hover:text-slate-300 p-2 hover:bg-slate-800 rounded transition"
                         title="Edit permissions"
                       >
                         ⋮
+                      </button>
+                      <button
+                        onClick={() => setMemberToRemove(member)}
+                        className="text-slate-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded transition"
+                        title="Remove user"
+                      >
+                        ✕
                       </button>
                     </div>
                   </div>
@@ -392,6 +401,50 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                   className="flex-1 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-sm font-semibold transition"
                 >
                   Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Confirmation Modal */}
+      {memberToRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-md w-full mx-4 shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-500/20 to-slate-800 px-6 py-8 border-b border-slate-700">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-lg border border-red-500/30">
+                  ⚠️
+                </div>
+                <h2 className="text-xl font-bold text-white">Remove User</h2>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              <p className="text-slate-300">
+                Are you sure you want to remove{" "}
+                <span className="font-semibold text-white">{memberToRemove.name}</span> from this space?
+              </p>
+              <p className="text-sm text-slate-400">
+                This action cannot be undone. They will lose access to all features and environments.
+              </p>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setMemberToRemove(null)}
+                  className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded text-sm font-semibold transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleRemoveMember(memberToRemove.id)}
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded text-sm font-semibold transition"
+                >
+                  Remove User
                 </button>
               </div>
             </div>
