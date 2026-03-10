@@ -41,121 +41,40 @@ export default function BillingPanel() {
           setUser(userData.data);
         }
 
-        // Default plans to show
-        const defaultPlans: BillingPlan[] = [
-          {
-            name: "Starter",
-            price: 29,
-            features: [
-              "Up to 1,000 monthly flag evaluations",
-              "2 team members",
-              "Basic analytics",
-              "Email support",
-            ],
-          },
-          {
-            name: "Professional",
-            price: 99,
-            features: [
-              "Up to 100,000 monthly flag evaluations",
-              "10 team members",
-              "Advanced analytics",
-              "Priority email support",
-              "Custom integrations",
-            ],
-            recommended: true,
-          },
-          {
-            name: "Enterprise",
-            price: 299,
-            features: [
-              "Unlimited flag evaluations",
-              "Unlimited team members",
-              "Advanced analytics & reports",
-              "24/7 phone & email support",
-              "Custom integrations",
-              "SLA guarantee",
-            ],
-          },
-        ];
-
         // Fetch prices from Stripe
-        try {
-          const pricesResponse = await fetch("/api/stripe/prices");
+        const pricesResponse = await fetch("/api/stripe/prices");
 
-          if (pricesResponse.ok) {
-            const pricesData = await pricesResponse.json();
-            console.log("Stripe prices response:", pricesData);
+        if (pricesResponse.ok) {
+          const pricesData = await pricesResponse.json();
+          console.log("Stripe prices response:", pricesData);
 
-            if (
-              pricesData.success &&
-              pricesData.data &&
-              pricesData.data.length > 0
-            ) {
-              // Map Stripe prices to billing plans
-              const mappedPlans: BillingPlan[] = defaultPlans.map((plan) => ({
-                ...plan,
-                priceId: pricesData.data.find((p: StripePrice) =>
-                  p.product?.name
-                    ?.toLowerCase()
-                    .includes(plan.name.toLowerCase()),
-                )?.id,
-              }));
-              console.log("Mapped plans:", mappedPlans);
-              setPlans(mappedPlans);
-            } else {
-              console.warn("No Stripe prices found, using defaults");
-              setPlans(defaultPlans);
-            }
+          if (
+            pricesData.success &&
+            pricesData.data &&
+            pricesData.data.length > 0
+          ) {
+            // Convert Stripe prices directly to billing plans
+            const stripePlans: BillingPlan[] = pricesData.data.map(
+              (price: StripePrice) => ({
+                name: price.product?.name || "Plan",
+                price: Math.ceil((price.unit_amount || 0) / 100),
+                features: [],
+                priceId: price.id,
+              }),
+            );
+            console.log("Mapped plans:", stripePlans);
+            setPlans(stripePlans);
           } else {
-            const errorData = await pricesResponse.json();
-            console.warn("Failed to fetch prices:", errorData);
-            setPlans(defaultPlans);
+            setError("No pricing plans available");
           }
-        } catch (stripeErr) {
-          console.warn("Error fetching Stripe prices:", stripeErr);
-          setPlans(defaultPlans);
+        } else {
+          const errorData = await pricesResponse.json();
+          console.error("Failed to fetch prices:", errorData);
+          setError("Failed to load pricing plans");
         }
       } catch (err) {
-        console.error("Error fetching user:", err);
-        // Still show plans even if user fetch fails
-        const defaultPlans: BillingPlan[] = [
-          {
-            name: "Starter",
-            price: 29,
-            features: [
-              "Up to 1,000 monthly flag evaluations",
-              "2 team members",
-              "Basic analytics",
-              "Email support",
-            ],
-          },
-          {
-            name: "Professional",
-            price: 99,
-            features: [
-              "Up to 100,000 monthly flag evaluations",
-              "10 team members",
-              "Advanced analytics",
-              "Priority email support",
-              "Custom integrations",
-            ],
-            recommended: true,
-          },
-          {
-            name: "Enterprise",
-            price: 299,
-            features: [
-              "Unlimited flag evaluations",
-              "Unlimited team members",
-              "Advanced analytics & reports",
-              "24/7 phone & email support",
-              "Custom integrations",
-              "SLA guarantee",
-            ],
-          },
-        ];
-        setPlans(defaultPlans);
+        console.error("Error fetching data:", err);
+        setError("An error occurred while loading pricing plans");
       } finally {
         setLoading(false);
       }
@@ -217,6 +136,15 @@ export default function BillingPanel() {
       {loading ? (
         <div className="text-center py-12">
           <p className="text-slate-400">Loading pricing plans...</p>
+        </div>
+      ) : error || plans.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-slate-400">
+            {error || "No pricing plans available at this time"}
+          </p>
+          <p className="text-slate-500 text-sm mt-2">
+            Please check back later or contact support
+          </p>
         </div>
       ) : (
         <>
