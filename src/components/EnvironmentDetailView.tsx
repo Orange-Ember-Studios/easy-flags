@@ -89,15 +89,13 @@ export default function EnvironmentDetailView({
       />
 
       <div className="max-w-6xl mx-auto py-12 px-4">
-        {/* Header */}
+        {/* Header Section */}
         <div className="mb-12">
-          {envDescription && (
-            <div
-              className={`bg-gradient-to-br ${colors.bg} border ${colors.border} rounded-lg p-6 mb-8`}
-            >
-              <p className="text-slate-300 text-lg">{envDescription}</p>
-            </div>
-          )}
+          <div className="flex flex-col mb-6">
+            <p className="text-slate-400">
+              {envDescription || "Configure and manage this environment's settings, API keys, and deployments."}
+            </p>
+          </div>
         </div>
 
         {/* Main Content Grid */}
