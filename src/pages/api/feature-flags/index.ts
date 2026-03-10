@@ -1,0 +1,57 @@
+/**
+ * API Handler - Feature Flags
+ */
+
+import type { APIRoute } from "astro";
+import { FeatureFlagService } from "@application/services";
+export const prerender = false;
+export const GET: APIRoute = async ({ params }) => {
+  try {
+    const flagService = new FeatureFlagService();
+    const { environmentId, featureId } = params;
+
+    if (environmentId) {
+      // Get flags for environment
+      const flags = await flagService.getEnvironmentFlags(
+        parseInt(environmentId as string),
+      );
+      return new Response(JSON.stringify(flags), { status: 200 });
+    } else if (featureId) {
+      // Get flags for feature
+      const flags = await flagService.getFeatureFlags(
+        parseInt(featureId as string),
+      );
+      return new Response(JSON.stringify(flags), { status: 200 });
+    }
+
+    return new Response(JSON.stringify({ error: "Missing parameters" }), {
+      status: 400,
+    });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Internal server error",
+      }),
+      { status: 500 },
+    );
+  }
+};
+
+export const POST: APIRoute = async ({ request, params }) => {
+  try {
+    const flagService = new FeatureFlagService();
+    const body = await request.json();
+    const flag = await flagService.createFeatureFlag(
+      body.feature_id,
+      body.environment_id,
+    );
+    return new Response(JSON.stringify(flag), { status: 201 });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Internal server error",
+      }),
+      { status: 500 },
+    );
+  }
+};

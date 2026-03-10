@@ -1,7 +1,6 @@
 {
     "buildCommand": "pnpm build",
     "devCommand": "pnpm dev",
-    "outputDirectory": "dist",
     "env": {
         "NODE_ENV": "production"
     }

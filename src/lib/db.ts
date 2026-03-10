@@ -107,11 +107,51 @@ export async function initializeDatabase(): Promise<void> {
       UNIQUE(feature_id, environment_id)
     );
 
+    CREATE TABLE IF NOT EXISTS environment_configs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      environment_id INTEGER NOT NULL,
+      key TEXT NOT NULL,
+      default_value TEXT NOT NULL,
+      overridden_value TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (environment_id) REFERENCES environments(id),
+      UNIQUE(environment_id, key)
+    );
+
+    CREATE TABLE IF NOT EXISTS api_keys (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      environment_id INTEGER NOT NULL,
+      key TEXT UNIQUE NOT NULL,
+      last_used DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (environment_id) REFERENCES environments(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS advanced_configurations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      feature_flag_id INTEGER NOT NULL,
+      rollout_percentage INTEGER DEFAULT 0,
+      rollout_start_date DATETIME,
+      rollout_end_date DATETIME,
+      default_value TEXT,
+      scheduling_enabled BOOLEAN DEFAULT 0,
+      schedule_start_date DATETIME,
+      schedule_start_time TEXT,
+      schedule_end_date DATETIME,
+      schedule_end_time TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (feature_flag_id) REFERENCES feature_flags(id),
+      UNIQUE(feature_flag_id)
+    );
+
     CREATE TABLE IF NOT EXISTS targeting_rules (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       feature_flag_id INTEGER NOT NULL,
       rule_type TEXT NOT NULL,
       rule_value TEXT NOT NULL,
+      operator TEXT DEFAULT 'equals',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (feature_flag_id) REFERENCES feature_flags(id)
     );

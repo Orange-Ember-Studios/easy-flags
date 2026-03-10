@@ -20,6 +20,18 @@
             ],
             "@api/*": [
                 "src/api/*"
+            ],
+            "@domain/*": [
+                "src/domain/*"
+            ],
+            "@application/*": [
+                "src/application/*"
+            ],
+            "@infrastructure/*": [
+                "src/infrastructure/*"
+            ],
+            "@lib/*": [
+                "src/lib/*"
             ]
         }
     }
