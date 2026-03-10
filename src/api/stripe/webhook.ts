@@ -7,7 +7,9 @@ export const POST: APIRoute = async (context) => {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
   if (!webhookSecret) {
-    console.warn("STRIPE_WEBHOOK_SECRET not set; webhook verification disabled");
+    console.warn(
+      "STRIPE_WEBHOOK_SECRET not set; webhook verification disabled",
+    );
     return new Response(
       JSON.stringify({
         success: false,
@@ -31,7 +33,10 @@ export const POST: APIRoute = async (context) => {
         webhookSecret,
       ) as Stripe.Event;
     } catch (err: any) {
-      console.error("Stripe webhook signature verification failed:", err.message);
+      console.error(
+        "Stripe webhook signature verification failed:",
+        err.message,
+      );
       return new Response(
         JSON.stringify({
           success: false,
@@ -68,13 +73,10 @@ export const POST: APIRoute = async (context) => {
         console.log(`Unhandled event type: ${event.type}`);
     }
 
-    return new Response(
-      JSON.stringify({ received: true }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error: any) {
     console.error("Error handling Stripe webhook:", error);
     return new Response(

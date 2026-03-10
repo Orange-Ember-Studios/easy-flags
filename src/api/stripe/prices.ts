@@ -3,11 +3,15 @@ import { stripeClient } from "@/lib/stripeClient";
 
 export const GET: APIRoute = async (context) => {
   try {
+    console.log("Fetching Stripe prices...");
+    
     const prices = await stripeClient.prices.list({
       active: true,
       expand: ["data.product"],
       limit: 100,
     });
+
+    console.log(`Found ${prices.data.length} active prices`);
 
     const mapped = prices.data.map((p: any) => ({
       id: p.id,
@@ -24,6 +28,8 @@ export const GET: APIRoute = async (context) => {
           : null,
     }));
 
+    console.log("Mapped prices:", mapped);
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -35,7 +41,7 @@ export const GET: APIRoute = async (context) => {
       },
     );
   } catch (error: any) {
-    console.error("Error fetching Stripe prices:", error);
+    console.error("Error fetching Stripe prices:", error.message, error);
     return new Response(
       JSON.stringify({
         success: false,

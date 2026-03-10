@@ -41,66 +41,120 @@ export default function BillingPanel() {
           setUser(userData.data);
         }
 
+        // Default plans to show
+        const defaultPlans: BillingPlan[] = [
+          {
+            name: "Starter",
+            price: 29,
+            features: [
+              "Up to 1,000 monthly flag evaluations",
+              "2 team members",
+              "Basic analytics",
+              "Email support",
+            ],
+          },
+          {
+            name: "Professional",
+            price: 99,
+            features: [
+              "Up to 100,000 monthly flag evaluations",
+              "10 team members",
+              "Advanced analytics",
+              "Priority email support",
+              "Custom integrations",
+            ],
+            recommended: true,
+          },
+          {
+            name: "Enterprise",
+            price: 299,
+            features: [
+              "Unlimited flag evaluations",
+              "Unlimited team members",
+              "Advanced analytics & reports",
+              "24/7 phone & email support",
+              "Custom integrations",
+              "SLA guarantee",
+            ],
+          },
+        ];
+
         // Fetch prices from Stripe
-        const pricesResponse = await fetch("/api/stripe/prices");
-        if (pricesResponse.ok) {
-          const pricesData = await pricesResponse.json();
-          if (pricesData.success && pricesData.data) {
-            // Map Stripe prices to billing plans
-            const mappedPlans: BillingPlan[] = [
-              {
-                name: "Starter",
-                price: 29,
-                features: [
-                  "Up to 1,000 monthly flag evaluations",
-                  "2 team members",
-                  "Basic analytics",
-                  "Email support",
-                ],
-                priceId: pricesData.data.find(
-                  (p: StripePrice) =>
-                    p.product?.name?.toLowerCase().includes("starter"),
+        try {
+          const pricesResponse = await fetch("/api/stripe/prices");
+          if (pricesResponse.ok) {
+            const pricesData = await pricesResponse.json();
+            console.log("Stripe prices response:", pricesData);
+
+            if (
+              pricesData.success &&
+              pricesData.data &&
+              pricesData.data.length > 0
+            ) {
+              // Map Stripe prices to billing plans
+              const mappedPlans: BillingPlan[] = defaultPlans.map((plan) => ({
+                ...plan,
+                priceId: pricesData.data.find((p: StripePrice) =>
+                  p.product?.name
+                    ?.toLowerCase()
+                    .includes(plan.name.toLowerCase()),
                 )?.id,
-              },
-              {
-                name: "Professional",
-                price: 99,
-                features: [
-                  "Up to 100,000 monthly flag evaluations",
-                  "10 team members",
-                  "Advanced analytics",
-                  "Priority email support",
-                  "Custom integrations",
-                ],
-                recommended: true,
-                priceId: pricesData.data.find(
-                  (p: StripePrice) =>
-                    p.product?.name?.toLowerCase().includes("professional"),
-                )?.id,
-              },
-              {
-                name: "Enterprise",
-                price: 299,
-                features: [
-                  "Unlimited flag evaluations",
-                  "Unlimited team members",
-                  "Advanced analytics & reports",
-                  "24/7 phone & email support",
-                  "Custom integrations",
-                  "SLA guarantee",
-                ],
-                priceId: pricesData.data.find(
-                  (p: StripePrice) =>
-                    p.product?.name?.toLowerCase().includes("enterprise"),
-                )?.id,
-              },
-            ];
-            setPlans(mappedPlans);
+              }));
+              console.log("Mapped plans:", mappedPlans);
+              setPlans(mappedPlans);
+            } else {
+              console.warn("No Stripe prices found, using defaults");
+              setPlans(defaultPlans);
+            }
+          } else {
+            const errorData = await pricesResponse.json();
+            console.warn("Failed to fetch prices:", errorData);
+            setPlans(defaultPlans);
           }
+        } catch (stripeErr) {
+          console.warn("Error fetching Stripe prices:", stripeErr);
+          setPlans(defaultPlans);
         }
       } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load pricing information");
+        console.error("Error fetching user:", err);
+        // Still show plans even if user fetch fails
+        const defaultPlans: BillingPlan[] = [
+          {
+            name: "Starter",
+            price: 29,
+            features: [
+              "Up to 1,000 monthly flag evaluations",
+              "2 team members",
+              "Basic analytics",
+              "Email support",
+            ],
+          },
+          {
+            name: "Professional",
+            price: 99,
+            features: [
+              "Up to 100,000 monthly flag evaluations",
+              "10 team members",
+              "Advanced analytics",
+              "Priority email support",
+              "Custom integrations",
+            ],
+            recommended: true,
+          },
+          {
+            name: "Enterprise",
+            price: 299,
+            features: [
+              "Unlimited flag evaluations",
+              "Unlimited team members",
+              "Advanced analytics & reports",
+              "24/7 phone & email support",
+              "Custom integrations",
+              "SLA guarantee",
+            ],
+          },
+        ];
+        setPlans(defaultPlans);
       } finally {
         setLoading(false);
       }
@@ -149,7 +203,7 @@ export default function BillingPanel() {
     } finally {
       setLoadingCheckout(null);
     }
-  }
+  };
 
   return (
     <div className="space-y-8">
@@ -184,7 +238,8 @@ export default function BillingPanel() {
                   : "border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
               }`}
             >
-              Yearly <span className="text-xs text-cyan-300 ml-1">(Save 20%)</span>
+              Yearly{" "}
+              <span className="text-xs text-cyan-300 ml-1">(Save 20%)</span>
             </button>
           </div>
 
@@ -226,7 +281,9 @@ export default function BillingPanel() {
                       : ""
                   }`}
                 >
-                  {loadingCheckout === plan.name ? "Processing..." : "Get Started"}
+                  {loadingCheckout === plan.name
+                    ? "Processing..."
+                    : "Get Started"}
                 </button>
 
                 <div className="space-y-3">
@@ -259,7 +316,10 @@ export default function BillingPanel() {
               Need something different? Contact our sales team for a custom plan
               tailored to your needs.
             </p>
-            <a href="/contact" className="text-cyan-400 hover:text-cyan-300 transition">
+            <a
+              href="/contact"
+              className="text-cyan-400 hover:text-cyan-300 transition"
+            >
               Get in touch →
             </a>
           </div>
