@@ -2,6 +2,8 @@ import type { APIRoute } from "astro";
 import { getUserFromContext } from "@/utils/auth";
 import { successResponse, unauthorizedResponse } from "@/utils/api";
 
+export const prerender = false;
+
 export const GET: APIRoute = async (context) => {
   const user = getUserFromContext(context);
 

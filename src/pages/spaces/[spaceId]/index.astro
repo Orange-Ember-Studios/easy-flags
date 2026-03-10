@@ -1,0 +1,12 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SpaceDetailView from "@/components/SpaceDetailView";
+
+export const prerender = false;
+
+const { spaceId } = Astro.params;
+---
+
+<BaseLayout title="Space Details" includeHeader={true}>
+  <SpaceDetailView client:load spaceId={spaceId} />
+</BaseLayout>

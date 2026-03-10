@@ -4,8 +4,8 @@ let db: Client | null = null;
 
 export async function getDatabase(): Promise<Client> {
   if (!db) {
-    const url = process.env.DATABASE_URL || "file:./data.db";
-    const authToken = process.env.DATABASE_AUTH_TOKEN;
+    const url = import.meta.env.DATABASE_URL || "file:./data.db";
+    const authToken = import.meta.env.DATABASE_AUTH_TOKEN;
 
     db = createClient({
       url,

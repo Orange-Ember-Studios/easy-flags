@@ -17,11 +17,64 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
             features are visible to your users, enabling safe rollouts, A/B
             testing, and gradual deployments.
           </p>
-          <p class="text-slate-400">
+          <p class="text-slate-400 mb-6">
             Whether you're a developer integrating feature flags or a manager
             controlling feature visibility, this documentation covers everything
             you need to know.
           </p>
+
+          <!-- Hierarchy Explanation -->
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Understanding the Hierarchy:
+            </h4>
+            <div class="text-slate-400 text-sm space-y-3">
+              <div>
+                <p class="text-cyan-300 font-semibold mb-1">
+                  📦 Spaces = Organizations/Projects
+                </p>
+                <p class="text-slate-500">
+                  Think of a Space as a company, team, or product. Examples:
+                  "Acme Corp", "Mobile App", "E-commerce Platform"
+                </p>
+              </div>
+              <div>
+                <p class="text-cyan-300 font-semibold mb-1">
+                  🌍 Environments = Deployment Stages
+                </p>
+                <p class="text-slate-500">
+                  Each Space contains environments where you control features.
+                  Standard environments: Production, Staging, Development
+                </p>
+              </div>
+              <div>
+                <p class="text-cyan-300 font-semibold mb-1">
+                  ⚙️ Features = Feature Flags
+                </p>
+                <p class="text-slate-500">
+                  Features are configured independently per environment. You can
+                  enable "new_dashboard" in Staging but keep it disabled in
+                  Production.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 p-4 rounded border border-cyan-500/10 text-sm font-mono text-slate-300">
+            <p class="text-cyan-300 mb-2">Example Structure:</p>
+            <p>📦 Space: "Acme Corp"</p>
+            <p class="text-slate-500 ml-4">├─ 🌍 Environment: Production</p>
+            <p class="text-slate-500 ml-4">│ ├─ ⚙️ Feature: new_dashboard (enabled: 100%)</p>
+            <p class="text-slate-500 ml-4">│ └─ ⚙️ Feature: dark_mode (enabled: 50%)</p>
+            <p class="text-slate-500 ml-4">├─ 🌍 Environment: Staging</p>
+            <p class="text-slate-500 ml-4">│ ├─ ⚙️ Feature: new_dashboard (enabled: 100%)</p>
+            <p class="text-slate-500 ml-4">│ └─ ⚙️ Feature: dark_mode (enabled: 100%)</p>
+            <p class="text-slate-500 ml-4">└─ 🌍 Environment: Development</p>
+            <p class="text-slate-500 ml-4">  ├─ ⚙️ Feature: new_dashboard (enabled: 100%)</p>
+            <p class="text-slate-500 ml-4">  └─ ⚙️ Feature: dark_mode (enabled: 100%)</p>
+          </div>
         </section>
       </div>
 
@@ -32,10 +85,27 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
             Creating and Managing Spaces
           </h3>
           <p class="text-slate-400 mb-4">
-            A space is your primary organizational unit. All feature flags,
-            environments, and team members belong to a space. Think of it as a
-            project or application container.
+            A <span class="text-cyan-300 font-semibold">Space</span> represents
+            your organization, company, or project. It's the top-level container
+            for all your feature flags. All features, environments, and team
+            members belong to a space.
           </p>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">Space Examples:</h4>
+            <ul class="text-slate-400 space-y-2 ml-4">
+              <li>✓ "Acme Corporation" - main company product</li>
+              <li>✓ "Mobile App" - iOS/Android application</li>
+              <li>✓ "E-commerce Platform" - online store</li>
+              <li>✓ "Internal Tools" - employee-facing applications</li>
+              <li class="text-slate-500">
+                ✗ NOT "Production", "Staging", "Development" (those are
+                environments)
+              </li>
+            </ul>
+          </div>
 
           <div
             class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
@@ -55,7 +125,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
               <li>
                 Enter a descriptive <span class="text-cyan-300 font-semibold"
                   >Space Name</span
-                > (e.g., "Mobile App", "Web Platform")
+                > (e.g., "Acme Corp", "Mobile App")
               </li>
               <li>
                 Add an optional <span class="text-cyan-300 font-semibold"
@@ -75,8 +145,12 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
             </h4>
             <ul class="text-slate-400 space-y-2 ml-4">
               <li>
-                • <span class="text-cyan-300 font-semibold">Edit</span>: Modify
-                space name and description anytime
+                • <span class="text-cyan-300 font-semibold">Environments</span
+                >: Add production, staging, development environments to your space
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold">Features</span>:
+                Create feature flags and control them per environment
               </li>
               <li>
                 • <span class="text-cyan-300 font-semibold">Invite Members</span

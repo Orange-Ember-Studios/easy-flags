@@ -2,6 +2,8 @@ import type { APIRoute } from "astro";
 import { clearAuthCookie } from "@/utils/auth";
 import { successResponse } from "@/utils/api";
 
+export const prerender = false;
+
 export const POST: APIRoute = async (context) => {
   clearAuthCookie(context);
   return new Response(

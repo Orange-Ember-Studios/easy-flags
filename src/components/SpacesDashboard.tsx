@@ -76,15 +76,31 @@ export default function SpacesDashboard() {
         <div>
           <h1 className="text-3xl font-bold text-gradient mb-2">Spaces</h1>
           <p className="text-slate-400">
-            Manage your feature flag spaces and environments
+            Spaces represent your organizations or projects. Each space contains
+            features, and features exist in environments (Production, Staging,
+            Development, etc.)
           </p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="btn-primary"
+          className="btn-primary whitespace-nowrap"
         >
           + Create Space
         </button>
+      </div>
+
+      {/* Hierarchy visualization */}
+      <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4">
+        <p className="text-sm text-slate-400 mb-3">
+          <span className="text-cyan-300 font-semibold">Hierarchy:</span>
+        </p>
+        <div className="text-sm text-slate-300 font-mono ml-4 space-y-1">
+          <div>📦 Space: "Acme Corp"</div>
+          <div className="ml-4">├─ 🌍 Environment: Production</div>
+          <div className="ml-4">├─ 🌍 Environment: Staging</div>
+          <div className="ml-4">├─ 🌍 Environment: Development</div>
+          <div className="ml-4">└─ ⚙️ Features (configured per environment)</div>
+        </div>
       </div>
 
       {spaces.length === 0 ? (
@@ -93,8 +109,12 @@ export default function SpacesDashboard() {
           <h2 className="text-2xl font-bold text-cyan-300 mb-2">
             No spaces yet
           </h2>
-          <p className="text-slate-400 mb-6">
-            Create your first space to get started with feature flags
+          <p className="text-slate-400 mb-4">
+            A space represents your organization or project. Create your first
+            space to get started with feature flags.
+          </p>
+          <p className="text-slate-500 text-sm mb-6">
+            Example: "Acme Corp", "Mobile App", "E-commerce Platform", etc.
           </p>
           <button
             onClick={() => setShowCreateModal(true)}

@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
 import { stripeClient } from "@/lib/stripeClient";
 
+export const prerender = false;
+
 export const GET: APIRoute = async (context) => {
   try {
     console.log("Fetching Stripe prices...");

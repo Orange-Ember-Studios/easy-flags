@@ -6,6 +6,8 @@ import {
   badRequestResponse,
 } from "@/utils/api";
 
+export const prerender = false;
+
 // This is a placeholder - in production, you would:
 // 1. Import the SpaceRepository and SpaceService from the Express app
 // 2. Use the database connection to fetch/create spaces
@@ -21,20 +23,22 @@ export const GET: APIRoute = async (context) => {
   }
 
   // TODO: Use SpaceRepository to fetch user's spaces
-  // For demo, returning mock data
+  // For demo, returning mock data with correct hierarchy:
+  // Spaces = Organizations/Projects (e.g., "Acme Corp", "Mobile App")
+  // Environments = Deployment stages (Production, Staging, Development)
   const mockSpaces = [
     {
       id: 1,
-      name: "Production",
-      description: "Production environment",
+      name: "Acme Corporation",
+      description: "Feature flags for the main Acme product",
       owner_id: user.id,
       members_count: 5,
       created_at: new Date().toISOString(),
     },
     {
       id: 2,
-      name: "Staging",
-      description: "Staging environment",
+      name: "Mobile App",
+      description: "Feature management for iOS and Android apps",
       owner_id: user.id,
       members_count: 3,
       created_at: new Date().toISOString(),

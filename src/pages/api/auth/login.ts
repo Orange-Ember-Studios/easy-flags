@@ -1,18 +1,40 @@
 import type { APIRoute } from "astro";
 import { setAuthCookie, signToken } from "@/utils/auth";
 import { successResponse, badRequestResponse } from "@/utils/api";
+import { verifyCredentials } from "@/lib/auth-service";
 
-// This is a placeholder - in a real implementation,
-// we would use the database repositories from the Express app
-// For now, this demonstrates the structure
+// Prevent static pre-rendering for this API route
+export const prerender = false;
 
 export const POST: APIRoute = async (context) => {
   try {
+    console.log("🔍 login.ts - Received request");
+    console.log("📋 Content-Type:", context.request.headers.get("content-type"));
+    console.log("📦 Method:", context.request.method);
+    
     let body;
     try {
-      body = await context.request.json();
+      // Clone the request to avoid consuming the stream
+      const clonedRequest = context.request.clone();
+      const text = await clonedRequest.text();
+      console.log("📝 Raw body text:", text);
+      console.log("📐 Body length:", text.length);
+      console.log("🔤 Body trimmed:", text.trim());
+      console.log("✔ Body is empty?", !text || text.trim() === "");
+      
+      if (!text || text.trim() === "") {
+        console.error("❌ Empty request body");
+        return new Response(
+          JSON.stringify(
+            badRequestResponse("Request body cannot be empty"),
+          ),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      body = JSON.parse(text);
+      console.log("✅ Parsed body:", body);
     } catch (parseError) {
-      console.error("JSON parse error:", parseError);
+      console.error("❌ JSON parse error:", parseError);
       return new Response(
         JSON.stringify(
           badRequestResponse("Invalid request format. Please send valid JSON."),
@@ -32,10 +54,6 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    // TODO: Validate credentials against database
-    // For demo purposes, we'll accept any non-empty username/password combination
-    // In production, use the UserRepository and AuthService
-
     if (username.trim() === "" || password.trim() === "") {
       return new Response(
         JSON.stringify(
@@ -45,22 +63,41 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    const user = {
-      id: Math.floor(Math.random() * 1000000),
-      username,
-      email: `${username}@example.com`,
-      role_id: 1,
-    };
+    // Verify credentials against database
+    const user = await verifyCredentials(username, password);
 
-    const token = signToken(user);
+    if (!user) {
+      console.warn(`Failed login attempt for username: ${username}`);
+      return new Response(
+        JSON.stringify(
+          badRequestResponse("Invalid username or password"),
+        ),
+        { status: 401, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    // Create authentication token
+    const token = signToken({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role_id: user.role_id,
+    });
+
+    // Set authentication cookie
     setAuthCookie(context, token);
 
-    console.log(`✅ Login successful for user: ${username}`);
+    console.log(`✅ Login successful for user: ${username} (ID: ${user.id})`);
 
     return new Response(
       JSON.stringify(
         successResponse({
-          user,
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role_id: user.role_id,
+          },
           token,
         }),
       ),
@@ -80,7 +117,7 @@ export const POST: APIRoute = async (context) => {
             : "Login failed. Please try again.",
         ),
       ),
-      { status: 400, headers: { "Content-Type": "application/json" } },
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 };

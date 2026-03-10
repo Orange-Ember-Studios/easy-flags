@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
 import { stripeClient } from "@/lib/stripeClient";
 
+export const prerender = false;
+
 interface CheckoutRequest {
   priceId: string;
   successUrl: string;

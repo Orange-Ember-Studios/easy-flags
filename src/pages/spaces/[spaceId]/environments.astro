@@ -1,0 +1,12 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import EnvironmentsView from "@/components/EnvironmentsView";
+
+export const prerender = false;
+
+const { spaceId } = Astro.params;
+---
+
+<BaseLayout title="Environments" includeHeader={true}>
+  <EnvironmentsView client:load spaceId={spaceId} />
+</BaseLayout>

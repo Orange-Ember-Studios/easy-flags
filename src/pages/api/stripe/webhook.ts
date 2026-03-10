@@ -2,6 +2,8 @@ import type { APIRoute } from "astro";
 import { stripeClient } from "@/lib/stripeClient";
 import type { Stripe } from "stripe";
 
+export const prerender = false;
+
 export const POST: APIRoute = async (context) => {
   const sig = context.request.headers.get("stripe-signature") || "";
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";

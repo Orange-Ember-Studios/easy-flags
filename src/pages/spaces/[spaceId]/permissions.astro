@@ -1,0 +1,12 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PermissionsView from "@/components/PermissionsView";
+
+export const prerender = false;
+
+const { spaceId } = Astro.params;
+---
+
+<BaseLayout title="Permissions & Team" includeHeader={true}>
+  <PermissionsView client:load spaceId={spaceId} />
+</BaseLayout>

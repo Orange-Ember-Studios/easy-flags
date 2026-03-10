@@ -20,17 +20,29 @@ export default function LoginForm() {
 
     try {
       console.log("Attempting login with username:", username);
+      const payload = { username, password };
+      console.log("📤 Sending payload:", payload);
+      console.log("📤 Payload JSON stringified:", JSON.stringify(payload));
       
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(payload),
       });
 
       console.log("Login response status:", response.status);
-
-      const data = await response.json();
+      const text = await response.text();
+      console.log("📥 Response text:", text);
+      
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Failed to parse response:", text);
+        setError("Invalid response from server");
+        return;
+      }
       
       console.log("Login response data:", data);
 

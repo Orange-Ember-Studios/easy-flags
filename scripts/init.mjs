@@ -9,6 +9,7 @@
  */
 
 import { createClient } from "@libsql/client";
+import bcrypt from "bcryptjs";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
@@ -211,16 +212,19 @@ async function seedDefaultData(client) {
     const adminUser = {
       username: process.env.ADMIN_USER || "admin",
       email: "admin@example.com",
-      password_hash: process.env.ADMIN_PASS || "password",
+      passwordPlain: process.env.ADMIN_PASS || "password",
       role_id: 1,
     };
+
+    // Hash the password
+    const passwordHash = await bcrypt.hash(adminUser.passwordPlain, 10);
 
     await client.execute({
       sql: "INSERT INTO users (username, email, password_hash, role_id) VALUES (?, ?, ?, ?)",
       args: [
         adminUser.username,
         adminUser.email,
-        adminUser.password_hash,
+        passwordHash,
         adminUser.role_id,
       ],
     });
