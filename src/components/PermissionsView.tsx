@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SpaceNavigation from "./SpaceNavigation";
+import PageContainer from "./PageContainer";
 
 interface TeamMember {
   id: number;
@@ -40,9 +40,14 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"admin" | "editor" | "viewer">("editor");
-  const [selectedMemberForEdit, setSelectedMemberForEdit] = useState<TeamMember | null>(null);
-  const [editingRole, setEditingRole] = useState<"admin" | "editor" | "viewer">("editor");
+  const [inviteRole, setInviteRole] = useState<"admin" | "editor" | "viewer">(
+    "editor",
+  );
+  const [selectedMemberForEdit, setSelectedMemberForEdit] =
+    useState<TeamMember | null>(null);
+  const [editingRole, setEditingRole] = useState<"admin" | "editor" | "viewer">(
+    "editor",
+  );
   const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
 
   const handleInviteMember = (e: React.FormEvent) => {
@@ -73,8 +78,8 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
 
     setMembers(
       members.map((m) =>
-        m.id === selectedMemberForEdit.id ? { ...m, role: editingRole } : m
-      )
+        m.id === selectedMemberForEdit.id ? { ...m, role: editingRole } : m,
+      ),
     );
     setSelectedMemberForEdit(null);
   };
@@ -97,24 +102,39 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
     viewer: "👁️",
   };
 
-  const roleColors: Record<string, { bg: string; text: string; border: string }> = {
-    admin: { bg: "bg-red-500/20", text: "text-red-300", border: "border-red-500/30" },
-    editor: { bg: "bg-yellow-500/20", text: "text-yellow-300", border: "border-yellow-500/30" },
-    viewer: { bg: "bg-blue-500/20", text: "text-blue-300", border: "border-blue-500/30" },
+  const roleColors: Record<
+    string,
+    { bg: string; text: string; border: string }
+  > = {
+    admin: {
+      bg: "bg-red-500/20",
+      text: "text-red-300",
+      border: "border-red-500/30",
+    },
+    editor: {
+      bg: "bg-yellow-500/20",
+      text: "text-yellow-300",
+      border: "border-yellow-500/30",
+    },
+    viewer: {
+      bg: "bg-blue-500/20",
+      text: "text-blue-300",
+      border: "border-blue-500/30",
+    },
   };
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <SpaceNavigation
-        spaceId={spaceId}
-        spaceName="Acme Corporation"
-        currentTab="permissions"
-      />
-
-      <div className="max-w-6xl mx-auto py-12 px-4">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">Team & Permissions</h1>
+    <>
+      <PageContainer
+      spaceId={spaceId}
+      spaceName="Acme Corporation"
+      currentTab="permissions"
+    >
+      {/* Header */}
+      <div className="mb-12 mt-12">
+          <h1 className="text-4xl font-bold text-white mb-2">
+            Team & Permissions
+          </h1>
           <p className="text-slate-400">
             Manage team members and control access to this space
           </p>
@@ -130,8 +150,12 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">👥</span>
                   <div>
-                    <h2 className="text-xl font-bold text-white">Team Members</h2>
-                    <p className="text-xs text-slate-400">{members.length} in this space</p>
+                    <h2 className="text-xl font-bold text-white">
+                      Team Members
+                    </h2>
+                    <p className="text-xs text-slate-400">
+                      {members.length} in this space
+                    </p>
                   </div>
                 </div>
                 <button
@@ -157,7 +181,8 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                         className={`flex items-center justify-center gap-1 w-24 px-3 py-1 rounded text-xs font-semibold border ${roleColors[member.role].bg} ${roleColors[member.role].text} ${roleColors[member.role].border}`}
                       >
                         <span>{roleIcons[member.role]}</span>
-                        {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
+                        {member.role.charAt(0).toUpperCase() +
+                          member.role.slice(1)}
                       </span>
                       <button
                         onClick={() => handleEditMember(member)}
@@ -183,9 +208,13 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
             <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">📬</span>
-                <h2 className="text-xl font-bold text-white">Pending Invitations</h2>
+                <h2 className="text-xl font-bold text-white">
+                  Pending Invitations
+                </h2>
               </div>
-              <p className="text-slate-500 text-center py-8 text-sm">No pending invitations</p>
+              <p className="text-slate-500 text-center py-8 text-sm">
+                No pending invitations
+              </p>
             </div>
           </div>
 
@@ -212,7 +241,9 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-lg">{roleIcons[role]}</span>
-                      <p className={`text-sm font-semibold ${roleColors[role].text}`}>
+                      <p
+                        className={`text-sm font-semibold ${roleColors[role].text}`}
+                      >
                         {role.charAt(0).toUpperCase() + role.slice(1)}
                       </p>
                     </div>
@@ -223,20 +254,25 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
 
               <div className="mt-4 pt-4 border-t border-slate-700">
                 <p className="text-xs text-slate-500">
-                  <span className="text-cyan-300 font-semibold">💡 Tip:</span> A space must have at least one admin.
+                  <span className="text-cyan-300 font-semibold">💡 Tip:</span> A
+                  space must have at least one admin.
                 </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </PageContainer>
 
       {/* Invite Modal */}
       {showInviteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl">
-            <h2 className="text-2xl font-bold text-white mb-1">Invite Team Member</h2>
-            <p className="text-sm text-slate-400 mb-6">Add a new member to your team</p>
+            <h2 className="text-2xl font-bold text-white mb-1">
+              Invite Team Member
+            </h2>
+            <p className="text-sm text-slate-400 mb-6">
+              Add a new member to your team
+            </p>
 
             <form onSubmit={handleInviteMember} className="space-y-4">
               <div>
@@ -260,7 +296,9 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                 <select
                   value={inviteRole}
                   onChange={(e) =>
-                    setInviteRole(e.target.value as "admin" | "editor" | "viewer")
+                    setInviteRole(
+                      e.target.value as "admin" | "editor" | "viewer",
+                    )
                   }
                   className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
                 >
@@ -307,7 +345,9 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                   <h2 className="text-2xl font-bold text-white">
                     {selectedMemberForEdit.name}
                   </h2>
-                  <p className="text-sm text-slate-400">{selectedMemberForEdit.email}</p>
+                  <p className="text-sm text-slate-400">
+                    {selectedMemberForEdit.email}
+                  </p>
                 </div>
               </div>
             </div>
@@ -321,13 +361,20 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                 </label>
                 <div className="space-y-2">
                   {(["admin", "editor", "viewer"] as const).map((role) => (
-                    <label key={role} className="flex items-center gap-3 p-3 rounded-lg border border-slate-700 cursor-pointer hover:border-slate-600 hover:bg-slate-700/30 transition">
+                    <label
+                      key={role}
+                      className="flex items-center gap-3 p-3 rounded-lg border border-slate-700 cursor-pointer hover:border-slate-600 hover:bg-slate-700/30 transition"
+                    >
                       <input
                         type="radio"
                         name="role"
                         value={role}
                         checked={editingRole === role}
-                        onChange={(e) => setEditingRole(e.target.value as "admin" | "editor" | "viewer")}
+                        onChange={(e) =>
+                          setEditingRole(
+                            e.target.value as "admin" | "editor" | "viewer",
+                          )
+                        }
                         className="w-4 h-4 cursor-pointer"
                       />
                       <div className="flex-1">
@@ -337,7 +384,9 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                             {role.charAt(0).toUpperCase() + role.slice(1)}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 ml-6">{roleDescriptions[role]}</p>
+                        <p className="text-xs text-slate-400 ml-6">
+                          {roleDescriptions[role]}
+                        </p>
                       </div>
                     </label>
                   ))}
@@ -347,34 +396,65 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
               {/* Permissions Overview */}
               <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-slate-300 mb-3">
-                  Permissions for {editingRole.charAt(0).toUpperCase() + editingRole.slice(1)}
+                  Permissions for{" "}
+                  {editingRole.charAt(0).toUpperCase() + editingRole.slice(1)}
                 </h3>
                 <div className="space-y-2 text-xs text-slate-400">
                   {editingRole === "admin" && (
                     <>
-                      <div className="flex items-center gap-2">✓ Manage team members</div>
-                      <div className="flex items-center gap-2">✓ Create and delete features</div>
-                      <div className="flex items-center gap-2">✓ Manage environments</div>
-                      <div className="flex items-center gap-2">✓ Configure permissions</div>
-                      <div className="flex items-center gap-2">✓ View analytics</div>
+                      <div className="flex items-center gap-2">
+                        ✓ Manage team members
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✓ Create and delete features
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✓ Manage environments
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✓ Configure permissions
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✓ View analytics
+                      </div>
                     </>
                   )}
                   {editingRole === "editor" && (
                     <>
-                      <div className="flex items-center gap-2">✓ Create and modify features</div>
-                      <div className="flex items-center gap-2">✓ Manage feature rollouts</div>
-                      <div className="flex items-center gap-2">✓ Configure targeting rules</div>
-                      <div className="flex items-center gap-2">✗ Manage team members</div>
-                      <div className="flex items-center gap-2">✗ Configure permissions</div>
+                      <div className="flex items-center gap-2">
+                        ✓ Create and modify features
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✓ Manage feature rollouts
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✓ Configure targeting rules
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✗ Manage team members
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✗ Configure permissions
+                      </div>
                     </>
                   )}
                   {editingRole === "viewer" && (
                     <>
-                      <div className="flex items-center gap-2">✓ View features</div>
-                      <div className="flex items-center gap-2">✓ View analytics</div>
-                      <div className="flex items-center gap-2">✗ Modify features</div>
-                      <div className="flex items-center gap-2">✗ Manage team members</div>
-                      <div className="flex items-center gap-2">✗ Configure permissions</div>
+                      <div className="flex items-center gap-2">
+                        ✓ View features
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✓ View analytics
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✗ Modify features
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✗ Manage team members
+                      </div>
+                      <div className="flex items-center gap-2">
+                        ✗ Configure permissions
+                      </div>
                     </>
                   )}
                 </div>
@@ -389,9 +469,7 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
                   Cancel
                 </button>
                 <button
-                  onClick={() =>
-                    handleRemoveMember(selectedMemberForEdit.id)
-                  }
+                  onClick={() => handleRemoveMember(selectedMemberForEdit.id)}
                   className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 rounded text-sm font-semibold transition"
                 >
                   Remove
@@ -426,10 +504,14 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
             <div className="p-6 space-y-4">
               <p className="text-slate-300">
                 Are you sure you want to remove{" "}
-                <span className="font-semibold text-white">{memberToRemove.name}</span> from this space?
+                <span className="font-semibold text-white">
+                  {memberToRemove.name}
+                </span>{" "}
+                from this space?
               </p>
               <p className="text-sm text-slate-400">
-                This action cannot be undone. They will lose access to all features and environments.
+                This action cannot be undone. They will lose access to all
+                features and environments.
               </p>
 
               {/* Actions */}
@@ -451,6 +533,6 @@ export default function PermissionsView({ spaceId }: PermissionsViewProps) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

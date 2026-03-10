@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SpaceNavigation from "./SpaceNavigation";
+import PageContainer from "./PageContainer";
 
 interface RolloutConfig {
   percentage: number;
@@ -123,17 +123,14 @@ export default function AdvancedConfigurationView({
   };
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <SpaceNavigation
-        spaceId={spaceId}
-        spaceName="Acme Corporation"
-        currentTab="features"
-        subPage={{ name: featureName, path: `/spaces/${spaceId}/features` }}
-      />
-
-      <div className="max-w-6xl mx-auto py-12 px-4">
-        {/* Header */}
-        <div className="mb-12">
+    <PageContainer
+      spaceId={spaceId}
+      spaceName="Acme Corporation"
+      currentTab="features"
+      subPage={{ name: featureName, path: `/spaces/${spaceId}/features` }}
+    >
+      {/* Header */}
+      <div className="mb-12 mt-12">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
               <h1 className="text-4xl font-bold text-white mb-2">
@@ -542,7 +539,6 @@ export default function AdvancedConfigurationView({
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </PageContainer>
   );
 }

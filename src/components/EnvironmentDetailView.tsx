@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SpaceNavigation from "./SpaceNavigation";
+import PageContainer from "./PageContainer";
 
 interface EnvironmentDetailViewProps {
   spaceId: string | undefined;
@@ -80,15 +80,13 @@ export default function EnvironmentDetailView({
   const apiKey = `env_${envId}_${Math.random().toString(36).substring(2, 15)}`;
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <div className="max-w-6xl mx-auto py-12 px-4">
-        <SpaceNavigation
-          spaceId={spaceId}
-          spaceName="Acme Corporation"
-          currentTab="environments"
-          subPage={{ name: envName, path: `/spaces/${spaceId}/environments` }}
-        />
-
+    <>
+      <PageContainer
+        spaceId={spaceId}
+        spaceName="Acme Corporation"
+        currentTab="environments"
+        subPage={{ name: envName, path: `/spaces/${spaceId}/environments` }}
+      >
         {/* Header Section */}
         <div className="mb-12 mt-12">
           <div className="flex flex-col mb-6">
@@ -313,7 +311,7 @@ export default function EnvironmentDetailView({
             </div>
           </div>
         </div>
-      </div>
+      </PageContainer>
 
       {/* API Key Reveal Modal */}
       {showApiKeyModal && (
@@ -350,6 +348,6 @@ export default function EnvironmentDetailView({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
