@@ -3,47 +3,575 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Documentation" includeHeader={true}>
-  <article class="max-w-4xl mx-auto py-12">
+  <article class="max-w-4xl mx-auto py-12 px-4">
     <h1 class="text-4xl font-bold text-gradient mb-6">Documentation</h1>
 
-    <div class="card space-y-6">
-      <section>
-        <h2 class="text-2xl font-bold text-cyan-300 mb-3">Getting Started</h2>
-        <p class="text-slate-400 mb-4">
-          Welcome to Easy Flags! This guide will help you set up feature flags
-          in your application.
-        </p>
-      </section>
+    <div class="space-y-8">
+      <!-- Getting Started Section -->
+      <div class="card space-y-6">
+        <section>
+          <h2 class="text-2xl font-bold text-cyan-300 mb-3">Getting Started</h2>
+          <p class="text-slate-400 mb-4">
+            Welcome to Easy Flags! This guide will help you set up feature flags
+            in your application. Feature flags allow you to control which
+            features are visible to your users, enabling safe rollouts, A/B
+            testing, and gradual deployments.
+          </p>
+          <p class="text-slate-400">
+            Whether you're a developer integrating feature flags or a manager
+            controlling feature visibility, this documentation covers everything
+            you need to know.
+          </p>
+        </section>
+      </div>
 
-      <section>
-        <h3 class="text-xl font-bold text-cyan-300 mb-3">Creating a Space</h3>
-        <p class="text-slate-400 mb-4">
-          A space is your primary organizational unit. All feature flags and
-          environments belong to a space.
-        </p>
-        <ol class="list-decimal list-inside text-slate-400 space-y-2 ml-4">
-          <li>Navigate to Spaces</li>
-          <li>Click "Create Space"</li>
-          <li>Enter your space name and description</li>
-          <li>Invite team members</li>
-        </ol>
-      </section>
+      <!-- Creating a Space Section -->
+      <div class="card space-y-6">
+        <section>
+          <h3 class="text-2xl font-bold text-cyan-300 mb-4">
+            Creating and Managing Spaces
+          </h3>
+          <p class="text-slate-400 mb-4">
+            A space is your primary organizational unit. All feature flags,
+            environments, and team members belong to a space. Think of it as a
+            project or application container.
+          </p>
 
-      <section>
-        <h3 class="text-xl font-bold text-cyan-300 mb-3">Creating Features</h3>
-        <p class="text-slate-400 mb-4">
-          Features are the core of feature flag management. Create features to
-          control rollouts.
-        </p>
-      </section>
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">To Create a Space:</h4>
+            <ol class="list-decimal list-inside text-slate-400 space-y-2 ml-2">
+              <li>
+                Navigate to the <span class="text-cyan-300 font-semibold"
+                  >Spaces</span
+                > section from the main menu
+              </li>
+              <li>
+                Click the <span class="text-cyan-300 font-semibold"
+                  >"Create New Space"</span
+                > button
+              </li>
+              <li>
+                Enter a descriptive <span class="text-cyan-300 font-semibold"
+                  >Space Name</span
+                > (e.g., "Mobile App", "Web Platform")
+              </li>
+              <li>
+                Add an optional <span class="text-cyan-300 font-semibold"
+                  >Description</span
+                > to help your team understand the space's purpose
+              </li>
+              <li>
+                Click <span class="text-cyan-300 font-semibold">"Create"</span> to
+                finalize
+              </li>
+            </ol>
+          </div>
 
-      <section>
-        <h3 class="text-xl font-bold text-cyan-300 mb-3">Environments</h3>
-        <p class="text-slate-400 mb-4">
-          Environments allow you to have different feature flag values for
-          different stages of your application.
-        </p>
-      </section>
+          <div class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4">
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Managing Your Space:
+            </h4>
+            <ul class="text-slate-400 space-y-2 ml-4">
+              <li>
+                • <span class="text-cyan-300 font-semibold">Edit</span>: Modify
+                space name and description anytime
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold">Invite Members</span
+                >: Add team members and assign roles (Admin, Editor, Viewer)
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold">Settings</span>:
+                Configure space-level preferences and integrations
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold">Delete</span>:
+                Remove the space (careful - this is permanent!)
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <!-- Creating Features Section -->
+      <div class="card space-y-6">
+        <section>
+          <h3 class="text-2xl font-bold text-cyan-300 mb-4">
+            Creating and Managing Features
+          </h3>
+          <p class="text-slate-400 mb-4">
+            Features are the core of Easy Flags. Each feature is a flag that you
+            can toggle on or off in different environments, and can be targeted
+            to specific user segments.
+          </p>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              To Create a Feature:
+            </h4>
+            <ol class="list-decimal list-inside text-slate-400 space-y-2 ml-2">
+              <li>
+                From your space, navigate to the <span
+                  class="text-cyan-300 font-semibold">Features</span
+                > tab
+              </li>
+              <li>
+                Click <span class="text-cyan-300 font-semibold"
+                  >"Create Feature"</span>
+              </li>
+              <li>
+                Enter a unique <span class="text-cyan-300 font-semibold"
+                  >Feature Key</span
+                > (e.g., "new_dashboard", "beta_analytics") - this is what you'll
+                reference in your code
+              </li>
+              <li>
+                Add a human-readable <span class="text-cyan-300 font-semibold"
+                  >Display Name</span
+                > for your team
+              </li>
+              <li>
+                Write a <span class="text-cyan-300 font-semibold"
+                  >Description</span
+                > explaining what this feature does
+              </li>
+              <li>
+                Choose the <span class="text-cyan-300 font-semibold"
+                  >Feature Type</span
+                >:
+                <ul class="list-inside ml-4 mt-2 space-y-1 text-sm">
+                  <li>
+                    • <span class="text-cyan-300">Boolean</span> - Simple on/off toggle
+                  </li>
+                  <li>
+                    • <span class="text-cyan-300">String</span> - Configuration value
+                  </li>
+                  <li>
+                    • <span class="text-cyan-300">JSON</span> - Complex configuration
+                    object
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Click <span class="text-cyan-300 font-semibold">"Create"</span>
+              </li>
+            </ol>
+          </div>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Managing Feature Visibility:
+            </h4>
+            <p class="text-slate-400 mb-3">
+              Once created, you can control feature visibility through:
+            </p>
+            <ul class="text-slate-400 space-y-2 ml-4">
+              <li>
+                • <span class="text-cyan-300 font-semibold"
+                  >Toggle by Environment</span
+                >: Enable/disable per environment (Dev, Staging, Production)
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold"
+                  >Percentage Rollout</span
+                >: Release to a percentage of users (0-100%)
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold">User Targeting</span
+                >: Show feature to specific users or user segments
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold">Scheduling</span>:
+                Set start and end dates for feature availability
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold">Default Value</span
+                >: Set fallback value when flag isn't explicitly set
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4">
+            <h4 class="font-semibold text-cyan-300 mb-3">Best Practices:</h4>
+            <ul class="text-slate-400 space-y-2 ml-4">
+              <li>
+                ✓ Use descriptive, kebab-case feature keys (e.g.,
+                "dark_mode_enabled")
+              </li>
+              <li>
+                ✓ Always include a clear description of the feature's purpose
+              </li>
+              <li>
+                ✓ Start with a low percentage rollout before going to 100%
+              </li>
+              <li>✓ Set deadlines for temporary features</li>
+              <li>✓ Clean up old/unused flags regularly</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <!-- Environments Section -->
+      <div class="card space-y-6">
+        <section>
+          <h3 class="text-2xl font-bold text-cyan-300 mb-4">
+            Working with Environments
+          </h3>
+          <p class="text-slate-400 mb-4">
+            Environments allow you to have different feature flag configurations
+            for different stages of your application (Development, Staging,
+            Production, etc.).
+          </p>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Default Environments:
+            </h4>
+            <ul class="text-slate-400 space-y-2 ml-4">
+              <li>
+                • <span class="text-cyan-300 font-semibold">Development</span>:
+                Local development environment - enable experimental features
+                here
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold">Staging</span>:
+                Pre-production testing - verify features before production
+              </li>
+              <li>
+                • <span class="text-cyan-300 font-semibold">Production</span>:
+                Live environment - be careful with changes here
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4">
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Setting Feature Values per Environment:
+            </h4>
+            <ol class="list-decimal list-inside text-slate-400 space-y-2 ml-2">
+              <li>
+                Open a feature and navigate to the <span
+                  class="text-cyan-300 font-semibold">Environments</span
+                > tab
+              </li>
+              <li>
+                For each environment, you can:
+                <ul class="list-inside ml-4 mt-2 space-y-1 text-sm">
+                  <li>• Toggle the feature on/off</li>
+                  <li>• Set a percentage rollout</li>
+                  <li>• Configure user targeting rules</li>
+                </ul>
+              </li>
+              <li>Changes typically take effect immediately</li>
+              <li>
+                All environments are independent - changes in one don't affect
+                others
+              </li>
+            </ol>
+          </div>
+        </section>
+      </div>
+
+      <!-- User Targeting and Rollout Section -->
+      <div class="card space-y-6">
+        <section>
+          <h3 class="text-2xl font-bold text-cyan-300 mb-4">
+            User Targeting & Rollout Strategies
+          </h3>
+          <p class="text-slate-400 mb-4">
+            Control exactly who sees your features with powerful targeting
+            options.
+          </p>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Percentage-Based Rollout:
+            </h4>
+            <p class="text-slate-400 mb-2">
+              Gradually roll out features to a percentage of users:
+            </p>
+            <ul class="text-slate-400 space-y-2 ml-4 text-sm">
+              <li>• Start at 5-10% to catch issues early</li>
+              <li>• Monitor metrics and user feedback</li>
+              <li>• Gradually increase percentage (25%, 50%, 100%)</li>
+              <li>
+                <span class="text-cyan-300">Example:</span> "dark_mode_enabled: 50%"
+                shows dark mode to 50% of users
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              User Targeting Rules:
+            </h4>
+            <p class="text-slate-400 mb-2">
+              Target features to specific users based on attributes:
+            </p>
+            <ul class="text-slate-400 space-y-2 ml-4 text-sm">
+              <li>
+                • <span class="text-cyan-300">User ID</span>: Target individual
+                users (great for testing with your team)
+              </li>
+              <li>
+                • <span class="text-cyan-300">Email Domain</span>: Show to all
+                @yourcompany.com users
+              </li>
+              <li>
+                • <span class="text-cyan-300">User Segment</span>: Target
+                predefined user groups
+              </li>
+              <li>
+                • <span class="text-cyan-300">Custom Attributes</span>: Use any
+                custom user property (plan type, location, etc.)
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4">
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Rollout Strategy Example:
+            </h4>
+            <div
+              class="bg-slate-900 p-3 rounded text-slate-300 text-sm font-mono"
+            >
+              <p>1. Create feature "new_dashboard"</p>
+              <p>2. Enable for internal team (target all @company.com)</p>
+              <p>3. Enable for 10% of production users</p>
+              <p>4. Monitor for issues for 24 hours</p>
+              <p>5. Increase to 50% if no issues</p>
+              <p>6. Roll out to 100% after team approval</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- API Integration Section -->
+      <div class="card space-y-6">
+        <section>
+          <h3 class="text-2xl font-bold text-cyan-300 mb-4">API Integration</h3>
+          <p class="text-slate-400 mb-4">
+            Integrate Easy Flags with your application using the REST API.
+          </p>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Getting Your API Key:
+            </h4>
+            <ol
+              class="list-decimal list-inside text-slate-400 space-y-2 ml-2 text-sm"
+            >
+              <li>
+                Navigate to <span class="text-cyan-300 font-semibold"
+                  >Space Settings</span>
+              </li>
+              <li>
+                Find the <span class="text-cyan-300 font-semibold"
+                  >API Keys</span
+                > section
+              </li>
+              <li>
+                Click <span class="text-cyan-300 font-semibold"
+                  >"Generate New Key"</span>
+              </li>
+              <li>Copy and store your key securely (like a password!)</li>
+            </ol>
+          </div>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">Key API Endpoints:</h4>
+            <div class="space-y-3 text-sm">
+              <div>
+                <p class="text-cyan-300">GET /api/features</p>
+                <p class="text-slate-500">Retrieve all features for a space</p>
+              </div>
+              <div>
+                <p class="text-cyan-300">GET /api/features/:key</p>
+                <p class="text-slate-500">Get a specific feature flag value</p>
+              </div>
+              <div>
+                <p class="text-cyan-300">POST /api/features/:key/evaluate</p>
+                <p class="text-slate-500">
+                  Evaluate a feature for a specific user (with context)
+                </p>
+              </div>
+              <div>
+                <p class="text-cyan-300">GET /api/environments</p>
+                <p class="text-slate-500">
+                  List all environments in your space
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4">
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Example Usage (Node.js):
+            </h4>
+            <div
+              class="bg-slate-900 p-3 rounded text-slate-300 text-xs font-mono overflow-x-auto"
+            >
+              <pre>const flags = await fetch('/api/features', &#123;
+  headers: &#123;
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'X-Environment': 'production'
+  &#125;
+&#125;).then(r => r.json());
+
+if (flags.new_dashboard) &#123;
+  // Show new dashboard
+&#125;</pre>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Team Management Section -->
+      <div class="card space-y-6">
+        <section>
+          <h3 class="text-2xl font-bold text-cyan-300 mb-4">
+            Team Management & Roles
+          </h3>
+          <p class="text-slate-400 mb-4">
+            Collaborate with your team while maintaining proper access control.
+          </p>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">Available Roles:</h4>
+            <ul class="text-slate-400 space-y-3 ml-4">
+              <li>
+                <span class="text-cyan-300 font-semibold">Admin</span>
+                <p class="text-sm text-slate-500">
+                  Full access: create features, manage team, delete resources,
+                  configure settings
+                </p>
+              </li>
+              <li>
+                <span class="text-cyan-300 font-semibold">Editor</span>
+                <p class="text-sm text-slate-500">
+                  Can modify features, environments, and user targeting, but
+                  cannot manage team or delete space
+                </p>
+              </li>
+              <li>
+                <span class="text-cyan-300 font-semibold">Viewer</span>
+                <p class="text-sm text-slate-500">
+                  Read-only access; can view features and environments but
+                  cannot make changes
+                </p>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4">
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Inviting Team Members:
+            </h4>
+            <ol
+              class="list-decimal list-inside text-slate-400 space-y-2 ml-2 text-sm"
+            >
+              <li>
+                Go to <span class="text-cyan-300 font-semibold"
+                  >Space Settings → Team Members</span>
+              </li>
+              <li>
+                Click <span class="text-cyan-300 font-semibold"
+                  >"Invite Member"</span>
+              </li>
+              <li>Enter their email address</li>
+              <li>Select their role (Admin, Editor, or Viewer)</li>
+              <li>They'll receive an invitation email with a join link</li>
+            </ol>
+          </div>
+        </section>
+      </div>
+
+      <!-- Troubleshooting Section -->
+      <div class="card space-y-6">
+        <section>
+          <h3 class="text-2xl font-bold text-cyan-300 mb-4">
+            Troubleshooting & FAQ
+          </h3>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Feature not showing up?
+            </h4>
+            <ul class="text-slate-400 space-y-2 ml-4 text-sm">
+              <li>
+                ✓ Check if the feature is enabled in your current environment
+              </li>
+              <li>✓ Verify the percentage rollout is not 0%</li>
+              <li>✓ Ensure your user meets any targeting criteria</li>
+              <li>✓ Clear browser cache and reload</li>
+              <li>✓ Check API key has permission for that space</li>
+            </ul>
+          </div>
+
+          <div
+            class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4 mb-4"
+          >
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              How do I test a feature with my team first?
+            </h4>
+            <ul class="text-slate-400 space-y-2 ml-4 text-sm">
+              <li>
+                1. Create the feature and keep it disabled for regular users
+              </li>
+              <li>2. Add user targeting rule for @company.com email domain</li>
+              <li>3. Or use "specific user IDs" and add your team members</li>
+              <li>4. Your team can test while others don't see it yet</li>
+            </ul>
+          </div>
+
+          <div class="bg-slate-800/30 border border-cyan-500/20 rounded-lg p-4">
+            <h4 class="font-semibold text-cyan-300 mb-3">
+              Can I undo a deployment?
+            </h4>
+            <p class="text-slate-400 text-sm mb-2">
+              Yes! Simply reduce the percentage rollout back to 0% or disable
+              the feature entirely. All changes take effect immediately, so you
+              can quickly revert if needed.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <!-- Need Help Section -->
+      <div class="card">
+        <section class="text-center">
+          <h3 class="text-xl font-bold text-cyan-300 mb-3">Need More Help?</h3>
+          <p class="text-slate-400 mb-4">
+            Can't find what you're looking for? Contact our support team.
+          </p>
+          <a
+            href="/contact"
+            class="text-cyan-400 hover:text-cyan-300 transition font-semibold"
+          >
+            Get in touch →
+          </a>
+        </section>
+      </div>
     </div>
   </article>
 </BaseLayout>

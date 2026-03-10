@@ -18,12 +18,10 @@ interface BillingPlan {
   features: string[];
   recommended?: boolean;
   priceId?: string;
+  description?: string;
 }
 
 export default function BillingPanel() {
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
-    "monthly",
-  );
   const [plans, setPlans] = useState<BillingPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingCheckout, setLoadingCheckout] = useState<string | null>(null);
@@ -53,29 +51,30 @@ export default function BillingPanel() {
             pricesData.data &&
             pricesData.data.length > 0
           ) {
-            // Convert Stripe prices directly to billing plans and sort them
-            const planOrder = ["lab", "basic", "pro"];
-            
-            const stripePlans: BillingPlan[] = pricesData.data
-              .map((price: StripePrice) => ({
+            // Convert Stripe prices directly to billing plans
+            const stripePlans: BillingPlan[] = pricesData.data.map(
+              (price: StripePrice) => ({
                 name: price.product?.name || "Plan",
                 price: Math.ceil((price.unit_amount || 0) / 100),
                 features: [],
                 priceId: price.id,
-              }))
-              .sort((a: BillingPlan, b: BillingPlan) => {
-                const indexA = planOrder.indexOf(a.name.toLowerCase());
-                const indexB = planOrder.indexOf(b.name.toLowerCase());
-                
-                // If plan name not in our order, push to the end
-                if (indexA === -1 && indexB === -1) return 0;
-                if (indexA === -1) return 1;
-                if (indexB === -1) return -1;
-                
-                return indexA - indexB;
-              });
+                description: price.product?.description || undefined,
+                recommended: price.product?.name === "Basic",
+              }),
+            );
 
-            console.log("Mapped and sorted plans:", stripePlans);
+            // Sort plans in the order: Lab, Basic, Pro
+            const planOrder = ["Lab", "Basic", "Pro"];
+            stripePlans.sort((a, b) => {
+              const indexA = planOrder.indexOf(a.name);
+              const indexB = planOrder.indexOf(b.name);
+              return (
+                (indexA === -1 ? planOrder.length : indexA) -
+                (indexB === -1 ? planOrder.length : indexB)
+              );
+            });
+
+            console.log("Mapped plans:", stripePlans);
             setPlans(stripePlans);
           } else {
             setError("No pricing plans available");
@@ -161,30 +160,6 @@ export default function BillingPanel() {
         </div>
       ) : (
         <>
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={() => setBillingPeriod("monthly")}
-              className={`px-6 py-2 rounded-lg transition ${
-                billingPeriod === "monthly"
-                  ? "bg-cyan-500 text-white"
-                  : "border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBillingPeriod("yearly")}
-              className={`px-6 py-2 rounded-lg transition ${
-                billingPeriod === "yearly"
-                  ? "bg-cyan-500 text-white"
-                  : "border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
-              }`}
-            >
-              Yearly{" "}
-              <span className="text-xs text-cyan-300 ml-1">(Save 20%)</span>
-            </button>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {plans.map((plan) => (
               <div
@@ -205,13 +180,17 @@ export default function BillingPanel() {
                   {plan.name}
                 </h3>
 
+                {plan.description && (
+                  <p className="text-slate-400 text-sm mb-4">
+                    {plan.description}
+                  </p>
+                )}
+
                 <div className="flex items-baseline gap-1 mb-6">
                   <span className="text-4xl font-bold text-white">
                     ${plan.price}
                   </span>
-                  <span className="text-slate-400">
-                    /{billingPeriod === "monthly" ? "month" : "year"}
-                  </span>
+                  <span className="text-slate-400">/month</span>
                 </div>
 
                 <button

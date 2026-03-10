@@ -6,8 +6,12 @@ interface HeaderProps {}
 export default function Header({}: HeaderProps) {
   const [user, setUser] = useState<UserPayload | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [currentPath, setCurrentPath] = useState("");
 
   useEffect(() => {
+    // Set current path
+    setCurrentPath(window.location.pathname);
+
     // Fetch user from session/auth endpoint
     const fetchUser = async () => {
       try {
@@ -23,6 +27,8 @@ export default function Header({}: HeaderProps) {
 
     fetchUser();
   }, []);
+
+  const isActive = (path: string) => currentPath === path;
 
   const handleLogout = async () => {
     try {
@@ -44,13 +50,21 @@ export default function Header({}: HeaderProps) {
           <div className="hidden md:flex gap-8 items-center">
             <a
               href="/docs"
-              className="text-cyan-100 hover:text-cyan-300 transition"
+              className={`transition ${
+                isActive("/docs")
+                  ? "text-cyan-300 font-semibold"
+                  : "text-cyan-100 hover:text-cyan-300"
+              }`}
             >
               Docs
             </a>
             <a
               href="/billing"
-              className="text-cyan-100 hover:text-cyan-300 transition"
+              className={`transition ${
+                isActive("/billing")
+                  ? "text-cyan-300 font-semibold"
+                  : "text-cyan-100 hover:text-cyan-300"
+              }`}
             >
               Pricing
             </a>
@@ -58,13 +72,21 @@ export default function Header({}: HeaderProps) {
               <>
                 <a
                   href="/spaces"
-                  className="text-slate-300 hover:text-cyan-400 transition"
+                  className={`transition ${
+                    isActive("/spaces")
+                      ? "text-cyan-300 font-semibold"
+                      : "text-slate-300 hover:text-cyan-400"
+                  }`}
                 >
                   Spaces
                 </a>
                 <a
                   href="/settings"
-                  className="text-slate-300 hover:text-cyan-400 transition"
+                  className={`transition ${
+                    isActive("/settings")
+                      ? "text-cyan-300 font-semibold"
+                      : "text-slate-300 hover:text-cyan-400"
+                  }`}
                 >
                   Settings
                 </a>
@@ -105,7 +127,11 @@ export default function Header({}: HeaderProps) {
               <>
                 <a
                   href="/login"
-                  className="text-cyan-100 hover:text-cyan-300 transition"
+                  className={`transition ${
+                    isActive("/login")
+                      ? "text-cyan-300 font-semibold"
+                      : "text-cyan-100 hover:text-cyan-300"
+                  }`}
                 >
                   Login
                 </a>
