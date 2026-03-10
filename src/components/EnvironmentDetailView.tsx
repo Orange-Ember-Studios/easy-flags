@@ -46,13 +46,33 @@ export default function EnvironmentDetailView({
   const getEnvironmentColor = (name: string) => {
     switch (name.toLowerCase()) {
       case "production":
-        return { bg: "from-red-900/20 to-red-900/10", border: "border-red-500/30", accent: "text-red-400", badge: "bg-red-500/20 text-red-300" };
+        return {
+          bg: "from-red-900/20 to-red-900/10",
+          border: "border-red-500/30",
+          accent: "text-red-400",
+          badge: "bg-red-500/20 text-red-300",
+        };
       case "staging":
-        return { bg: "from-yellow-900/20 to-yellow-900/10", border: "border-yellow-500/30", accent: "text-yellow-400", badge: "bg-yellow-500/20 text-yellow-300" };
+        return {
+          bg: "from-yellow-900/20 to-yellow-900/10",
+          border: "border-yellow-500/30",
+          accent: "text-yellow-400",
+          badge: "bg-yellow-500/20 text-yellow-300",
+        };
       case "development":
-        return { bg: "from-blue-900/20 to-blue-900/10", border: "border-blue-500/30", accent: "text-blue-400", badge: "bg-blue-500/20 text-blue-300" };
+        return {
+          bg: "from-blue-900/20 to-blue-900/10",
+          border: "border-blue-500/30",
+          accent: "text-blue-400",
+          badge: "bg-blue-500/20 text-blue-300",
+        };
       default:
-        return { bg: "from-cyan-900/20 to-cyan-900/10", border: "border-cyan-500/30", accent: "text-cyan-400", badge: "bg-cyan-500/20 text-cyan-300" };
+        return {
+          bg: "from-cyan-900/20 to-cyan-900/10",
+          border: "border-cyan-500/30",
+          accent: "text-cyan-400",
+          badge: "bg-cyan-500/20 text-cyan-300",
+        };
     }
   };
 
@@ -65,37 +85,19 @@ export default function EnvironmentDetailView({
         spaceId={spaceId}
         spaceName="Acme Corporation"
         currentTab="environments"
+        subPage={{ name: envName }}
       />
 
       <div className="max-w-6xl mx-auto py-12 px-4">
         {/* Header */}
         <div className="mb-12">
-          <div className="flex items-center gap-4 mb-4">
-            <a
-              href={`/spaces/${spaceId}/environments`}
-              className="text-cyan-400 hover:text-cyan-300 transition text-sm"
+          {envDescription && (
+            <div
+              className={`bg-gradient-to-br ${colors.bg} border ${colors.border} rounded-lg p-6 mb-8`}
             >
-              ← Back to Environments
-            </a>
-          </div>
-
-          <div className={`bg-gradient-to-br ${colors.bg} border ${colors.border} rounded-lg p-8 mb-8`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-3 mb-3">
-                  <h1 className={`text-4xl font-bold ${colors.accent}`}>
-                    {envName}
-                  </h1>
-                  <span className={`text-sm px-3 py-1 rounded font-semibold ${colors.badge}`}>
-                    {envName}
-                  </span>
-                </div>
-                {envDescription && (
-                  <p className="text-slate-300 text-lg">{envDescription}</p>
-                )}
-              </div>
+              <p className="text-slate-300 text-lg">{envDescription}</p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Main Content Grid */}
@@ -106,7 +108,9 @@ export default function EnvironmentDetailView({
             <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-2xl">🔑</span>
-                <h2 className="text-xl font-bold text-white">API Configuration</h2>
+                <h2 className="text-xl font-bold text-white">
+                  API Configuration
+                </h2>
               </div>
 
               <div className="space-y-4">
@@ -174,19 +178,30 @@ export default function EnvironmentDetailView({
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <p className="font-semibold text-white text-sm">{config.key}</p>
+                        <p className="font-semibold text-white text-sm">
+                          {config.key}
+                        </p>
                         <p className="text-xs text-slate-400 mt-1">
-                          Default: <span className="text-slate-300">{config.defaultValue}</span>
+                          Default:{" "}
+                          <span className="text-slate-300">
+                            {config.defaultValue}
+                          </span>
                         </p>
                       </div>
-                      <button className="text-slate-500 hover:text-slate-300 p-1" title="Edit">
+                      <button
+                        className="text-slate-500 hover:text-slate-300 p-1"
+                        title="Edit"
+                      >
                         ✏️
                       </button>
                     </div>
                     {config.overriddenValue && (
                       <div className="pl-3 border-l-2 border-cyan-500">
                         <p className="text-xs text-cyan-400">
-                          Overridden: <span className="text-cyan-300 font-semibold">{config.overriddenValue}</span>
+                          Overridden:{" "}
+                          <span className="text-cyan-300 font-semibold">
+                            {config.overriddenValue}
+                          </span>
                         </p>
                       </div>
                     )}
@@ -203,24 +218,28 @@ export default function EnvironmentDetailView({
             <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-2xl">🚀</span>
-                <h2 className="text-xl font-bold text-white">Deployed Features</h2>
+                <h2 className="text-xl font-bold text-white">
+                  Deployed Features
+                </h2>
               </div>
 
               <div className="space-y-2">
-                {["New Dashboard", "Dark Mode", "Beta Analytics"].map((feature, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3 bg-slate-900/50 border border-slate-700 rounded hover:border-slate-600 transition"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">✓</span>
-                      <span className="text-white">{feature}</span>
+                {["New Dashboard", "Dark Mode", "Beta Analytics"].map(
+                  (feature, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3 bg-slate-900/50 border border-slate-700 rounded hover:border-slate-600 transition"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">✓</span>
+                        <span className="text-white">{feature}</span>
+                      </div>
+                      <span className="text-xs px-2 py-1 bg-green-500/20 text-green-300 rounded">
+                        Active
+                      </span>
                     </div>
-                    <span className="text-xs px-2 py-1 bg-green-500/20 text-green-300 rounded">
-                      Active
-                    </span>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </div>
           </div>
@@ -239,7 +258,9 @@ export default function EnvironmentDetailView({
                   <span className="text-slate-400">Health</span>
                   <span className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                    <span className="text-green-400 font-semibold">Healthy</span>
+                    <span className="text-green-400 font-semibold">
+                      Healthy
+                    </span>
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -281,7 +302,9 @@ export default function EnvironmentDetailView({
 
               <div className="space-y-3 text-xs text-slate-400">
                 <div>
-                  <p className="text-slate-500 font-semibold mb-1">Environment ID</p>
+                  <p className="text-slate-500 font-semibold mb-1">
+                    Environment ID
+                  </p>
                   <p className="text-slate-300 font-mono break-all">{envId}</p>
                 </div>
                 <div>
@@ -301,7 +324,9 @@ export default function EnvironmentDetailView({
             {/* Header */}
             <div className="bg-gradient-to-r from-cyan-500/20 to-slate-800 px-6 py-8 border-b border-slate-700">
               <h2 className="text-2xl font-bold text-white">API Key</h2>
-              <p className="text-sm text-slate-400 mt-2">Keep this secret and safe</p>
+              <p className="text-sm text-slate-400 mt-2">
+                Keep this secret and safe
+              </p>
             </div>
 
             {/* Content */}
@@ -312,7 +337,9 @@ export default function EnvironmentDetailView({
 
               <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded text-sm text-yellow-300">
                 <p className="font-semibold mb-1">⚠️ Security Warning</p>
-                <p className="text-xs">Never share this key publicly or commit it to version control.</p>
+                <p className="text-xs">
+                  Never share this key publicly or commit it to version control.
+                </p>
               </div>
 
               <button

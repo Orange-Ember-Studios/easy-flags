@@ -8,12 +8,17 @@ interface SpaceNavigationProps {
     | "environments"
     | "features"
     | "permissions";
+  subPage?: {
+    name: string;
+    path?: string;
+  };
 }
 
 export default function SpaceNavigation({
   spaceId,
   spaceName,
   currentTab = "overview",
+  subPage,
 }: SpaceNavigationProps) {
   const isActive = (tab: string) =>
     currentTab === tab ? "border-b-2 border-cyan-400 text-cyan-300" : "";
@@ -21,13 +26,23 @@ export default function SpaceNavigation({
   return (
     <div className="space-y-6 mb-8">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex-1">
           <a href="/spaces" className="text-cyan-400 hover:text-cyan-300 text-sm mb-2 inline-block">
             ← Back to Spaces
           </a>
-          <h1 className="text-3xl font-bold text-gradient">
-            {spaceName || `Space ${spaceId}`}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-bold text-gradient">
+              {spaceName || `Space ${spaceId}`}
+            </h1>
+            {subPage && (
+              <>
+                <span className="text-slate-500">/</span>
+                <h1 className="text-3xl font-bold text-slate-300">
+                  {subPage.name}
+                </h1>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

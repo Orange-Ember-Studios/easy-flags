@@ -128,21 +128,12 @@ export default function AdvancedConfigurationView({
         spaceId={spaceId}
         spaceName="Space"
         currentTab="features"
+        subPage={{ name: featureName }}
       />
 
       <div className="max-w-6xl mx-auto py-12 px-4">
         {/* Header */}
         <div className="mb-12">
-          <a
-            href={`/spaces/${spaceId}/features`}
-            className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 text-sm font-semibold transition mb-6 group"
-          >
-            <span className="transform group-hover:-translate-x-1 transition">
-              ←
-            </span>
-            Back to Features
-          </a>
-
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
               <h1 className="text-4xl font-bold text-white mb-2">
