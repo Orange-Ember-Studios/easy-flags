@@ -1,0 +1,47 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import EnvironmentDetailView from "@/components/EnvironmentDetailView";
+
+export const prerender = false;
+
+const { spaceId, envId } = Astro.params;
+
+// Mock data - in production this would come from a database
+const mockEnvironments: Record<string, {
+  id: string;
+  name: string;
+  description: string;
+}> = {
+  "1": {
+    id: "1",
+    name: "Production",
+    description: "Live environment - be careful here!",
+  },
+  "2": {
+    id: "2",
+    name: "Staging",
+    description: "Pre-production testing environment",
+  },
+  "3": {
+    id: "3",
+    name: "Development",
+    description: "Local development environment",
+  },
+};
+
+const environment = mockEnvironments[envId || ""] || {
+  id: envId || "unknown",
+  name: "Unknown Environment",
+  description: "",
+};
+---
+
+<BaseLayout title={`${environment.name} - Configuration`} includeHeader={true}>
+  <EnvironmentDetailView
+    client:load
+    spaceId={spaceId}
+    envId={envId}
+    envName={environment.name}
+    envDescription={environment.description}
+  />
+</BaseLayout>

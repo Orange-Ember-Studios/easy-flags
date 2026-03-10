@@ -195,7 +195,7 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
                   <span className="text-xs text-slate-500">
                     Created {new Date(env.created_at).toLocaleDateString()}
                   </span>
-                  <a href={`/spaces/${spaceId}/environments`} className={`text-sm font-semibold ${colors.accent} hover:brightness-110 transition`}>
+                  <a href={`/spaces/${spaceId}/environments/${env.id}`} className={`text-sm font-semibold ${colors.accent} hover:brightness-110 transition`}>
                     View →
                   </a>
                 </div>
