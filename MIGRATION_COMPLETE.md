@@ -9,6 +9,7 @@ The Easy Flags application has been successfully migrated from Express.js + EJS 
 ## What Was Removed
 
 ### Old Express.js Backend
+
 - ❌ `src/` - TypeScript source code for Express backend
 - ❌ `views/` - EJS template files
 - ❌ `tests/` - Jest test suite for backend
@@ -16,6 +17,7 @@ The Easy Flags application has been successfully migrated from Express.js + EJS 
 - ❌ Old `public/app.js`, `public/js/`, `public/lib/`, `public/styles/`
 
 ### Old Configuration & Documentation
+
 - ❌ `jest.config.js` - Jest configuration for backend tests
 - ❌ `pnpm-workspace.yaml` - Monorepo configuration
 - ❌ Old Express-specific README content
@@ -30,6 +32,7 @@ The Easy Flags application has been successfully migrated from Express.js + EJS 
 ## What's New
 
 ### Astro Framework
+
 ✅ `src/api/` - Astro API routes (replacing Express)
 ✅ `src/components/` - React components for interactivity
 ✅ `src/layouts/` - Astro layout templates
@@ -38,6 +41,7 @@ The Easy Flags application has been successfully migrated from Express.js + EJS 
 ✅ `src/utils/` - Shared utilities (auth, API helpers)
 
 ### Configuration Files
+
 ✅ `astro.config.mjs` - Astro configuration
 ✅ `tailwind.config.cjs` - TailwindCSS configuration
 ✅ `postcss.config.cjs` - PostCSS setup
@@ -47,12 +51,14 @@ The Easy Flags application has been successfully migrated from Express.js + EJS 
 ✅ `.env.example` - Environment variable template
 
 ### Documentation
+
 ✅ `ASTRO_MIGRATION.md` - Comprehensive migration guide
 ✅ Updated `README.md` - New project documentation
 
 ## File Structure
 
 ### Before (Express.js)
+
 ```
 poc-feature-flag/
 ├── src/                              # Express TypeScript backend
@@ -78,6 +84,7 @@ poc-feature-flag/
 ```
 
 ### After (Astro)
+
 ```
 poc-feature-flag/
 ├── src/
@@ -139,47 +146,62 @@ poc-feature-flag/
 ## Key Changes
 
 ### 1. Framework Architecture
-| Aspect | Express | Astro |
-|--------|---------|-------|
-| **Server** | Express.js | Astro SSR + Node.js adapter |
-| **Rendering** | Server-rendered HTML | Islands architecture (selective hydration) |
-| **Frontend** | Vanilla JavaScript | React components |
-| **Styling** | Custom CSS + Tailwind | TailwindCSS |
-| **Routing** | Manual route definitions | File-based auto-routing |
-| **Bundle Size** | Larger (full server code) | Minimal (only interactive JS) |
+
+| Aspect          | Express                   | Astro                                      |
+| --------------- | ------------------------- | ------------------------------------------ |
+| **Server**      | Express.js                | Astro SSR + Node.js adapter                |
+| **Rendering**   | Server-rendered HTML      | Islands architecture (selective hydration) |
+| **Frontend**    | Vanilla JavaScript        | React components                           |
+| **Styling**     | Custom CSS + Tailwind     | TailwindCSS                                |
+| **Routing**     | Manual route definitions  | File-based auto-routing                    |
+| **Bundle Size** | Larger (full server code) | Minimal (only interactive JS)              |
 
 ### 2. Pages & Templates
+
 - **15 Astro pages** replacing EJS templates
 - **File-based routing** (no manual route setup)
 - **Selective hydration** (React only where needed)
 - **Better performance** (static HTML by default)
 
 Examples:
+
 - `views/index.ejs` → `src/pages/index.astro`
 - `views/login.ejs` → `src/pages/login.astro`
 - `views/layout.ejs` → `src/layouts/BaseLayout.astro`
 
 ### 3. Styling
+
 - **Replaced custom CSS** with TailwindCSS utilities
 - **Utility-first approach** (no more custom class definitions)
 - **Built-in components** (`.btn-primary`, `.card`, `.text-gradient`)
 - **Responsive design** with TailwindCSS breakpoints
 
 Before:
+
 ```css
-.btn { /* custom style */ }
-.card { /* custom style */ }
+.btn {
+  /* custom style */
+}
+.card {
+  /* custom style */
+}
 ```
 
 After:
+
 ```css
 @layer components {
-  .btn-primary { @apply bg-cyan-500/90 hover:bg-cyan-400 ...; }
-  .card { @apply rounded-xl bg-slate-800/80 ...; }
+  .btn-primary {
+    @apply bg-cyan-500/90 hover:bg-cyan-400 ...;
+  }
+  .card {
+    @apply rounded-xl bg-slate-800/80 ...;
+  }
 }
 ```
 
 ### 4. Interactivity
+
 - **React components** for dynamic UI
 - **React hooks** for state management
 - **Client-side form handling** with validation
@@ -187,12 +209,14 @@ After:
 - **Modal components** for dialogs
 
 ### 5. API Routes
+
 - **Astro API endpoints** replacing Express routes
 - **TypeScript-based** API routes
 - **JWT authentication** with HTTP-only cookies
 - **Proper error handling** and response formatting
 
 Example:
+
 ```typescript
 // Old: Express route
 app.post("/api/auth/login", authMiddleware, (req, res) => { ... })
@@ -207,6 +231,7 @@ export const POST: APIRoute = async (context) => {
 ## Dependencies Removed
 
 Old Express dependencies (no longer needed):
+
 - `express`
 - `ejs`
 - `cors`
@@ -220,6 +245,7 @@ Old Express dependencies (no longer needed):
 ## Dependencies Added
 
 New Astro dependencies:
+
 - `astro` ^4.2.0
 - `@astrojs/react` ^3.0.0
 - `@astrojs/tailwind` ^5.0.0
@@ -230,6 +256,7 @@ New Astro dependencies:
 ## Getting Started
 
 ### Installation
+
 ```bash
 # Install dependencies
 pnpm install
@@ -242,6 +269,7 @@ pnpm run dev
 ```
 
 ### Available Commands
+
 ```bash
 pnpm run dev          # Start dev server (http://localhost:3000)
 pnpm run build        # Build for production
