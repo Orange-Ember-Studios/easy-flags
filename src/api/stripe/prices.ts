@@ -4,7 +4,7 @@ import { stripeClient } from "@/lib/stripeClient";
 export const GET: APIRoute = async (context) => {
   try {
     console.log("Fetching Stripe prices...");
-    
+
     const prices = await stripeClient.prices.list({
       active: true,
       expand: ["data.product"],

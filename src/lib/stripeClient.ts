@@ -1,13 +1,11 @@
 import Stripe from "stripe";
 
-const stripeSecret = process.env.STRIPE_SECRET_KEY || "";
+const stripeSecret = process.env.STRIPE_SECRET_KEY;
 
 if (!stripeSecret) {
-  console.warn(
-    "STRIPE_SECRET_KEY not set; Stripe API calls will fail in production",
+  throw new Error(
+    "STRIPE_SECRET_KEY not set in environment variables. Please add it to your .env file.",
   );
 }
 
-export const stripeClient = new Stripe(stripeSecret, {
-  apiVersion: "2024-06-20",
-});
+export const stripeClient = new Stripe(stripeSecret);
