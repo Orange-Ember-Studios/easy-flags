@@ -194,6 +194,11 @@ async function seedDefaultData(client) {
   console.log("\n🌱 Seeding default data...");
 
   try {
+    // Cleanup: Remove any feature_permissions rows with NULL role_id (data integrity)
+    await client.execute(
+      "DELETE FROM feature_permissions WHERE role_id IS NULL",
+    );
+
     // Check if roles already exist
     const rolesResult = await client.execute(
       "SELECT COUNT(*) as count FROM roles",
@@ -202,6 +207,15 @@ async function seedDefaultData(client) {
 
     if (rolesCount > 0) {
       console.log("⏭️  Database already seeded, skipping seed step");
+      // After skipping, still check for any NULL role_id rows and warn
+      const nullPerms = await client.execute(
+        "SELECT COUNT(*) as count FROM feature_permissions WHERE role_id IS NULL",
+      );
+      if (nullPerms.rows[0]?.count > 0) {
+        console.warn(
+          `⚠️  WARNING: Found ${nullPerms.rows[0].count} feature_permissions rows with NULL role_id. Please investigate and clean up.`,
+        );
+      }
       return;
     }
 
@@ -230,19 +244,17 @@ async function seedDefaultData(client) {
       args: [3, "viewer", "Viewer can only read features"],
     });
 
-    // Seed feature permissions
-    const FEATURES = {
-      FEATURE_FLAGS: "feature_flags",
-      SPACES: "spaces",
-      ENVIRONMENTS: "environments",
-      BILLING: "billing",
-      SETTINGS: "settings",
-      DATABASE_INSPECTOR: "database_inspector",
-      API_REFERENCE: "api_reference",
-    };
-
-    // Super user permissions (all features)
-    const superUserFeatures = Object.values(FEATURES);
+    // Seed feature permissions using defined defaults
+    // SUPER_USER (role_id: 0) - all features
+    const superUserFeatures = [
+      "feature_flags",
+      "spaces",
+      "environments",
+      "billing",
+      "settings",
+      "database_inspector",
+      "api_reference",
+    ];
     for (const feature of superUserFeatures) {
       await client.execute({
         sql: "INSERT INTO feature_permissions (role_id, feature_name) VALUES (?, ?)",
@@ -250,10 +262,15 @@ async function seedDefaultData(client) {
       });
     }
 
-    // Admin permissions (all except database_inspector)
-    const adminFeatures = Object.values(FEATURES).filter(
-      (f) => f !== FEATURES.DATABASE_INSPECTOR,
-    );
+    // ADMIN (role_id: 1) - all except database_inspector
+    const adminFeatures = [
+      "feature_flags",
+      "spaces",
+      "environments",
+      "billing",
+      "settings",
+      "api_reference",
+    ];
     for (const feature of adminFeatures) {
       await client.execute({
         sql: "INSERT INTO feature_permissions (role_id, feature_name) VALUES (?, ?)",
@@ -261,12 +278,12 @@ async function seedDefaultData(client) {
       });
     }
 
-    // Editor permissions
+    // EDITOR (role_id: 2) - feature flags, spaces, environments, api_reference
     const editorFeatures = [
-      FEATURES.FEATURE_FLAGS,
-      FEATURES.SPACES,
-      FEATURES.ENVIRONMENTS,
-      FEATURES.API_REFERENCE,
+      "feature_flags",
+      "spaces",
+      "environments",
+      "api_reference",
     ];
     for (const feature of editorFeatures) {
       await client.execute({
@@ -275,8 +292,8 @@ async function seedDefaultData(client) {
       });
     }
 
-    // Viewer permissions
-    const viewerFeatures = [FEATURES.FEATURE_FLAGS, FEATURES.API_REFERENCE];
+    // VIEWER (role_id: 3) - feature flags, api_reference (read-only access)
+    const viewerFeatures = ["feature_flags", "api_reference"];
     for (const feature of viewerFeatures) {
       await client.execute({
         sql: "INSERT INTO feature_permissions (role_id, feature_name) VALUES (?, ?)",
@@ -313,6 +330,16 @@ async function seedDefaultData(client) {
         adminUser.role_id,
       ],
     });
+
+    // After seeding, check for any NULL role_id rows and warn
+    const nullPerms = await client.execute(
+      "SELECT COUNT(*) as count FROM feature_permissions WHERE role_id IS NULL",
+    );
+    if (nullPerms.rows[0]?.count > 0) {
+      console.warn(
+        `⚠️  WARNING: Found ${nullPerms.rows[0].count} feature_permissions rows with NULL role_id after seeding. Please investigate and clean up.`,
+      );
+    }
 
     console.log(`✅ Default data seeded`);
     console.log(`   - 4 roles created (super_user, admin, editor, viewer)`);
