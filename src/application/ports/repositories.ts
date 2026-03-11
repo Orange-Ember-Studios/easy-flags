@@ -91,6 +91,7 @@ export interface EnvironmentRepository {
   create(spaceId: number, dto: CreateEnvironmentDTO): Promise<Environment>;
   update(id: number, dto: Partial<CreateEnvironmentDTO>): Promise<Environment>;
   delete(id: number): Promise<void>;
+  regenerateApiKey(id: number): Promise<Environment>;
 }
 
 // ====================

@@ -139,6 +139,10 @@ export class EnvironmentService {
   async deleteEnvironment(id: number): Promise<void> {
     return this.registry.getEnvironmentRepository().delete(id);
   }
+
+  async regenerateApiKey(id: number): Promise<Environment> {
+    return this.registry.getEnvironmentRepository().regenerateApiKey(id);
+  }
 }
 
 // ====================

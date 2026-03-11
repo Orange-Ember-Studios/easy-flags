@@ -6,6 +6,7 @@ interface EnvironmentDetailViewProps {
   envId: string | undefined;
   envName: string;
   envDescription?: string;
+  apiKey: string;
   createdAt?: string;
 }
 
@@ -14,11 +15,14 @@ export default function EnvironmentDetailView({
   envId,
   envName,
   envDescription,
+  apiKey,
   createdAt,
 }: EnvironmentDetailViewProps) {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [spaceName, setSpaceName] = useState("Space");
+  const [currentApiKey, setCurrentApiKey] = useState(apiKey);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   useEffect(() => {
     fetchEnvironmentData();
@@ -78,7 +82,32 @@ export default function EnvironmentDetailView({
   };
 
   const colors = getEnvironmentColor(envName);
-  const apiKey = `env_${envId}_${Math.random().toString(36).substring(2, 15)}`;
+
+  const handleRegenerateKey = async () => {
+    if (!envId || !spaceId) return;
+
+    try {
+      setIsRegenerating(true);
+      const response = await fetch(
+        `/api/spaces/${spaceId}/environments/${envId}/regenerate-key`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        const updatedEnv = await response.json();
+        setCurrentApiKey(updatedEnv.api_key);
+      } else {
+        console.error("Failed to regenerate API key");
+      }
+    } catch (error) {
+      console.error("Error regenerating API key:", error);
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -140,10 +169,10 @@ export default function EnvironmentDetailView({
                   <label className="block text-sm font-semibold text-slate-300 mb-2">
                     API Key
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mb-2">
                     <input
                       type="password"
-                      value={apiKey}
+                      value={currentApiKey}
                       readOnly
                       className="flex-1 bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
                     />
@@ -153,8 +182,15 @@ export default function EnvironmentDetailView({
                     >
                       Reveal
                     </button>
+                    <button
+                      onClick={handleRegenerateKey}
+                      disabled={isRegenerating}
+                      className="px-4 py-2 bg-orange-600 hover:bg-orange-500 disabled:bg-orange-700 text-white rounded text-sm font-semibold transition"
+                    >
+                      {isRegenerating ? "Regenerating..." : "Regenerate"}
+                    </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2">
+                  <p className="text-xs text-slate-500">
                     Use this key to authenticate requests to this environment
                   </p>
                 </div>
@@ -240,7 +276,7 @@ export default function EnvironmentDetailView({
             {/* Content */}
             <div className="p-6 space-y-4">
               <div className="p-4 bg-slate-900 border border-slate-700 rounded font-mono text-sm break-all">
-                <p className="text-cyan-400">{apiKey}</p>
+                <p className="text-cyan-400">{currentApiKey}</p>
               </div>
 
               <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded text-sm text-yellow-300">

@@ -496,4 +496,18 @@ export class LibSqlEnvironmentRepository implements EnvironmentRepository {
       args: [id],
     });
   }
+
+  async regenerateApiKey(id: number): Promise<Environment> {
+    const db = await this.getDb();
+    const newApiKey = `env_${id}_${Math.random().toString(36).substring(2, 13)}`;
+
+    await db.execute({
+      sql: `UPDATE environments SET api_key = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+      args: [newApiKey, id],
+    });
+
+    const updated = await this.findById(id);
+    if (!updated) throw new Error("Failed to regenerate API key");
+    return updated;
+  }
 }

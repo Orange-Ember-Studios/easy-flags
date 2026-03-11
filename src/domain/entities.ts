@@ -64,6 +64,7 @@ export interface Environment {
   slug: string;
   description?: string;
   type: EnvironmentType;
+  api_key: string;
   created_at: string;
   updated_at: string;
 }
