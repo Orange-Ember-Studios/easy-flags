@@ -7,12 +7,14 @@ interface Props {
   title?: string;
   description?: string;
   includeHeader?: boolean;
+  fullWidth?: boolean;
 }
 
 const {
   title = "Feature Flags",
   description = "Feature flag management system",
   includeHeader = true,
+  fullWidth = false,
 } = Astro.props;
 ---
 
@@ -33,11 +35,17 @@ const {
   <body class="h-screen">
     <div class="root h-full">
       {includeHeader && <Header />}
-      <div class="container mx-auto mt-12 px-4">
-        <div class="flex flex-col flex-1">
+      {
+        fullWidth ? (
           <slot />
-        </div>
-      </div>
+        ) : (
+          <div class="container mx-auto mt-12 px-4">
+            <div class="flex flex-col flex-1">
+              <slot />
+            </div>
+          </div>
+        )
+      }
       <Modals client:load />
     </div>
   </body>
