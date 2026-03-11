@@ -1,44 +1,36 @@
 /**
  * Mercadopago Backend Client
- * Uses @mercadopago/sdk-js with direct API calls for payment processing
+ * Uses @mercadopago/sdk-js Payment API for payment processing
  */
 
-const MERCADOPAGO_API_BASE = "https://api.mercadopago.com";
+import { Payment } from "@mercadopago/sdk-js";
 
 export class MercadopagoClient {
-  private static accessToken: string;
+  private static payment: Payment | null = null;
 
-  static initialize() {
-    const token = import.meta.env.MERCADOPAGO_ACCESS_TOKEN;
-    if (!token) {
-      throw new Error(
-        "MERCADOPAGO_ACCESS_TOKEN not set in environment variables",
-      );
+  static initialize(): Payment {
+    if (!this.payment) {
+      const accessToken = import.meta.env.MERCADOPAGO_ACCESS_TOKEN;
+      if (!accessToken) {
+        throw new Error(
+          "MERCADOPAGO_ACCESS_TOKEN not set in environment variables",
+        );
+      }
+
+      this.payment = new Payment({
+        accessToken,
+      });
     }
-    this.accessToken = token;
+    return this.payment;
   }
 
   static async createPayment(data: any) {
     try {
-      this.initialize();
-      
-      const response = await fetch(`${MERCADOPAGO_API_BASE}/v1/payments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.accessToken}`,
-        },
-        body: JSON.stringify(data),
+      const payment = this.initialize();
+      const response = await payment.create({
+        body: data,
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(
-          error.message || `Payment API error: ${response.statusText}`,
-        );
-      }
-
-      return await response.json();
+      return response;
     } catch (error: any) {
       throw new Error(
         error.message || "Failed to create payment with Mercadopago",
@@ -48,24 +40,11 @@ export class MercadopagoClient {
 
   static async getPayment(paymentId: number) {
     try {
-      this.initialize();
-      
-      const response = await fetch(
-        `${MERCADOPAGO_API_BASE}/v1/payments/${paymentId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.accessToken}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`Payment API error: ${response.statusText}`);
-      }
-
-      return await response.json();
+      const payment = this.initialize();
+      const response = await payment.get({
+        id: paymentId,
+      });
+      return response;
     } catch (error: any) {
       throw new Error(error.message || "Failed to retrieve payment");
     }
