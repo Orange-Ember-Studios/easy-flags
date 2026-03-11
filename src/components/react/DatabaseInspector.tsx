@@ -1,115 +1,48 @@
-import React, { useState, useEffect } from "react";
-
-interface TableInfo {
-  name: string;
-  rowCount: number;
-}
-
-interface ColumnInfo {
-  cid: number;
-  name: string;
-  type: string;
-  notnull: number;
-  dflt_value: string | null;
-  pk: number;
-}
+import React, { useEffect } from "react";
+import type { ColumnInfo } from "./dev";
+import {
+  SchemaTable,
+  FilterSection,
+  PaginationControls,
+  AddRowModal,
+  DataTable,
+} from "./dev";
+import {
+  useTableInspection,
+  useDataManipulation,
+  useAddRowModal,
+  useAddRowHandler,
+} from "./dev/hooks";
 
 export default function DatabaseInspector() {
-  const [tables, setTables] = useState<TableInfo[]>([]);
-  const [selectedTable, setSelectedTable] = useState<string | null>(null);
-  const [viewTab, setViewTab] = useState<"structure" | "records">("structure");
-  const [schema, setSchema] = useState<ColumnInfo[]>([]);
-  const [data, setData] = useState<Record<string, unknown>[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [rowLimit, setRowLimit] = useState(100);
+  // Custom hooks for state management
+  const tableInspection = useTableInspection();
+  const dataManipulation = useDataManipulation({
+    data: tableInspection.data,
+    itemsPerPage: 20,
+  });
+  const addRowModal = useAddRowModal();
 
-  // Load tables on mount
+  // Handler for adding rows
+  const { addRow: addRowToTable } = useAddRowHandler({
+    selectedTable: tableInspection.selectedTable,
+    schema: tableInspection.schema,
+    onSuccess: () => {
+      addRowModal.closeAddModal();
+      tableInspection.refetchData();
+    },
+    onError: (error) => {
+      // Error is managed internally in useTableInspection
+    },
+    onLoadingChange: () => {
+      // Loading is managed in useTableInspection
+    },
+  });
+
+  // Reset pagination when filter changes
   useEffect(() => {
-    fetchTables();
-  }, []);
-
-  // Load table schema and data when selection changes
-  useEffect(() => {
-    if (selectedTable) {
-      setViewTab("structure");
-      fetchTableSchema(selectedTable);
-      fetchTableData(selectedTable);
-    }
-  }, [selectedTable]);
-
-  async function fetchTables() {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/dev/inspector", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "getTables" }),
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch tables");
-      const result = await response.json();
-      setTables(result.tables);
-      if (result.tables.length > 0) {
-        setSelectedTable(result.tables[0].name);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchTableSchema(tableName: string) {
-    try {
-      const response = await fetch("/api/dev/inspector", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "getTableSchema", table: tableName }),
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch schema");
-      const result = await response.json();
-      setSchema(result.schema);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    }
-  }
-
-  async function fetchTableData(tableName: string) {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/dev/inspector", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "getTableData",
-          table: tableName,
-          limit: rowLimit,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch data");
-      const result = await response.json();
-      setData(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const handleRowLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newLimit = parseInt(e.target.value) || 100;
-    setRowLimit(newLimit);
-  };
-
-  const refetchData = () => {
-    if (selectedTable) {
-      fetchTableData(selectedTable);
-    }
-  };
+    dataManipulation.resetPagination();
+  }, [dataManipulation.filterText, dataManipulation.filterColumn]);
 
   return (
     <div className="min-h-screen bg-slate-900 p-8">
@@ -124,28 +57,28 @@ export default function DatabaseInspector() {
           </p>
         </div>
 
-        {error && (
+        {tableInspection.error && (
           <div className="mb-6 rounded-lg bg-red-950/50 border border-red-700/50 p-4 text-red-400">
-            ⚠️ Error: {error}
+            ⚠️ Error: {tableInspection.error}
           </div>
         )}
 
         {/* Tabs Navigation */}
         <div className="mb-8">
           <div className="flex items-center gap-2 border-b border-slate-700/50 overflow-x-auto pb-0">
-            {loading && tables.length === 0 ? (
+            {tableInspection.loading && tableInspection.tables.length === 0 ? (
               <div className="text-center py-4 flex-1">
                 <div className="inline-block animate-spin">⏳</div>
                 <p className="text-slate-400 text-sm mt-2">Loading tables...</p>
               </div>
             ) : (
               <>
-                {tables.map((table) => (
+                {tableInspection.tables.map((table) => (
                   <button
                     key={table.name}
-                    onClick={() => setSelectedTable(table.name)}
+                    onClick={() => tableInspection.setSelectedTable(table.name)}
                     className={`px-4 py-3 font-mono text-sm whitespace-nowrap transition-colors border-b-2 ${
-                      selectedTable === table.name
+                      tableInspection.selectedTable === table.name
                         ? "border-b-2 border-cyan-500 text-cyan-300 bg-slate-800/50"
                         : "border-b-2 border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-600"
                     }`}
@@ -160,7 +93,7 @@ export default function DatabaseInspector() {
             )}
             <div className="ml-auto flex items-center gap-2">
               <button
-                onClick={fetchTables}
+                onClick={tableInspection.fetchTables}
                 className="px-3 py-2 text-sm bg-cyan-500/20 text-cyan-300 border border-cyan-600/50 rounded hover:bg-cyan-500/30 hover:border-cyan-500 transition-colors font-medium whitespace-nowrap"
               >
                 🔄 Refresh
@@ -171,193 +104,128 @@ export default function DatabaseInspector() {
 
         {/* Content Area */}
         <div>
-          {selectedTable ? (
+          {tableInspection.selectedTable ? (
             <div>
               {/* Sub-tabs Navigation */}
               <div className="flex gap-1 border-b border-slate-700/50 mb-6">
                 <button
-                  onClick={() => setViewTab("structure")}
+                  onClick={() => tableInspection.setViewTab("records")}
                   className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-                    viewTab === "structure"
-                      ? "border-cyan-500 text-cyan-300 bg-slate-800/30"
-                      : "border-transparent text-slate-400 hover:text-slate-300"
-                  }`}
-                >
-                  📋 Structure
-                </button>
-                <button
-                  onClick={() => setViewTab("records")}
-                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-                    viewTab === "records"
+                    tableInspection.viewTab === "records"
                       ? "border-cyan-500 text-cyan-300 bg-slate-800/30"
                       : "border-transparent text-slate-400 hover:text-slate-300"
                   }`}
                 >
                   📊 Records
                 </button>
+                <button
+                  onClick={() => tableInspection.setViewTab("structure")}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                    tableInspection.viewTab === "structure"
+                      ? "border-cyan-500 text-cyan-300 bg-slate-800/30"
+                      : "border-transparent text-slate-400 hover:text-slate-300"
+                  }`}
+                >
+                  📋 Structure
+                </button>
               </div>
 
               <div className="space-y-6">
                 {/* Schema Section */}
-                {viewTab === "structure" && (
-                  <div className="bg-slate-800/80 rounded-xl shadow-lg p-6 border border-cyan-700/30">
-                    <h2 className="text-lg font-semibold text-cyan-300 mb-4">
-                      Schema:{" "}
-                      <span className="text-cyan-400 font-mono">
-                        {selectedTable}
-                      </span>
-                    </h2>
-
-                    {schema.length > 0 ? (
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-slate-700/50 border-b-2 border-cyan-700/30">
-                              <th className="text-left px-4 py-2 font-semibold text-cyan-300">
-                                Column
-                              </th>
-                              <th className="text-left px-4 py-2 font-semibold text-cyan-300">
-                                Type
-                              </th>
-                              <th className="text-left px-4 py-2 font-semibold text-cyan-300">
-                                Default
-                              </th>
-                              <th className="text-left px-4 py-2 font-semibold text-cyan-300">
-                                Constraints
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {schema.map((col) => (
-                              <tr
-                                key={col.cid}
-                                className="border-b border-slate-700/50 hover:bg-slate-700/30"
-                              >
-                                <td className="px-4 py-2 font-mono text-slate-200">
-                                  {col.pk ? "🔑" : ""} {col.name}
-                                </td>
-                                <td className="px-4 py-2 text-slate-400">
-                                  {col.type}
-                                </td>
-                                <td className="px-4 py-2 text-slate-400 font-mono text-xs">
-                                  {col.dflt_value ? (
-                                    <span className="text-slate-300">
-                                      {col.dflt_value}
-                                    </span>
-                                  ) : (
-                                    <span className="text-slate-500 italic">
-                                      -
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="px-4 py-2 text-slate-400">
-                                  {(!!col.pk || !!col.notnull) && (
-                                    <div className="flex gap-1 flex-wrap">
-                                      {!!col.pk && (
-                                        <span className="px-2 py-1 bg-purple-900/40 text-purple-300 rounded text-xs border border-purple-700/30">
-                                          PK
-                                        </span>
-                                      )}
-                                      {!!col.notnull && (
-                                        <span className="px-2 py-1 bg-red-900/40 text-red-300 rounded text-xs border border-red-700/30">
-                                          NOT NULL
-                                        </span>
-                                      )}
-                                    </div>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : (
-                      <p className="text-slate-400">No schema available</p>
-                    )}
-                  </div>
+                {tableInspection.viewTab === "structure" && (
+                  <SchemaTable
+                    selectedTable={tableInspection.selectedTable}
+                    schema={tableInspection.schema}
+                  />
                 )}
 
                 {/* Data Section */}
-                {viewTab === "records" && (
+                {tableInspection.viewTab === "records" && (
                   <div className="bg-slate-800/80 rounded-xl shadow-lg p-6 border border-cyan-700/30">
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-lg font-semibold text-cyan-300">
                         Data{" "}
-                        {data.length > 0 && `(showing ${data.length} rows)`}
+                        {tableInspection.data.length > 0 &&
+                          `(page ${dataManipulation.currentPage} of ${dataManipulation.getTotalPages()}, showing ${dataManipulation.getPaginatedData().length} of ${dataManipulation.getFilteredData().length} rows)`}
                       </h2>
-                      <div className="flex gap-2 items-center">
+                      <div className="flex gap-2 items-center flex-wrap">
                         <label className="text-sm text-slate-300 font-medium">
-                          Limit:
+                          Per Page:
+                        </label>
+                        <select
+                          value="20"
+                          onChange={(e) => {
+                            // Items per page is fixed at 20 in this version
+                            // Can be made dynamic if needed
+                          }}
+                          className="px-2 py-1 border border-slate-600 bg-slate-700 text-slate-200 rounded text-sm focus:outline-none focus:border-cyan-500"
+                        >
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                          <option value={100}>100</option>
+                        </select>
+                        <label className="text-sm text-slate-300 font-medium">
+                          Query Limit:
                         </label>
                         <input
                           type="number"
                           min="1"
                           max="1000"
-                          value={rowLimit}
-                          onChange={handleRowLimitChange}
+                          value={tableInspection.rowLimit}
+                          onChange={tableInspection.handleRowLimitChange}
                           className="w-20 px-2 py-1 border border-slate-600 bg-slate-700 text-slate-200 rounded text-sm focus:outline-none focus:border-cyan-500"
                         />
                         <button
-                          onClick={refetchData}
-                          disabled={loading}
+                          onClick={tableInspection.refetchData}
+                          disabled={tableInspection.loading}
                           className="px-4 py-1 bg-cyan-600/80 text-cyan-100 rounded text-sm hover:bg-cyan-600 disabled:opacity-50 transition-colors font-medium"
                         >
-                          {loading ? "Loading..." : "Fetch"}
+                          {tableInspection.loading ? "Loading..." : "Fetch"}
+                        </button>
+                        <button
+                          onClick={addRowModal.openAddModal}
+                          className="px-4 py-1 bg-green-600/80 text-green-100 rounded text-sm hover:bg-green-600 transition-colors font-medium whitespace-nowrap"
+                        >
+                          ➕ Add Row
                         </button>
                       </div>
                     </div>
 
-                    {loading ? (
+                    {/* Filter Section */}
+                    <FilterSection
+                      schema={tableInspection.schema}
+                      filterColumn={dataManipulation.filterColumn}
+                      filterText={dataManipulation.filterText}
+                      onFilterColumnChange={dataManipulation.setFilterColumn}
+                      onFilterTextChange={dataManipulation.setFilterText}
+                      onClearFilter={() => {
+                        dataManipulation.setFilterText("");
+                        dataManipulation.setFilterColumn(null);
+                      }}
+                      hasData={tableInspection.data.length > 0}
+                    />
+
+                    {tableInspection.loading ? (
                       <div className="text-center py-12">
                         <div className="inline-block text-3xl animate-spin">
                           ⏳
                         </div>
                         <p className="text-slate-400 mt-2">Loading data...</p>
                       </div>
-                    ) : data.length > 0 ? (
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="bg-slate-700/50 border-b-2 border-cyan-700/30 sticky top-0">
-                              {schema.map((col) => (
-                                <th
-                                  key={col.name}
-                                  className="text-left px-3 py-2 font-semibold text-cyan-300 whitespace-nowrap"
-                                >
-                                  {col.name}
-                                </th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {data.map((row, idx) => (
-                              <tr
-                                key={idx}
-                                className="border-b border-slate-700/50 hover:bg-slate-700/30"
-                              >
-                                {schema.map((col) => (
-                                  <td
-                                    key={col.name}
-                                    className="px-3 py-2 text-slate-300 max-w-xs overflow-hidden text-ellipsis"
-                                    title={String(row[col.name] ?? "")}
-                                  >
-                                    {row[col.name] ? (
-                                      <span className="font-mono">
-                                        {typeof row[col.name] === "object"
-                                          ? JSON.stringify(row[col.name])
-                                          : String(row[col.name])}
-                                      </span>
-                                    ) : (
-                                      <span className="text-slate-500 italic">
-                                        null
-                                      </span>
-                                    )}
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                    ) : tableInspection.data.length > 0 ? (
+                      <div className="space-y-4">
+                        <DataTable
+                          schema={tableInspection.schema}
+                          paginatedData={dataManipulation.getPaginatedData()}
+                          deleting={tableInspection.deleting}
+                          onDeleteRow={tableInspection.deleteRow}
+                        />
+
+                        <PaginationControls
+                          currentPage={dataManipulation.currentPage}
+                          totalPages={dataManipulation.getTotalPages()}
+                          onPageChange={dataManipulation.setCurrentPage}
+                        />
                       </div>
                     ) : (
                       <p className="text-center text-slate-400 py-8">
@@ -377,6 +245,18 @@ export default function DatabaseInspector() {
           )}
         </div>
       </div>
+
+      {/* Add Row Modal */}
+      <AddRowModal
+        isOpen={addRowModal.showAddModal}
+        selectedTable={tableInspection.selectedTable}
+        schema={tableInspection.schema}
+        formData={addRowModal.formData}
+        loading={tableInspection.loading}
+        onFormChange={addRowModal.handleFormChange}
+        onAddRow={() => addRowToTable(addRowModal.formData)}
+        onClose={addRowModal.closeAddModal}
+      />
     </div>
   );
 }

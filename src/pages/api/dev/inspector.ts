@@ -1,13 +1,22 @@
 import type { APIRoute } from "astro";
 import { getDatabase } from "../../../lib/db";
+import type { InArgs } from "@libsql/client";
 
 // Only allow in development
 export const prerender = false;
 
 interface InspectorRequest {
-  action: "getTables" | "getTableData" | "getTableSchema";
+  action:
+    | "getTables"
+    | "getTableData"
+    | "getTableSchema"
+    | "addRow"
+    | "deleteRow";
   table?: string;
   limit?: number;
+  rowData?: Record<string, unknown>;
+  rowId?: string | number;
+  primaryKey?: string;
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -94,6 +103,64 @@ export const POST: APIRoute = async ({ request }) => {
 
       return new Response(
         JSON.stringify({ data: result.rows, total: result.rows.length }),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    if (body.action === "addRow") {
+      if (!body.table || !body.rowData) {
+        return new Response(
+          JSON.stringify({ error: "Table name and row data required" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const columns = Object.keys(body.rowData);
+      const values = Object.values(body.rowData);
+      const placeholders = columns.map(() => "?").join(",");
+
+      const query = `INSERT INTO ${body.table} (${columns.join(",")}) VALUES (${placeholders})`;
+
+      await db.execute({
+        sql: query,
+        args: values as InArgs,
+      });
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Row added successfully" }),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    if (body.action === "deleteRow") {
+      if (!body.table || body.rowId === undefined || !body.primaryKey) {
+        return new Response(
+          JSON.stringify({
+            error: "Table name, row ID, and primary key name required",
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const query = `DELETE FROM ${body.table} WHERE ${body.primaryKey} = ?`;
+
+      await db.execute({
+        sql: query,
+        args: [body.rowId],
+      });
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Row deleted successfully" }),
         {
           headers: { "Content-Type": "application/json" },
         },
