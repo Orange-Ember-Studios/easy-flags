@@ -57,55 +57,60 @@ const plans: BillingPlan[] = [
 ];
 ---
 
-<div class="flex flex-nowrap justify-center gap-8 md:gap-12 overflow-x-auto pb-4 px-4 md:px-12 my-16 md:my-24" style="overflow:visible">
-  {plans.map((plan) => (
-    <div
-      class={`border rounded-xl p-8 transition space-y-8 mx-auto min-w-[340px] max-w-[420px] w-full ${
-        plan.recommended
-          ? "border-cyan-500/80 bg-gradient-to-b from-cyan-500/10 to-slate-800/50 ring-2 ring-cyan-500/30 scale-105"
-          : "border-slate-700 bg-slate-800/50 hover:border-cyan-500/30"
-      }`}
-    >
-      {plan.recommended && (
-        <div class="mb-4 text-sm font-semibold text-cyan-400 bg-cyan-500/10 w-fit px-3 py-1 rounded-full">
-          Recommended
-        </div>
-      )}
-      <h3 class="text-2xl font-bold text-cyan-300 mb-2">{plan.name}</h3>
-      {plan.description && (
-        <p class="text-slate-400 text-sm mb-4">{plan.description}</p>
-      )}
-      <div class="flex items-baseline gap-1 mb-6">
-        <span class="text-4xl font-bold text-white">${plan.price}</span>
-        <span class="text-slate-400">/month</span>
-      </div>
-      <CheckoutButton client:load plan={plan} />
-      <div class="space-y-3">
-        {plan.features.map((feature) => (
-          <div class="flex gap-2 items-start">
-            <svg
-              class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span class="text-slate-300 text-sm">{feature}</span>
+<div
+  class="flex flex-nowrap justify-center gap-8 md:gap-12 overflow-x-auto pb-4 px-4 md:px-12 my-16 md:my-24"
+  style="overflow:visible"
+>
+  {
+    plans.map((plan) => (
+      <div
+        class={`border rounded-xl p-8 transition space-y-8 mx-auto min-w-[340px] max-w-[420px] w-full ${
+          plan.recommended
+            ? "border-cyan-500/80 bg-gradient-to-b from-cyan-500/10 to-slate-800/50 ring-2 ring-cyan-500/30 scale-105"
+            : "border-slate-700 bg-slate-800/50 hover:border-cyan-500/30"
+        }`}
+      >
+        {plan.recommended && (
+          <div class="mb-4 text-sm font-semibold text-cyan-400 bg-cyan-500/10 w-fit px-3 py-1 rounded-full">
+            Recommended
           </div>
-        ))}
+        )}
+        <h3 class="text-2xl font-bold text-cyan-300 mb-2">{plan.name}</h3>
+        {plan.description && (
+          <p class="text-slate-400 text-sm mb-4">{plan.description}</p>
+        )}
+        <div class="flex items-baseline gap-1 mb-6">
+          <span class="text-4xl font-bold text-white">${plan.price}</span>
+          <span class="text-slate-400">/month</span>
+        </div>
+        <CheckoutButton client:load plan={plan} />
+        <div class="space-y-3">
+          {plan.features.map((feature) => (
+            <div class="flex gap-2 items-start">
+              <svg
+                class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span class="text-slate-300 text-sm">{feature}</span>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  ))}
+    ))
+  }
 </div>
 <div class="card text-center my-12">
   <h3 class="text-xl font-bold text-cyan-300 mb-2">Custom Plan</h3>
   <p class="text-slate-400 mb-4">
-    Need something different? Contact our sales team for a custom plan
-    tailored to your needs.
+    Need something different? Contact our sales team for a custom plan tailored
+    to your needs.
   </p>
   <a href="/contact" class="text-cyan-400 hover:text-cyan-300 transition">
     Get in touch →
