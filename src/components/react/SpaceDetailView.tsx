@@ -9,12 +9,32 @@ interface Space {
   created_at: string;
 }
 
+interface SpaceStats {
+  environmentsCount: number;
+  featuresCount: number;
+  teamMembersCount: number;
+  apiKeysCount: number;
+  recentActivity: Array<{
+    icon: string;
+    action: string;
+    name: string;
+    time: string;
+  }>;
+}
+
 interface SpaceDetailViewProps {
   spaceId: string | undefined;
 }
 
 export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
   const [space, setSpace] = useState<Space | null>(null);
+  const [stats, setStats] = useState<SpaceStats>({
+    environmentsCount: 0,
+    featuresCount: 0,
+    teamMembersCount: 0,
+    apiKeysCount: 0,
+    recentActivity: [],
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -24,6 +44,13 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
         if (response.ok) {
           const data = await response.json();
           setSpace(data);
+
+          // Fetch stats
+          await Promise.all([
+            fetchEnvironmentsCount(),
+            fetchFeaturesCount(),
+            fetchTeamMembersCount(),
+          ]);
         } else {
           setSpace(null);
         }
@@ -39,6 +66,51 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
       fetchSpace();
     }
   }, [spaceId]);
+
+  const fetchEnvironmentsCount = async () => {
+    try {
+      const response = await fetch(`/api/spaces/${spaceId}/environments`);
+      if (response.ok) {
+        const data = await response.json();
+        setStats((prev) => ({
+          ...prev,
+          environmentsCount: data.data?.length || 0,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch environments:", error);
+    }
+  };
+
+  const fetchFeaturesCount = async () => {
+    try {
+      const response = await fetch(`/api/spaces/${spaceId}/features`);
+      if (response.ok) {
+        const data = await response.json();
+        setStats((prev) => ({
+          ...prev,
+          featuresCount: data.data?.length || 0,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch features:", error);
+    }
+  };
+
+  const fetchTeamMembersCount = async () => {
+    try {
+      const response = await fetch(`/api/spaces/${spaceId}/team-members`);
+      if (response.ok) {
+        const data = await response.json();
+        setStats((prev) => ({
+          ...prev,
+          teamMembersCount: data.data?.length || 0,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch team members:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -101,14 +173,20 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
           <div className="flex items-start justify-between mb-6">
             <div className="text-4xl">🌍</div>
             <span className="text-xs font-bold text-blue-400 bg-blue-500/20 px-2 py-1 rounded">
-              3
+              {stats.environmentsCount}
             </span>
           </div>
           <p className="text-slate-400 text-sm mb-3 font-medium">
             Environments
           </p>
-          <p className="text-2xl font-bold text-blue-300 mb-4">Production</p>
-          <p className="text-xs text-slate-500 mb-6">Staging • Development</p>
+          <p className="text-2xl font-bold text-blue-300 mb-4">
+            {stats.environmentsCount === 0
+              ? "No environments"
+              : stats.environmentsCount === 1
+              ? "1 environment"
+              : `${stats.environmentsCount} environments`}
+          </p>
+          <p className="text-xs text-slate-500 mb-6">Configured</p>
           <a
             href={`/spaces/${spaceId}/environments`}
             className="inline-block text-blue-400 hover:text-blue-300 text-sm font-semibold"
@@ -122,12 +200,16 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
           <div className="flex items-start justify-between mb-6">
             <div className="text-4xl">⚙️</div>
             <span className="text-xs font-bold text-purple-400 bg-purple-500/20 px-2 py-1 rounded">
-              12
+              {stats.featuresCount}
             </span>
           </div>
           <p className="text-slate-400 text-sm mb-3 font-medium">Features</p>
           <p className="text-2xl font-bold text-purple-300 mb-4">
-            Feature Flags
+            {stats.featuresCount === 0
+              ? "No features"
+              : stats.featuresCount === 1
+              ? "1 feature"
+              : `${stats.featuresCount} features`}
           </p>
           <p className="text-xs text-slate-500 mb-6">Active and configured</p>
           <a
@@ -143,11 +225,27 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
           <div className="flex items-start justify-between mb-6">
             <div className="text-4xl">👥</div>
             <span className="text-xs font-bold text-green-400 bg-green-500/20 px-2 py-1 rounded">
-              5
+              {stats.teamMembersCount}
             </span>
           </div>
           <p className="text-slate-400 text-sm mb-3 font-medium">
             Team Members
+          </p>
+          <p className="text-2xl font-bold text-green-300 mb-4">
+            {stats.teamMembersCount === 0
+              ? "No members"
+              : stats.teamMembersCount === 1
+              ? "1 member"
+              : `${stats.teamMembersCount} members`}
+          </p>
+          <p className="text-xs text-slate-500 mb-6">Space collaborators</p>
+          <a
+            href={`/spaces/${spaceId}/permissions`}
+            className="inline-block text-green-400 hover:text-green-300 text-sm font-semibold"
+          >
+            Manage →
+          </a>
+        </div>
           </p>
           <p className="text-2xl font-bold text-green-300 mb-4">Active Users</p>
           <p className="text-xs text-slate-500 mb-6">
@@ -166,11 +264,17 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
           <div className="flex items-start justify-between mb-6">
             <div className="text-4xl">🔑</div>
             <span className="text-xs font-bold text-orange-400 bg-orange-500/20 px-2 py-1 rounded">
-              2
+              {stats.apiKeysCount}
             </span>
           </div>
           <p className="text-slate-400 text-sm mb-3 font-medium">API Keys</p>
-          <p className="text-2xl font-bold text-orange-300 mb-4">Active Keys</p>
+          <p className="text-2xl font-bold text-orange-300 mb-4">
+            {stats.apiKeysCount === 0
+              ? "No keys"
+              : stats.apiKeysCount === 1
+              ? "1 key"
+              : `${stats.apiKeysCount} keys`}
+          </p>
           <p className="text-xs text-slate-500 mb-6">Ready for integration</p>
           <a
             href="#"
@@ -235,44 +339,33 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
               <span>📋</span> Recent Activity
             </h3>
             <div className="space-y-5">
-              {[
-                {
-                  icon: "✨",
-                  action: "Feature added",
-                  name: "dark_mode",
-                  time: "2 hours ago",
-                },
-                {
-                  icon: "👤",
-                  action: "Team member added",
-                  name: "john@example.com",
-                  time: "5 hours ago",
-                },
-                {
-                  icon: "🚀",
-                  action: "Environment created",
-                  name: "Production",
-                  time: "1 day ago",
-                },
-              ].map((activity, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700/50 hover:border-slate-600/50 transition-all"
-                >
-                  <span className="text-2xl flex-shrink-0">
-                    {activity.icon}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white font-medium truncate">
-                      {activity.action}:{" "}
-                      <span className="text-cyan-300">{activity.name}</span>
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {activity.time}
-                    </p>
+              {stats.recentActivity.length > 0 ? (
+                stats.recentActivity.map((activity, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700/50 hover:border-slate-600/50 transition-all"
+                  >
+                    <span className="text-2xl flex-shrink-0">
+                      {activity.icon}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-white font-medium truncate">
+                        {activity.action}:{" "}
+                        <span className="text-cyan-300">{activity.name}</span>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {activity.time}
+                      </p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-slate-400 text-sm">
+                    No recent activity yet
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
