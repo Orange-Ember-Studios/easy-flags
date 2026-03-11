@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import MercadopagoCheckoutForm from "./MercadopagoCheckoutForm";
 
 interface BillingPlan {
   name: string;
@@ -15,55 +14,54 @@ interface CheckoutButtonProps {
 }
 
 export default function CheckoutButton({ plan }: CheckoutButtonProps) {
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleCheckout = async () => {
-    // Check if user is logged in
-    const userResponse = await fetch("/api/auth/me");
-    if (!userResponse.ok) {
-      window.location.href = "/login";
-      return;
-    }
+    setLoading(true);
+    try {
+      // Check if user is logged in
+      const userResponse = await fetch("/api/auth/me");
+      if (!userResponse.ok) {
+        window.location.href = "/login";
+        return;
+      }
 
-    // Show payment form
-    setShowPaymentForm(true);
+      // TODO: Implement payment processing
+      alert(`${plan.name} plan selected. Payment processing coming soon!`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (showPaymentForm && plan.price > 0) {
+  // Free tier - direct navigation
+  if (plan.price === 0) {
     return (
-      <div className="space-y-4 mb-6">
-        <button
-          onClick={() => setShowPaymentForm(false)}
-          className="text-sm text-slate-400 hover:text-slate-300 transition"
-        >
-          ← Back
-        </button>
-        <MercadopagoCheckoutForm
-          planId={plan.priceId || ""}
-          planTitle={plan.name}
-          amount={plan.price * 100} // Convert to cents
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-2 mb-6">
-      {plan.price === 0 ? (
+      <div className="space-y-2 mb-6">
         <a
           href="/spaces"
           className="block w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition"
         >
           Get Started
         </a>
-      ) : (
-        <button
-          onClick={handleCheckout}
-          className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg transition"
-        >
-          Get Started
-        </button>
-      )}
+      </div>
+    );
+  }
+
+  // Paid plans - coming soon
+  return (
+    <div className="space-y-2 mb-6">
+      <button
+        onClick={handleCheckout}
+        disabled={loading}
+        className={`w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg transition ${
+          loading ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+      >
+        {loading ? "Processing..." : "Get Started"}
+      </button>
+      <p className="text-sm text-slate-400 text-center">
+        Payment processing coming soon
+      </p>
     </div>
   );
 }
