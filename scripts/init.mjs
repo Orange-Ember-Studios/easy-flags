@@ -13,6 +13,10 @@ import bcrypt from "bcryptjs";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
+import { config } from "dotenv";
+
+// Load environment variables from .env file
+config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -209,11 +213,20 @@ async function seedDefaultData(client) {
       });
     }
 
+    const username = process.env.ADMIN_USER;
+    const password = process.env.ADMIN_PASS;
+
+    if (!username || !password) {
+      throw new Error(
+        "ADMIN_USER and ADMIN_PASS environment variables must be set to create the default admin user",
+      );
+    }
+
     // Insert default admin user
     const adminUser = {
-      username: process.env.ADMIN_USER || "admin",
+      username: username,
+      passwordPlain: password,
       email: "admin@example.com",
-      passwordPlain: process.env.ADMIN_PASS || "password",
       role_id: 1,
     };
 
