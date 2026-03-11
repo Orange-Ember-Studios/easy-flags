@@ -1,6 +1,8 @@
 ---
 // src/pages/dev/db-inspector.astro
 // Development-only database inspection page
+export const prerender = false;
+
 import DatabaseInspector from "@/components/react/DatabaseInspector";
 import { requireAuth, getLoginUrl } from "@/utils/auth-redirect";
 import { isGlobalAdmin, ROLES } from "@/utils/permissions";
