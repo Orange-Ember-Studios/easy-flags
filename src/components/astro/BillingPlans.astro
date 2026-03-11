@@ -1,6 +1,6 @@
 ---
 import CheckoutButton from "@/components/react/CheckoutButton";
-import { StripeService } from "@/application/services/StripeService";
+import { MercadopagoService } from "@/application/services/MercadopagoService";
 
 interface BillingPlan {
   name: string;
@@ -15,23 +15,23 @@ let plans: BillingPlan[] = [];
 let error: string | null = null;
 
 try {
-  // Call StripeService directly - no HTTP roundtrip needed
-  const prices = await StripeService.getPrices();
+  // Call MercadopagoService directly - no HTTP roundtrip needed
+  const prices = await MercadopagoService.getPrices();
 
   if (prices && prices.length > 0) {
-    // Convert Stripe prices to billing plans
-    const stripePlans: BillingPlan[] = prices.map((price) => ({
-      name: price.product?.name || "Plan",
-      price: Math.ceil((price.unit_amount || 0) / 100),
+    // Convert Mercadopago prices to billing plans
+    const mercadopagoPlan: BillingPlan[] = prices.map((price) => ({
+      name: price.title,
+      price: Math.ceil(price.unit_amount / 100),
       features: [],
       priceId: price.id,
-      description: price.product?.description || undefined,
-      recommended: price.product?.name === "Basic",
+      description: price.description || undefined,
+      recommended: price.title === "Basic",
     }));
 
     // Sort plans in order: Lab, Basic, Pro
     const planOrder = ["Lab", "Basic", "Pro"];
-    stripePlans.sort((a, b) => {
+    mercadopagoPlan.sort((a, b) => {
       const indexA = planOrder.indexOf(a.name);
       const indexB = planOrder.indexOf(b.name);
       return (
@@ -40,7 +40,7 @@ try {
       );
     });
 
-    plans = stripePlans;
+    plans = mercadopagoPlan;
   } else {
     error = "No pricing plans available";
   }

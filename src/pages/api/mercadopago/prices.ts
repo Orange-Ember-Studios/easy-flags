@@ -1,11 +1,11 @@
 import type { APIRoute } from "astro";
-import { StripeService } from "@/application/services/StripeService";
+import { MercadopagoService } from "@/application/services/MercadopagoService";
 
 export const prerender = false;
 
 export const GET: APIRoute = async (context) => {
   try {
-    const prices = await StripeService.getPrices();
+    const prices = await MercadopagoService.getPrices();
 
     return new Response(
       JSON.stringify({
@@ -18,7 +18,7 @@ export const GET: APIRoute = async (context) => {
       },
     );
   } catch (error: any) {
-    console.error("Error fetching Stripe prices:", error.message, error);
+    console.error("Error fetching Mercadopago prices:", error.message, error);
     return new Response(
       JSON.stringify({
         success: false,

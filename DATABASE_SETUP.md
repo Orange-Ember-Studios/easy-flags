@@ -11,6 +11,7 @@ npm run db:init
 ```
 
 This command will:
+
 - ✅ Create all necessary database tables
 - ✅ Seed default roles (admin, editor, viewer)
 - ✅ Create default admin user
@@ -19,6 +20,7 @@ This command will:
 ### 2. Create Admin User
 
 By default, an admin user is created with:
+
 - **Username**: `admin` (configurable via `ADMIN_USER` env var)
 - **Password**: `password` (configurable via `ADMIN_PASS` env var)
 - **Email**: `admin@example.com`
@@ -63,6 +65,7 @@ npm run migration:create add_new_table
 ```
 
 This creates a new migration file with a timestamp prefix:
+
 ```
 scripts/migrations/20260310_141530_add_new_table.sql
 ```
@@ -105,8 +108,10 @@ ADMIN_PASS=password                       # Default admin password
 # JWT
 JWT_SECRET=your-secret-key               # Used for signing authentication tokens
 
-# Stripe (Optional)
-STRIPE_SECRET_KEY=                        # Stripe API key for billing
+# Mercadopago (Optional)
+MERCADOPAGO_ACCESS_TOKEN=                # Mercadopago API access token for billing
+MERCADOPAGO_WEBHOOK_URL=                 # Mercadopago webhook URL
+MERCADOPAGO_WEBHOOK_SECRET=              # Mercadopago webhook secret
 ```
 
 ## Turso Setup (Production)
@@ -161,7 +166,7 @@ await initializeDatabase();
 await seedDatabase();
 
 // Record a migration
-await recordMigration('migration_name');
+await recordMigration("migration_name");
 
 // Get migration status
 const executed = await getMigrationStatus();
@@ -170,16 +175,19 @@ const executed = await getMigrationStatus();
 ## Development Workflow
 
 1. **Start development server**:
+
    ```bash
    npm run dev
    ```
 
 2. **Create database if needed**:
+
    ```bash
    npm run db:init
    ```
 
 3. **Make schema changes**:
+
    ```bash
    npm run migration:create my_change_name
    ```
@@ -206,13 +214,13 @@ const executed = await getMigrationStatus();
 API routes in `src/pages/api/` can access the database:
 
 ```typescript
-import { getDatabase } from '@/lib/db';
+import { getDatabase } from "@/lib/db";
 
 export const GET: APIRoute = async (context) => {
   const db = await getDatabase();
-  
-  const result = await db.execute('SELECT * FROM features');
-  
+
+  const result = await db.execute("SELECT * FROM features");
+
   return new Response(JSON.stringify(result.rows));
 };
 ```
@@ -220,6 +228,7 @@ export const GET: APIRoute = async (context) => {
 ## Backup & Recovery
 
 For production databases, ensure you have proper backups. Turso provides:
+
 - Automatic backups with their hosting
 - Point-in-time recovery options
 

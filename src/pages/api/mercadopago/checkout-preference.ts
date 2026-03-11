@@ -1,10 +1,10 @@
 import type { APIRoute } from "astro";
-import { stripeClient } from "@/lib/stripeClient";
+import { MercadopagoService } from "@/application/services/MercadopagoService";
 
 export const prerender = false;
 
-interface CheckoutRequest {
-  priceId: string;
+interface CheckoutPreferenceRequest {
+  planId: string;
   successUrl: string;
   cancelUrl: string;
 }
@@ -29,14 +29,14 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    const body = (await context.request.json()) as CheckoutRequest;
-    const { priceId, successUrl, cancelUrl } = body;
+    const body = (await context.request.json()) as CheckoutPreferenceRequest;
+    const { planId, successUrl, cancelUrl } = body;
 
-    if (!priceId) {
+    if (!planId) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Price ID is required",
+          error: "Plan ID is required",
         }),
         {
           status: 400,
@@ -45,28 +45,20 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    const session = await stripeClient.checkout.sessions.create({
-      mode: "subscription",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: successUrl || "http://localhost:3001/billing?success=true",
-      cancel_url: cancelUrl || "http://localhost:3001/billing?canceled=true",
-      customer_email: user.data.email,
-      metadata: {
-        userId: user.data.id,
-      },
-    });
+    const preference = await MercadopagoService.createPreference(
+      planId,
+      user.data.id,
+      user.data.email,
+      successUrl || "http://localhost:3001/payment-success",
+      cancelUrl || "http://localhost:3001/payment-error",
+    );
 
     return new Response(
       JSON.stringify({
         success: true,
-        sessionId: session.id,
-        url: session.url,
+        preferenceId: preference.id,
+        initPoint: preference.init_point,
+        sandboxInitPoint: preference.sandbox_init_point,
       }),
       {
         status: 200,
@@ -74,11 +66,11 @@ export const POST: APIRoute = async (context) => {
       },
     );
   } catch (error: any) {
-    console.error("Error creating checkout session:", error);
+    console.error("Error creating Mercadopago preference:", error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || "Failed to create checkout session",
+        error: error.message || "Failed to create checkout preference",
       }),
       {
         status: 500,

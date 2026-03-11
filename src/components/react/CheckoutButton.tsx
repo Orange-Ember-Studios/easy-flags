@@ -35,26 +35,26 @@ export default function CheckoutButton({ plan }: CheckoutButtonProps) {
         return;
       }
 
-      const response = await fetch("/api/stripe/checkout-session", {
+      const response = await fetch("/api/mercadopago/checkout-preference", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          priceId: plan.priceId,
-          successUrl: `${window.location.origin}/billing?success=true`,
-          cancelUrl: `${window.location.origin}/billing?canceled=true`,
+          planId: plan.priceId,
+          successUrl: `${window.location.origin}/payment-success`,
+          cancelUrl: `${window.location.origin}/payment-error`,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        if (data.url) {
-          window.location.href = data.url;
+        if (data.initPoint) {
+          window.location.href = data.initPoint;
         }
       } else {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to create checkout session");
+        setError(errorData.error || "Failed to create checkout preference");
       }
     } catch (err) {
       console.error("Checkout error:", err);

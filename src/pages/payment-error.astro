@@ -1,0 +1,103 @@
+---
+import PaymentResultLayout from "@/layouts/PaymentResultLayout.astro";
+
+const errorCode = new URL(Astro.request.url).searchParams.get("error");
+const errorMessage = new URL(Astro.request.url).searchParams.get("message");
+---
+
+<PaymentResultLayout
+  title="Payment Error"
+  description="Your payment could not be processed"
+>
+  <div class="max-w-md w-full">
+    <!-- Error Icon -->
+    <div class="flex justify-center mb-8">
+      <div
+        class="relative w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center border-2 border-red-500/30"
+      >
+        <svg
+          class="w-12 h-12 text-red-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="text-center space-y-4 mb-8">
+      <h1 class="text-3xl font-bold text-white">Payment Failed</h1>
+      <p class="text-slate-300">
+        We were unable to process your payment. Please try again or contact
+        support if the problem persists.
+      </p>
+
+      {
+        errorMessage && (
+          <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mt-6">
+            <p class="text-sm text-slate-400">Error Details</p>
+            <p class="text-base text-red-400 break-words mt-2">
+              {errorMessage}
+            </p>
+          </div>
+        )
+      }
+
+      {
+        errorCode && (
+          <div class="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4">
+            <p class="text-sm text-slate-400">Error Code</p>
+            <p class="text-lg font-mono text-slate-300">{errorCode}</p>
+          </div>
+        )
+      }
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="space-y-3">
+      <a
+        href="/billing"
+        class="block w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition"
+      >
+        Return to Billing
+      </a>
+      <a
+        href="/contact"
+        class="block w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-4 rounded-lg text-center transition"
+      >
+        Contact Support
+      </a>
+    </div>
+
+    <!-- Troubleshooting Tips -->
+    <div class="mt-8 p-4 bg-slate-800/30 rounded-lg border border-slate-700/30">
+      <h3 class="font-semibold text-sm text-slate-200 mb-3">
+        Troubleshooting Tips:
+      </h3>
+      <ul class="text-xs text-slate-400 space-y-2">
+        <li class="flex gap-2">
+          <span class="text-cyan-400">•</span>
+          <span>Check your card details and try again</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="text-cyan-400">•</span>
+          <span>Ensure you have sufficient funds</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="text-cyan-400">•</span>
+          <span>Try a different payment method</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="text-cyan-400">•</span>
+          <span>Contact your bank if the issue persists</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</PaymentResultLayout>
