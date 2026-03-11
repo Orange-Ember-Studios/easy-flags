@@ -1,6 +1,7 @@
 import { createClient, type Client } from "@libsql/client";
 
 let db: Client | null = null;
+let dbInitialized = false;
 
 export async function getDatabase(): Promise<Client> {
   if (!db) {
@@ -11,6 +12,24 @@ export async function getDatabase(): Promise<Client> {
       url,
       ...(authToken && { authToken }),
     });
+
+    // Automatically initialize database on first connection if empty
+    if (!dbInitialized) {
+      dbInitialized = true;
+      try {
+        // Check if tables exist
+        const result = await db.execute(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='spaces'",
+        );
+        if (result.rows.length === 0) {
+          // Database is empty, initialize it
+          await initializeDatabase();
+        }
+      } catch (err) {
+        console.error("Error checking database state:", err);
+        // Continue anyway - the initialize call will handle errors
+      }
+    }
   }
   return db;
 }
