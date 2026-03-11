@@ -48,6 +48,26 @@ export const PUT: APIRoute = async ({ request, params }) => {
   }
 };
 
+export const PATCH: APIRoute = async ({ request, params }) => {
+  try {
+    const environmentService = new EnvironmentService();
+    const body = await request.json();
+    const envId = parseInt(params.envId as string);
+    const environment = await environmentService.updateEnvironment(envId, {
+      name: body.name,
+      description: body.description,
+    });
+    return new Response(JSON.stringify(environment), { status: 200 });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Internal server error",
+      }),
+      { status: 500 },
+    );
+  }
+};
+
 export const DELETE: APIRoute = async ({ params }) => {
   try {
     const environmentService = new EnvironmentService();
