@@ -52,6 +52,7 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
             fetchEnvironmentsCount(),
             fetchFeaturesCount(),
             fetchTeamMembersCount(),
+            fetchApiKeysCount(),
           ]);
         } else {
           setSpace(null);
@@ -71,12 +72,15 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
 
   const fetchEnvironmentsCount = async () => {
     try {
-      const response = await fetch(`/api/spaces/${spaceId}/environments`);
+      const response = await fetch(`/api/spaces/${spaceId}/environments`, {
+        credentials: "include",
+      });
       if (response.ok) {
         const data = await response.json();
+        const count = Array.isArray(data) ? data.length : 0;
         setStats((prev) => ({
           ...prev,
-          environmentsCount: data.data?.length || 0,
+          environmentsCount: count,
         }));
       }
     } catch (error) {
@@ -86,12 +90,15 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
 
   const fetchFeaturesCount = async () => {
     try {
-      const response = await fetch(`/api/spaces/${spaceId}/features`);
+      const response = await fetch(`/api/spaces/${spaceId}/features`, {
+        credentials: "include",
+      });
       if (response.ok) {
         const data = await response.json();
+        const count = Array.isArray(data) ? data.length : 0;
         setStats((prev) => ({
           ...prev,
-          featuresCount: data.data?.length || 0,
+          featuresCount: count,
         }));
       }
     } catch (error) {
@@ -101,16 +108,37 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
 
   const fetchTeamMembersCount = async () => {
     try {
-      const response = await fetch(`/api/spaces/${spaceId}/team-members`);
+      const response = await fetch(`/api/spaces/${spaceId}/team-members`, {
+        credentials: "include",
+      });
       if (response.ok) {
         const data = await response.json();
+        const count = Array.isArray(data) ? data.length : 0;
         setStats((prev) => ({
           ...prev,
-          teamMembersCount: data.data?.length || 0,
+          teamMembersCount: count,
         }));
       }
     } catch (error) {
       console.error("Failed to fetch team members:", error);
+    }
+  };
+
+  const fetchApiKeysCount = async () => {
+    try {
+      const response = await fetch(`/api/spaces/${spaceId}/api-keys`, {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const count = Array.isArray(data) ? data.length : 0;
+        setStats((prev) => ({
+          ...prev,
+          apiKeysCount: count,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch API keys:", error);
     }
   };
 
