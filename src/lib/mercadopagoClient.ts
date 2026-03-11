@@ -1,4 +1,4 @@
-import { MercadoPagoConfig, Payment } from "mercadopago";
+import { MercadoPagoConfig, Payment } from "@mercadopago/sdk-nodejs";
 
 let mercadopagoInstance: MercadoPagoConfig | null = null;
 
@@ -28,12 +28,28 @@ export class MercadopagoClient {
   static async createPayment(data: any) {
     const client = getMercadopagoClient();
     const payment = new Payment(client);
-    return payment.create(data);
+
+    try {
+      const response = await payment.create({
+        body: data,
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
   }
 
   static async getPayment(paymentId: number) {
     const client = getMercadopagoClient();
     const payment = new Payment(client);
-    return payment.get(paymentId);
+
+    try {
+      const response = await payment.get({
+        id: paymentId,
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
   }
 }
