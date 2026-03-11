@@ -22,7 +22,7 @@ export function checkResourceExists(
 ): void {
   if (!resource) {
     console.warn(`${resourceName} not found, redirecting to 404`);
-    astroContext.redirect("/404");
+    return astroContext.redirect("/404");
   }
 }
 
@@ -55,12 +55,12 @@ export function validateNestedResource(
 ): void {
   if (!resource) {
     console.warn(`${resourceName} not found, redirecting to 404`);
-    astroContext.redirect("/404");
+    return astroContext.redirect("/404");
   }
 
   if (resource[parentFieldName] !== expectedParentId) {
     console.warn(`${resourceName} parent ID mismatch, redirecting to 404`);
-    astroContext.redirect("/404");
+    return astroContext.redirect("/404");
   }
 }
 
