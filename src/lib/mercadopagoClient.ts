@@ -1,10 +1,9 @@
 /**
  * Mercadopago Backend Client
- * Makes direct API calls to Mercadopago Payment API
- * @mercadopago/sdk-js is for frontend tokenization via loadMercadoPago
+ * Uses @mercadopago/sdk-js with backend HTTP calls to Mercadopago API
  */
 
-const MERCADOPAGO_API_BASE = "https://api.mercadopago.com";
+import { loadMercadoPago } from "@mercadopago/sdk-js";
 
 export class MercadopagoClient {
   private static accessToken: string;
@@ -23,7 +22,7 @@ export class MercadopagoClient {
     try {
       this.initialize();
 
-      const response = await fetch(`${MERCADOPAGO_API_BASE}/v1/payments`, {
+      const response = await fetch("https://api.mercadopago.com/v1/payments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +51,7 @@ export class MercadopagoClient {
       this.initialize();
 
       const response = await fetch(
-        `${MERCADOPAGO_API_BASE}/v1/payments/${paymentId}`,
+        `https://api.mercadopago.com/v1/payments/${paymentId}`,
         {
           method: "GET",
           headers: {
@@ -68,6 +67,11 @@ export class MercadopagoClient {
 
       return await response.json();
     } catch (error: any) {
+      throw new Error(error.message || "Failed to retrieve payment");
+    }
+  }
+}
+
       throw new Error(error.message || "Failed to retrieve payment");
     }
   }
