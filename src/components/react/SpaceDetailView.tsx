@@ -40,7 +40,9 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
   useEffect(() => {
     const fetchSpace = async () => {
       try {
-        const response = await fetch(`/api/spaces/${spaceId}`);
+        const response = await fetch(`/api/spaces/${spaceId}`, {
+          credentials: 'include',
+        });
         if (response.ok) {
           const data = await response.json();
           setSpace(data);

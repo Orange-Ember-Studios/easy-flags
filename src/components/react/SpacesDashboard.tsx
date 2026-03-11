@@ -43,6 +43,7 @@ export default function SpacesDashboard() {
       const response = await fetch("/api/spaces", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({
           name: newSpaceName,
           description: newSpaceDescription,

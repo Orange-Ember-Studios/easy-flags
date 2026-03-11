@@ -36,14 +36,18 @@ export default function EnvironmentDetailView({
     try {
       setIsLoading(true);
       // Fetch environment configs
-      const configResponse = await fetch(`/api/environments/${envId}/configs`);
+        const configResponse = await fetch(`/api/environments/${envId}/configs`, {
+          credentials: 'include',
+        });
       if (configResponse.ok) {
         const configData = await configResponse.json();
         setConfigs(configData);
       }
 
       // Fetch space data to get space name
-      const spaceResponse = await fetch(`/api/spaces/${spaceId}`);
+      const spaceResponse = await fetch(`/api/spaces/${spaceId}`, {
+        credentials: 'include',
+      });
       if (spaceResponse.ok) {
         const spaceData = await spaceResponse.json();
         setSpaceName(spaceData.name || "Space");

@@ -69,7 +69,9 @@ export default function FeaturesView({ spaceId }: FeaturesViewProps) {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/spaces/${spaceId}/features`);
+      const response = await fetch(`/api/spaces/${spaceId}/features`, {
+        credentials: 'include',
+      });
       if (response.ok) {
         const data = await response.json();
         // Transform the features to include environment configurations
@@ -101,6 +103,7 @@ export default function FeaturesView({ spaceId }: FeaturesViewProps) {
       const response = await fetch(`/api/spaces/${spaceId}/features`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({
           key: newFeatureKey,
           name: newFeatureName,
@@ -176,6 +179,7 @@ export default function FeaturesView({ spaceId }: FeaturesViewProps) {
     try {
       const response = await fetch(`/api/spaces/${spaceId}/features/${id}`, {
         method: "DELETE",
+        credentials: 'include',
       });
 
       if (response.ok) {
