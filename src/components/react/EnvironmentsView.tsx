@@ -81,7 +81,12 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
       const response = await fetch(`/api/spaces/${spaceId}/environments`);
       if (response.ok) {
         const data = await response.json();
-        setEnvironments(data);
+        // Ensure all environments have a type field
+        const envs = (Array.isArray(data) ? data : []).map((env: any) => ({
+          ...env,
+          type: env.type || "other",
+        }));
+        setEnvironments(envs);
       } else {
         setError("Failed to fetch environments");
       }

@@ -31,6 +31,7 @@ export const POST: APIRoute = async ({ request, params }) => {
     const environment = await environmentService.createEnvironment(spaceId, {
       name: body.name,
       description: body.description,
+      type: body.type || "other",
     });
     return new Response(JSON.stringify(environment), { status: 201 });
   } catch (error) {
