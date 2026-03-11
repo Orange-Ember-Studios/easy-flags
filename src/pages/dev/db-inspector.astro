@@ -3,16 +3,18 @@
 // Development-only database inspection page
 import DatabaseInspector from "@/components/react/DatabaseInspector";
 import { requireAuth, getLoginUrl } from "@/utils/auth-redirect";
+import { isGlobalAdmin } from "@/utils/permissions";
+import { getUserFromContext } from "@/utils/auth";
 
-// Only allow access in development environment
-const isDevelopment = !import.meta.env.PROD;
-if (!isDevelopment) {
-  return Astro.redirect("/");
-}
-
-// Require authentication even in development (includes redirect parameter)
+// Require authentication
 if (!requireAuth(Astro)) {
   return Astro.redirect(getLoginUrl(Astro));
+}
+
+// Check if user is a global admin
+const user = getUserFromContext(Astro);
+if (!user || !isGlobalAdmin(user)) {
+  return Astro.redirect("/");
 }
 ---
 
