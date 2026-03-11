@@ -93,7 +93,7 @@ export default function EnvironmentDetailView({
         {
           method: "POST",
           credentials: "include",
-        }
+        },
       );
 
       if (response.ok) {
@@ -169,27 +169,39 @@ export default function EnvironmentDetailView({
                   <label className="block text-sm font-semibold text-slate-300 mb-2">
                     API Key
                   </label>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="password"
-                      value={currentApiKey}
-                      readOnly
-                      className="flex-1 bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
-                    />
-                    <button
-                      onClick={() => setShowApiKeyModal(true)}
-                      className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-sm font-semibold transition"
-                    >
-                      Reveal
-                    </button>
-                    <button
-                      onClick={handleRegenerateKey}
-                      disabled={isRegenerating}
-                      className="px-4 py-2 bg-orange-600 hover:bg-orange-500 disabled:bg-orange-700 text-white rounded text-sm font-semibold transition"
-                    >
-                      {isRegenerating ? "Regenerating..." : "Regenerate"}
-                    </button>
-                  </div>
+                  {currentApiKey ? (
+                    <div className="flex gap-2 mb-2">
+                      <input
+                        type="password"
+                        value={currentApiKey}
+                        readOnly
+                        className="flex-1 bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm"
+                      />
+                      <button
+                        onClick={() => setShowApiKeyModal(true)}
+                        className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-sm font-semibold transition"
+                      >
+                        Reveal
+                      </button>
+                      <button
+                        onClick={handleRegenerateKey}
+                        disabled={isRegenerating}
+                        className="px-4 py-2 bg-orange-600 hover:bg-orange-500 disabled:bg-orange-700 text-white rounded text-sm font-semibold transition"
+                      >
+                        {isRegenerating ? "Regenerating..." : "Regenerate"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mb-2">
+                      <button
+                        onClick={handleRegenerateKey}
+                        disabled={isRegenerating}
+                        className="w-full px-4 py-2 bg-orange-600 hover:bg-orange-500 disabled:bg-orange-700 text-white rounded text-sm font-semibold transition"
+                      >
+                        {isRegenerating ? "Generating..." : "Generate API Key"}
+                      </button>
+                    </div>
+                  )}
                   <p className="text-xs text-slate-500">
                     Use this key to authenticate requests to this environment
                   </p>

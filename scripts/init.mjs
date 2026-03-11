@@ -141,6 +141,7 @@ async function initializeSchema(client) {
       slug TEXT NOT NULL,
       description TEXT,
       type TEXT DEFAULT 'other',
+      api_key TEXT UNIQUE NOT NULL DEFAULT (lower(hex(randomblob(16)))),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (space_id) REFERENCES spaces(id),
