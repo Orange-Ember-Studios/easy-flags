@@ -305,7 +305,7 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
                         <span
                           className={`text-xs px-2 py-1 rounded ${colors.badge} font-semibold`}
                         >
-                          {env.name}
+                          {env.type}
                         </span>
                       </div>
                       {env.description && (
