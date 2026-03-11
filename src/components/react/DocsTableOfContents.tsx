@@ -54,8 +54,9 @@ export default function DocsTableOfContents() {
       if (article) {
         const elementRect = element.getBoundingClientRect();
         const articleRect = article.getBoundingClientRect();
-        const scrollOffset = elementRect.top - articleRect.top + article.scrollTop;
-        
+        const scrollOffset =
+          elementRect.top - articleRect.top + article.scrollTop;
+
         // Scroll margin of 112px (scroll-mt-28 = 7rem)
         const marginOffset = 112;
         article.scrollTo({
