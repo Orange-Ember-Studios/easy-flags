@@ -299,13 +299,40 @@ export class LibSqlSpaceMemberRepository implements SpaceMemberRepository {
   async findBySpaceId(spaceId: number): Promise<SpaceMember[]> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `SELECT sm.*, u.*, r.* FROM space_members sm
+      sql: `SELECT sm.id, sm.space_id, sm.user_id, sm.role_id, sm.created_at,
+            u.id as user_id_nested, u.username, u.email, u.role_id as user_role_id, u.is_active, u.created_at as user_created_at, u.updated_at as user_updated_at,
+            r.id as role_id_nested, r.name as role_name, r.description as role_description
+            FROM space_members sm
             JOIN users u ON sm.user_id = u.id
             LEFT JOIN roles r ON sm.role_id = r.id
             WHERE sm.space_id = ? ORDER BY sm.created_at DESC`,
       args: [spaceId],
     });
-    return result.rows as never as SpaceMember[];
+
+    // Map the flat result rows to nested SpaceMember objects
+    return result.rows.map((row: any) => ({
+      id: row.id,
+      space_id: row.space_id,
+      user_id: row.user_id,
+      role_id: row.role_id,
+      created_at: row.created_at,
+      user: {
+        id: row.user_id_nested,
+        username: row.username,
+        email: row.email,
+        role_id: row.user_role_id,
+        is_active: row.is_active,
+        created_at: row.user_created_at,
+        updated_at: row.user_updated_at,
+      },
+      role: row.role_name
+        ? {
+            id: row.role_id_nested,
+            name: row.role_name,
+            description: row.role_description,
+          }
+        : undefined,
+    })) as SpaceMember[];
   }
 
   async findByUserId(userId: number): Promise<SpaceMember[]> {
