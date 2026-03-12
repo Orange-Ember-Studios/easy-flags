@@ -7,8 +7,8 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { AnalyticsService } from "@application/services";
-import { requireAuth } from "@utils/auth-redirect";
 import { checkSpaceAccessAuth } from "@utils/permissions";
+import { getUserFromContext } from "@utils/auth";
 
 const analyticsService = new AnalyticsService();
 
@@ -23,7 +23,8 @@ const analyticsService = new AnalyticsService();
  */
 export const GET: APIRoute = async (context) => {
   try {
-    const user = await requireAuth(context);
+    // Use getUserFromContext for API routes
+    const user = getUserFromContext(context);
     if (!user) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
