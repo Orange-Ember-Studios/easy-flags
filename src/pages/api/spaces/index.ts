@@ -5,7 +5,7 @@ import {
   unauthorizedResponse,
   badRequestResponse,
 } from "@/utils/api";
-import { SpaceService } from "@application/services";
+import { SpaceService, TeamMemberService } from "@application/services";
 
 export const prerender = false;
 
@@ -58,6 +58,15 @@ export const POST: APIRoute = async (context) => {
       name,
       description: description || "",
     });
+
+    // Automatically add the space owner as an admin team member
+    try {
+      const teamMemberService = new TeamMemberService();
+      await teamMemberService.addTeamMember(newSpace.id, user.id, 2); // 2 = admin role
+    } catch (err) {
+      console.error("Warning: Failed to add space owner as team member:", err);
+      // Don't fail the response, space was created successfully
+    }
 
     return new Response(JSON.stringify(successResponse(newSpace)), {
       status: 201,

@@ -1,4 +1,14 @@
 import { useState, useEffect } from "react";
+
+interface Space {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  owner_id: number;
+  created_at: string;
+  updated_at: string;
+}
 import PageContainer from "@/components/react/shared/PageContainer";
 
 // Role ID mapping
@@ -45,6 +55,7 @@ export default function PermissionsView({
   canManageFeaturePermissions,
 }: PermissionsViewProps) {
   const [members, setMembers] = useState<TeamMember[]>([]);
+  const [space, setSpace] = useState<Space | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isInviting, setIsInviting] = useState(false);
@@ -63,11 +74,69 @@ export default function PermissionsView({
   const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
 
   // Fetch team members on mount
+
   useEffect(() => {
     if (spaceId) {
-      fetchTeamMembers();
+      fetchSpaceAndMembers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spaceId]);
+
+  const fetchSpaceAndMembers = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      // Fetch space info (to get owner_id)
+      const spaceRes = await fetch(`/api/spaces/${spaceId}`, {
+        credentials: "include",
+      });
+      if (!spaceRes.ok) throw new Error("Failed to fetch space");
+      const spaceData = await spaceRes.json();
+      setSpace(spaceData.data || spaceData); // handle ApiResponse or raw
+
+      // Fetch team members
+      const response = await fetch(`/api/spaces/${spaceId}/team-members`, {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to fetch team members");
+      const data = await response.json();
+      const spaceMembers: SpaceMemberAPI[] = Array.isArray(data)
+        ? data
+        : data.data || [];
+
+      // Convert SpaceMember to TeamMember
+      let teamMembers: TeamMember[] = spaceMembers.map((member) => ({
+        id: member.id,
+        name: member.user?.username || `User ${member.user_id}`,
+        email: member.user?.email || "",
+        role: ROLE_ID_MAP[member.role_id] || "viewer",
+        joinedAt: member.created_at,
+      }));
+
+      // Sort: owner always first
+      if (spaceData.owner_id) {
+        teamMembers.sort((a, b) =>
+          a.id === spaceData.owner_id
+            ? -1
+            : b.id === spaceData.owner_id
+              ? 1
+              : a.name.localeCompare(b.name),
+        );
+      } else {
+        // Fallback: sort by name
+        teamMembers.sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      setMembers(teamMembers);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to load team members";
+      setError(message);
+      console.error("Error fetching team members:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchTeamMembers = async () => {
     try {
@@ -284,7 +353,7 @@ export default function PermissionsView({
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Team Members Section */}
+          {/* Left: Members & Invitations */}
           <div className="lg:col-span-2 space-y-6">
             {/* Members Card */}
             <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
@@ -348,86 +417,85 @@ export default function PermissionsView({
                         >
                           ⋮
                         </button>
-                        <button
-                          onClick={() => setMemberToRemove(member)}
-                          disabled={isSaving}
-                          className="text-slate-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded transition disabled:opacity-50"
-                          title="Remove user"
-                        >
-                          ✕
-                        </button>
+                        {space && member.id !== space.owner_id && (
+                          <button
+                            onClick={() => setMemberToRemove(member)}
+                            disabled={isSaving}
+                            className="text-slate-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded transition disabled:opacity-50"
+                            title="Remove user"
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-
-              {/* Pending Invitations */}
-              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">📬</span>
-                  <h2 className="text-xl font-bold text-white">
-                    Pending Invitations
-                  </h2>
-                </div>
-                <p className="text-slate-500 text-center py-8 text-sm">
-                  No pending invitations
-                </p>
-              </div>
             </div>
+            {/* Invitations Card */}
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">📬</span>
+                <h2 className="text-xl font-bold text-white">
+                  Pending Invitations
+                </h2>
+              </div>
+              <p className="text-slate-500 text-center py-8 text-sm">
+                No pending invitations
+              </p>
+            </div>
+          </div>
+          {/* Right: Roles Reference */}
+          <div className="space-y-6">
+            {/* Role Permissions Card */}
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🔐</span>
+                <h2 className="text-xl font-bold text-white">Roles</h2>
+              </div>
 
-            {/* Sidebar - Roles Reference */}
-            <div className="space-y-6">
-              {/* Role Permissions Card */}
-              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">🔐</span>
-                  <h2 className="text-xl font-bold text-white">Roles</h2>
-                </div>
-
-                <div className="space-y-3">
-                  {" "}
-                  {(
-                    [
-                      { role: "admin", desc: roleDescriptions.admin },
-                      { role: "editor", desc: roleDescriptions.editor },
-                      { role: "viewer", desc: roleDescriptions.viewer },
-                    ] as const
-                  ).map(({ role, desc }) => (
-                    <div
-                      key={role}
-                      className={`p-3 border rounded-lg ${roleColors[role].bg} ${roleColors[role].border}`}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-lg">{roleIcons[role]}</span>
-                        <p
-                          className={`text-sm font-semibold ${roleColors[role].text}`}
-                        >
-                          {role.charAt(0).toUpperCase() + role.slice(1)}
-                        </p>
-                      </div>
-                      <p className="text-xs text-slate-400">{desc}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-slate-700 space-y-3">
-                  <p className="text-xs text-slate-500">
-                    <span className="text-cyan-300 font-semibold">💡 Tip:</span>{" "}
-                    A space must have at least one admin.
-                  </p>
-                  {canManageFeaturePermissions && (
-                    <div className="bg-slate-900/50 border border-slate-600/50 rounded p-2">
-                      <p className="text-xs text-slate-400">
-                        <span className="text-yellow-300 font-semibold">
-                          ⓘ Note:
-                        </span>{" "}
-                        Super Admin roles are managed by system administrators
-                        only. Contact support to manage Super Admin permissions.
+              <div className="space-y-3">
+                {(
+                  [
+                    { role: "admin", desc: roleDescriptions.admin },
+                    { role: "editor", desc: roleDescriptions.editor },
+                    { role: "viewer", desc: roleDescriptions.viewer },
+                  ] as const
+                ).map(({ role, desc }) => (
+                  <div
+                    key={role}
+                    className={`p-3 border rounded-lg ${roleColors[role].bg} ${roleColors[role].border}`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">{roleIcons[role]}</span>
+                      <p
+                        className={`text-sm font-semibold ${roleColors[role].text}`}
+                      >
+                        {role.charAt(0).toUpperCase() + role.slice(1)}
                       </p>
                     </div>
-                  )}
-                </div>
+                    <p className="text-xs text-slate-400">{desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-slate-700 space-y-3">
+                <p className="text-xs text-slate-500">
+                  <span className="text-cyan-300 font-semibold">💡 Tip:</span> A
+                  space must have at least one admin.
+                </p>
+                {canManageFeaturePermissions && (
+                  <div className="bg-slate-900/50 border border-slate-600/50 rounded p-2">
+                    <p className="text-xs text-slate-400">
+                      <span className="text-yellow-300 font-semibold">
+                        ⓘ Note:
+                      </span>{" "}
+                      Super Admin roles are managed by system administrators
+                      only. Contact support to manage Super Admin permissions.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
