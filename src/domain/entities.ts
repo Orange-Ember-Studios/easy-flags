@@ -213,3 +213,84 @@ export interface AddTeamMemberDTO {
 export interface UpdateTeamMemberDTO {
   role_id: number;
 }
+
+// ====================
+// Analytics & Observability
+// ====================
+
+export interface FlagEvaluation {
+  id: number;
+  space_id: number;
+  environment_id: number;
+  feature_id: number;
+  api_key_hash: string;
+  was_enabled: boolean;
+  evaluation_result: string; // "true", "false", "error", etc.
+  evaluation_time_ms: number;
+  error_message?: string;
+  context_data?: string; // JSON stringified context
+  created_at: string;
+}
+
+export interface FlagUsageMetric {
+  id: number;
+  space_id: number;
+  environment_id: number;
+  feature_id: number;
+  metric_date: string; // YYYY-MM-DD
+  total_evaluations: number;
+  enabled_count: number;
+  disabled_count: number;
+  error_count: number;
+  avg_evaluation_time_ms: number;
+  min_evaluation_time_ms: number;
+  max_evaluation_time_ms: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PerformanceMetric {
+  id: number;
+  space_id: number;
+  metric_type: "api_latency" | "flag_evaluation" | "database_query";
+  value_ms: number;
+  endpoint?: string;
+  environment_id?: number;
+  created_at: string;
+}
+
+export interface FlagImpactAnalysis {
+  feature_id: number;
+  feature_name: string;
+  space_id: number;
+  environment_id: number;
+  total_evaluations_30d: number;
+  enabled_percentage: number;
+  unique_api_keys: number;
+  avg_response_time_ms: number;
+  error_rate: number;
+  last_evaluated_at: string;
+  trend_30d: "increasing" | "decreasing" | "stable";
+}
+
+export interface CreateFlagEvaluationDTO {
+  space_id: number;
+  environment_id: number;
+  feature_id: number;
+  api_key_hash: string;
+  was_enabled: boolean;
+  evaluation_result: string;
+  evaluation_time_ms: number;
+  error_message?: string;
+  context_data?: Record<string, any>;
+}
+
+export interface AnalyticsQueryFilters {
+  spaceId?: number;
+  environmentId?: number;
+  featureId?: number;
+  dateFrom?: string; // ISO date
+  dateTo?: string; // ISO date
+  limit?: number;
+  offset?: number;
+}

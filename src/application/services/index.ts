@@ -20,6 +20,12 @@ import type {
   CreateAdvancedConfigDTO,
   AddTeamMemberDTO,
   UpdateTeamMemberDTO,
+  FlagEvaluation,
+  FlagUsageMetric,
+  PerformanceMetric,
+  FlagImpactAnalysis,
+  CreateFlagEvaluationDTO,
+  AnalyticsQueryFilters,
 } from "@domain/entities";
 
 // ====================
@@ -369,5 +375,164 @@ export class ApiKeyService {
 
   async validateApiKey(key: string) {
     return this.registry.getApiKeyRepository().findByKey(key);
+  }
+}
+
+// ====================
+// Analytics & Observability Service
+// ====================
+
+export class AnalyticsService {
+  private registry = getRepositoryRegistry();
+
+  // ---- Flag Evaluation Tracking ----
+
+  async trackFlagEvaluation(dto: CreateFlagEvaluationDTO): Promise<FlagEvaluation> {
+    return this.registry.getFlagEvaluationRepository().create(dto);
+  }
+
+  async getFlagEvaluations(filters: AnalyticsQueryFilters): Promise<FlagEvaluation[]> {
+    return this.registry
+      .getFlagEvaluationRepository()
+      .findByFilters(filters);
+  }
+
+  async getRecentEvaluations(
+    environmentId: number,
+    limit: number = 100,
+  ): Promise<FlagEvaluation[]> {
+    return this.registry
+      .getFlagEvaluationRepository()
+      .findRecentByEnvironment(environmentId, limit);
+  }
+
+  async cleanupOldEvaluations(days: number = 90): Promise<number> {
+    return this.registry
+      .getFlagEvaluationRepository()
+      .deleteOlderThan(days);
+  }
+
+  // ---- Usage Metrics ----
+
+  async recordUsageMetric(
+    metric: Omit<FlagUsageMetric, "id" | "created_at" | "updated_at">,
+  ): Promise<FlagUsageMetric> {
+    return this.registry
+      .getFlagUsageMetricRepository()
+      .upsert(metric);
+  }
+
+  async getUsageMetrics(filters: AnalyticsQueryFilters): Promise<FlagUsageMetric[]> {
+    return this.registry
+      .getFlagUsageMetricRepository()
+      .findByFilters(filters);
+  }
+
+  async getFeatureUsageTrend(
+    featureId: number,
+    days: number = 30,
+  ): Promise<FlagUsageMetric[]> {
+    return this.registry
+      .getFlagUsageMetricRepository()
+      .findLatestByFeature(featureId, days);
+  }
+
+  async getSpaceMetricsSummary(
+    spaceId: number,
+    dateFrom: string,
+    dateTo: string,
+  ): Promise<FlagUsageMetric[]> {
+    return this.registry
+      .getFlagUsageMetricRepository()
+      .findBySpaceAndDate(spaceId, dateFrom, dateTo);
+  }
+
+  // ---- Performance Metrics ----
+
+  async recordPerformanceMetric(
+    metric: Omit<PerformanceMetric, "id" | "created_at">,
+  ): Promise<PerformanceMetric> {
+    return this.registry
+      .getPerformanceMetricRepository()
+      .create(metric);
+  }
+
+  async getPerformanceMetrics(
+    metricType: PerformanceMetric["metric_type"],
+    limit: number = 1000,
+  ): Promise<PerformanceMetric[]> {
+    return this.registry
+      .getPerformanceMetricRepository()
+      .findByMetricType(metricType, limit);
+  }
+
+  async getEndpointMetrics(endpoint: string, hours: number = 24): Promise<number> {
+    return this.registry
+      .getPerformanceMetricRepository()
+      .findAverageByEndpoint(endpoint, hours);
+  }
+
+  async cleanupOldPerformanceMetrics(days: number = 90): Promise<number> {
+    return this.registry
+      .getPerformanceMetricRepository()
+      .deleteOlderThan(days);
+  }
+
+  // ---- Impact Analysis ----
+
+  async analyzeFlagImpact(
+    featureId: number,
+    environmentId: number,
+  ): Promise<FlagImpactAnalysis | null> {
+    const feature = await this.registry.getFeatureRepository().findById(featureId);
+    if (!feature) return null;
+
+    const metrics = await this.registry
+      .getFlagUsageMetricRepository()
+      .findLatestByFeature(featureId, 30);
+
+    if (metrics.length === 0) {
+      return null;
+    }
+
+    const totalEvaluations = metrics.reduce(
+      (sum, m) => sum + m.total_evaluations,
+      0,
+    );
+    const totalEnabled = metrics.reduce((sum, m) => sum + m.enabled_count, 0);
+    const totalErrors = metrics.reduce((sum, m) => sum + m.error_count, 0);
+    const avgTime =
+      metrics.reduce((sum, m) => sum + m.avg_evaluation_time_ms, 0) /
+      metrics.length;
+
+    // Calculate trend by comparing first half to second half
+    const midpoint = Math.floor(metrics.length / 2);
+    const firstHalf = metrics
+      .slice(0, midpoint)
+      .reduce((sum, m) => sum + m.enabled_count, 0);
+    const secondHalf = metrics
+      .slice(midpoint)
+      .reduce((sum, m) => sum + m.enabled_count, 0);
+
+    const trend: "increasing" | "decreasing" | "stable" = 
+      secondHalf > firstHalf * 1.1 
+        ? "increasing"
+        : secondHalf < firstHalf * 0.9 
+        ? "decreasing"
+        : "stable";
+
+    return {
+      feature_id: featureId,
+      feature_name: feature.name,
+      space_id: feature.space_id,
+      environment_id: environmentId,
+      total_evaluations_30d: totalEvaluations,
+      enabled_percentage: totalEvaluations > 0 ? (totalEnabled / totalEvaluations) * 100 : 0,
+      unique_api_keys: metrics.length, // Approximation
+      avg_response_time_ms: avgTime,
+      error_rate: totalEvaluations > 0 ? (totalErrors / totalEvaluations) * 100 : 0,
+      last_evaluated_at: metrics[0]?.created_at || new Date().toISOString(),
+      trend_30d: trend,
+    };
   }
 }

@@ -1,5 +1,15 @@
 import type { AstroGlobal } from "astro";
-import { getUserFromContext } from "./auth";
+import { getUserFromContext, type UserPayload } from "./auth";
+
+/**
+ * Get user from Astro context
+ * Returns null if user is not authenticated
+ */
+export function getUserFromAstroContext(
+  astroContext: AstroGlobal,
+): UserPayload | null {
+  return getUserFromContext(astroContext as any);
+}
 
 /**
  * Check if user is authenticated and redirect to login with return URL if not
@@ -15,7 +25,7 @@ import { getUserFromContext } from "./auth";
  * ```
  */
 export function requireAuth(astroContext: AstroGlobal): boolean {
-  const user = getUserFromContext(astroContext);
+  const user = getUserFromContext(astroContext as any);
 
   if (!user) {
     return false;

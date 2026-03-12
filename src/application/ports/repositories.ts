@@ -23,6 +23,12 @@ import type {
   CreateAdvancedConfigDTO,
   AddTeamMemberDTO,
   UpdateTeamMemberDTO,
+  FlagEvaluation,
+  FlagUsageMetric,
+  PerformanceMetric,
+  FlagImpactAnalysis,
+  CreateFlagEvaluationDTO,
+  AnalyticsQueryFilters,
 } from "@domain/entities";
 
 // ====================
@@ -192,6 +198,53 @@ export interface TargetingRuleRepository {
 }
 
 // ====================
+// Flag Evaluation Repository Port
+// ====================
+
+export interface FlagEvaluationRepository {
+  create(dto: CreateFlagEvaluationDTO): Promise<FlagEvaluation>;
+  findById(id: number): Promise<FlagEvaluation | null>;
+  findByFilters(filters: AnalyticsQueryFilters): Promise<FlagEvaluation[]>;
+  findRecentByEnvironment(
+    environmentId: number,
+    limit: number,
+  ): Promise<FlagEvaluation[]>;
+  deleteOlderThan(days: number): Promise<number>;
+}
+
+// ====================
+// Flag Usage Metric Repository Port
+// ====================
+
+export interface FlagUsageMetricRepository {
+  create(metric: Omit<FlagUsageMetric, "id" | "created_at" | "updated_at">): Promise<FlagUsageMetric>;
+  findById(id: number): Promise<FlagUsageMetric | null>;
+  findByFilters(filters: AnalyticsQueryFilters): Promise<FlagUsageMetric[]>;
+  findLatestByFeature(featureId: number, days: number): Promise<FlagUsageMetric[]>;
+  findBySpaceAndDate(
+    spaceId: number,
+    dateFrom: string,
+    dateTo: string,
+  ): Promise<FlagUsageMetric[]>;
+  upsert(metric: Omit<FlagUsageMetric, "id" | "created_at" | "updated_at">): Promise<FlagUsageMetric>;
+}
+
+// ====================
+// Performance Metric Repository Port
+// ====================
+
+export interface PerformanceMetricRepository {
+  create(metric: Omit<PerformanceMetric, "id" | "created_at">): Promise<PerformanceMetric>;
+  findById(id: number): Promise<PerformanceMetric | null>;
+  findByMetricType(
+    metricType: PerformanceMetric["metric_type"],
+    limit: number,
+  ): Promise<PerformanceMetric[]>;
+  findAverageByEndpoint(endpoint: string, hours: number): Promise<number>;
+  deleteOlderThan(days: number): Promise<number>;
+}
+
+// ====================
 // Repository Registry Port
 // ====================
 
@@ -207,4 +260,7 @@ export interface RepositoryRegistry {
   getFeatureFlagRepository(): FeatureFlagRepository;
   getAdvancedConfigRepository(): AdvancedConfigRepository;
   getTargetingRuleRepository(): TargetingRuleRepository;
+  getFlagEvaluationRepository(): FlagEvaluationRepository;
+  getFlagUsageMetricRepository(): FlagUsageMetricRepository;
+  getPerformanceMetricRepository(): PerformanceMetricRepository;
 }

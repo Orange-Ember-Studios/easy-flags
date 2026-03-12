@@ -16,6 +16,9 @@ import type {
   FeatureFlagRepository,
   AdvancedConfigRepository,
   TargetingRuleRepository,
+  FlagEvaluationRepository,
+  FlagUsageMetricRepository,
+  PerformanceMetricRepository,
 } from "@application/ports/repositories";
 import { LibSqlUserRepository } from "./adapters/libsql.adapter";
 import { LibSqlRoleRepository } from "./adapters/libsql.adapter";
@@ -28,6 +31,11 @@ import { LibSqlFeatureRepository } from "./adapters/libsql-additional.adapter";
 import { LibSqlFeatureFlagRepository } from "./adapters/libsql-additional.adapter";
 import { LibSqlAdvancedConfigRepository } from "./adapters/libsql-additional.adapter";
 import { LibSqlTargetingRuleRepository } from "./adapters/libsql-additional.adapter";
+import {
+  LibSqlFlagEvaluationRepository,
+  LibSqlFlagUsageMetricRepository,
+  LibSqlPerformanceMetricRepository,
+} from "./adapters/libsql-analytics.adapter";
 
 class LibSqlRepositoryRegistry implements RepositoryRegistry {
   private userRepository: UserRepository | null = null;
@@ -42,6 +50,9 @@ class LibSqlRepositoryRegistry implements RepositoryRegistry {
   private featureFlagRepository: FeatureFlagRepository | null = null;
   private advancedConfigRepository: AdvancedConfigRepository | null = null;
   private targetingRuleRepository: TargetingRuleRepository | null = null;
+  private flagEvaluationRepository: FlagEvaluationRepository | null = null;
+  private flagUsageMetricRepository: FlagUsageMetricRepository | null = null;
+  private performanceMetricRepository: PerformanceMetricRepository | null = null;
 
   getUserRepository(): UserRepository {
     if (!this.userRepository) {
@@ -119,6 +130,27 @@ class LibSqlRepositoryRegistry implements RepositoryRegistry {
       this.targetingRuleRepository = new LibSqlTargetingRuleRepository();
     }
     return this.targetingRuleRepository;
+  }
+
+  getFlagEvaluationRepository(): FlagEvaluationRepository {
+    if (!this.flagEvaluationRepository) {
+      this.flagEvaluationRepository = new LibSqlFlagEvaluationRepository();
+    }
+    return this.flagEvaluationRepository;
+  }
+
+  getFlagUsageMetricRepository(): FlagUsageMetricRepository {
+    if (!this.flagUsageMetricRepository) {
+      this.flagUsageMetricRepository = new LibSqlFlagUsageMetricRepository();
+    }
+    return this.flagUsageMetricRepository;
+  }
+
+  getPerformanceMetricRepository(): PerformanceMetricRepository {
+    if (!this.performanceMetricRepository) {
+      this.performanceMetricRepository = new LibSqlPerformanceMetricRepository();
+    }
+    return this.performanceMetricRepository;
   }
 }
 

@@ -1,0 +1,28 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import AnalyticsDashboard from "@/components/react/analytics/AnalyticsDashboard";
+import { requireAuth, getUserFromAstroContext, getLoginUrl } from "@/utils/auth-redirect";
+import { hasFeatureAccess, FEATURES } from "@/utils/permissions";
+
+export const prerender = false;
+
+// Check authentication
+if (!requireAuth(Astro)) {
+  return Astro.redirect(getLoginUrl(Astro));
+}
+
+// Get user and check feature access for analytics
+const user = getUserFromAstroContext(Astro);
+const hasAccess = user && hasFeatureAccess(user, FEATURES.FEATURE_FLAGS);
+if (!hasAccess) {
+  return Astro.redirect("/forbidden");
+}
+---
+
+<BaseLayout title="Analytics - Easy Flags" includeHeader={true}>
+    <div
+        class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
+    >
+        <AnalyticsDashboard client:load spaceId={undefined} />
+    </div>
+</BaseLayout>
