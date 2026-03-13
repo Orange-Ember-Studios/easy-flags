@@ -147,7 +147,7 @@ export default function FlagMetricsView({
       {/* Error State */}
       {error && (
         <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-red-400" />
+          <span className="text-xl">⚠️</span>
           <p className="text-red-400">{error}</p>
         </div>
       )}
