@@ -47,7 +47,7 @@ export default function FlagMetricsView({
       if (!response.ok) throw new Error("Failed to fetch metrics");
 
       const data = await response.json();
-      const sortedData = sortMetrics(data.metrics || [], sortBy);
+      const sortedData = sortMetrics(data || [], sortBy);
       setMetrics(sortedData);
       setError(null);
     } catch (err) {

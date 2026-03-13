@@ -17,11 +17,11 @@ const analyticsService = new AnalyticsService();
  * Query analytics metrics for a space
  *
  * Query params:
- * - space_id: number (required)
- * - environment_id?: number
- * - feature_id?: number
- * - date_from?: string (ISO date)
- * - date_to?: string (ISO date)
+ * - spaceId: number (required)
+ * - environmentId?: number
+ * - featureId?: number
+ * - dateFrom?: string (ISO date)
+ * - dateTo?: string (ISO date)
  * - metric_type?: "evaluations" | "usage" | "performance" (default: "usage")
  */
 export const GET: APIRoute = async (context) => {
@@ -34,10 +34,10 @@ export const GET: APIRoute = async (context) => {
       );
     }
 
-    const spaceId = context.url.searchParams.get("space_id");
+    const spaceId = context.url.searchParams.get("spaceId");
     if (!spaceId) {
       return new Response(
-        JSON.stringify({ error: "space_id is required" }),
+        JSON.stringify({ error: "spaceId is required" }),
         { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
@@ -54,10 +54,10 @@ export const GET: APIRoute = async (context) => {
       );
     }
 
-    const environmentId = context.url.searchParams.get("environment_id");
-    const featureId = context.url.searchParams.get("feature_id");
-    const dateFrom = context.url.searchParams.get("date_from");
-    const dateTo = context.url.searchParams.get("date_to");
+    const environmentId = context.url.searchParams.get("environmentId");
+    const featureId = context.url.searchParams.get("featureId");
+    const dateFrom = context.url.searchParams.get("dateFrom");
+    const dateTo = context.url.searchParams.get("dateTo");
     const metricType = context.url.searchParams.get("metric_type") || "usage";
 
     const filters = {
