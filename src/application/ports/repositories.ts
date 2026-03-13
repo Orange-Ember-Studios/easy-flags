@@ -29,6 +29,12 @@ import type {
   FlagImpactAnalysis,
   CreateFlagEvaluationDTO,
   AnalyticsQueryFilters,
+  AuditLog,
+  ComplianceReport,
+  PermissionDenialLog,
+  CreateAuditLogDTO,
+  AuditLogQueryFilters,
+  ComplianceReportQueryFilters,
 } from "@domain/entities";
 
 // ====================
@@ -245,6 +251,48 @@ export interface PerformanceMetricRepository {
 }
 
 // ====================
+// Audit Log Repository Port
+// ====================
+
+export interface AuditLogRepository {
+  create(dto: CreateAuditLogDTO): Promise<AuditLog>;
+  findById(id: number): Promise<AuditLog | null>;
+  findByFilters(filters: AuditLogQueryFilters): Promise<AuditLog[]>;
+  findBySpaceId(spaceId: number, limit?: number): Promise<AuditLog[]>;
+  findByUserId(userId: number, limit?: number): Promise<AuditLog[]>;
+  findBySeverity(severity: string, limit?: number): Promise<AuditLog[]>;
+  deleteOlderThan(days: number): Promise<number>;
+}
+
+// ====================
+// Permission Denial Log Repository Port
+// ====================
+
+export interface PermissionDenialLogRepository {
+  create(log: Omit<PermissionDenialLog, "id" | "created_at">): Promise<PermissionDenialLog>;
+  findById(id: number): Promise<PermissionDenialLog | null>;
+  findByUserId(userId: number, limit?: number): Promise<PermissionDenialLog[]>;
+  findBySpaceId(spaceId: number, limit?: number): Promise<PermissionDenialLog[]>;
+  findRecentByUser(userId: number, hours: number): Promise<PermissionDenialLog[]>;
+  deleteOlderThan(days: number): Promise<number>;
+}
+
+// ====================
+// Compliance Report Repository Port
+// ====================
+
+export interface ComplianceReportRepository {
+  create(report: Omit<ComplianceReport, "id" | "created_at">): Promise<ComplianceReport>;
+  findById(id: number): Promise<ComplianceReport | null>;
+  findByFilters(filters: ComplianceReportQueryFilters): Promise<ComplianceReport[]>;
+  findLatestBySpaceAndType(
+    spaceId: number,
+    reportType: ComplianceReport["report_type"],
+  ): Promise<ComplianceReport | null>;
+  findBySpaceId(spaceId: number): Promise<ComplianceReport[]>;
+}
+
+// ====================
 // Repository Registry Port
 // ====================
 
@@ -263,4 +311,7 @@ export interface RepositoryRegistry {
   getFlagEvaluationRepository(): FlagEvaluationRepository;
   getFlagUsageMetricRepository(): FlagUsageMetricRepository;
   getPerformanceMetricRepository(): PerformanceMetricRepository;
+  getAuditLogRepository(): AuditLogRepository;
+  getPermissionDenialLogRepository(): PermissionDenialLogRepository;
+  getComplianceReportRepository(): ComplianceReportRepository;
 }

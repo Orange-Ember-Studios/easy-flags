@@ -26,6 +26,13 @@ import type {
   FlagImpactAnalysis,
   CreateFlagEvaluationDTO,
   AnalyticsQueryFilters,
+  AuditLog,
+  ComplianceReport,
+  PermissionDenialLog,
+  CreateAuditLogDTO,
+  AuditLogQueryFilters,
+  ComplianceReportQueryFilters,
+  AuditSeverity,
 } from "@domain/entities";
 
 // ====================
@@ -541,5 +548,218 @@ export class AnalyticsService {
       last_evaluated_at: metrics[0]?.created_at || new Date().toISOString(),
       trend_30d: trend,
     };
+  }
+}
+
+// ====================
+// Audit Service
+// ====================
+
+export class AuditService {
+  private registry = getRepositoryRegistry();
+
+  /**
+   * Log an audit event
+   */
+  async logAudit(dto: CreateAuditLogDTO): Promise<AuditLog> {
+    return this.registry.getAuditLogRepository().create(dto);
+  }
+
+  /**
+   * Log a permission denial event
+   */
+  async logPermissionDenial(
+    userId: number,
+    resourceType: string,
+    resourceId: number,
+    requiredPermission: string,
+    options?: {
+      spaceId?: number;
+      userRole?: string;
+      ipAddress?: string;
+    },
+  ): Promise<PermissionDenialLog> {
+    return this.registry.getPermissionDenialLogRepository().create({
+      user_id: userId,
+      space_id: options?.spaceId,
+      resource_type: resourceType,
+      resource_id: resourceId,
+      required_permission: requiredPermission,
+      user_role: options?.userRole,
+      ip_address: options?.ipAddress,
+    });
+  }
+
+  /**
+   * Get audit logs with filtering
+   */
+  async getAuditLogs(filters: AuditLogQueryFilters): Promise<AuditLog[]> {
+    return this.registry.getAuditLogRepository().findByFilters(filters);
+  }
+
+  /**
+   * Get audit logs for a space
+   */
+  async getSpaceAuditLogs(spaceId: number, limit = 100): Promise<AuditLog[]> {
+    return this.registry.getAuditLogRepository().findBySpaceId(spaceId, limit);
+  }
+
+  /**
+   * Get audit logs for a user
+   */
+  async getUserAuditLogs(userId: number, limit = 100): Promise<AuditLog[]> {
+    return this.registry.getAuditLogRepository().findByUserId(userId, limit);
+  }
+
+  /**
+   * Get critical audit logs (security issues, failures, etc.)
+   */
+  async getCriticalAuditLogs(limit = 100): Promise<AuditLog[]> {
+    return this.registry.getAuditLogRepository().findBySeverity("critical", limit);
+  }
+
+  /**
+   * Get recent permission denial logs for a user
+   */
+  async getUserRecentDenials(
+    userId: number,
+    hoursAgo = 24,
+  ): Promise<PermissionDenialLog[]> {
+    return this.registry
+      .getPermissionDenialLogRepository()
+      .findRecentByUser(userId, hoursAgo);
+  }
+
+  /**
+   * Get permission denial logs for a space
+   */
+  async getSpaceDenialLogs(spaceId: number, limit = 100): Promise<PermissionDenialLog[]> {
+    return this.registry
+      .getPermissionDenialLogRepository()
+      .findBySpaceId(spaceId, limit);
+  }
+
+  /**
+   * Detect suspicious activity (repeated permission denials)
+   */
+  async detectSuspiciousActivity(
+    userId: number,
+    thresholdDenials = 5,
+    timeWindow = 1, // hours
+  ): Promise<boolean> {
+    const recentDenials = await this.getUserRecentDenials(userId, timeWindow);
+    return recentDenials.length >= thresholdDenials;
+  }
+
+  /**
+   * Create a compliance report
+   */
+  async createComplianceReport(
+    spaceId: number,
+    report: Omit<ComplianceReport, "id" | "created_at">,
+  ): Promise<ComplianceReport> {
+    return this.registry.getComplianceReportRepository().create(report);
+  }
+
+  /**
+   * Get compliance reports for a space
+   */
+  async getComplianceReports(
+    filters: ComplianceReportQueryFilters,
+  ): Promise<ComplianceReport[]> {
+    return this.registry.getComplianceReportRepository().findByFilters(filters);
+  }
+
+  /**
+   * Get latest compliance report of a specific type
+   */
+  async getLatestComplianceReport(
+    spaceId: number,
+    reportType: ComplianceReport["report_type"],
+  ): Promise<ComplianceReport | null> {
+    return this.registry
+      .getComplianceReportRepository()
+      .findLatestBySpaceAndType(spaceId, reportType);
+  }
+
+  /**
+   * Generate compliance report from audit logs
+   */
+  async generateComplianceReport(
+    spaceId: number,
+    dateFrom: string,
+    dateTo: string,
+    reportType: ComplianceReport["report_type"] = "compliance_snapshot",
+  ): Promise<ComplianceReport> {
+    const auditLogs = await this.registry.getAuditLogRepository().findByFilters({
+      spaceId,
+      dateFrom,
+      dateTo,
+    });
+
+    const criticalActions = auditLogs.filter((log) => log.severity === "critical")
+      .length;
+    const failedActions = auditLogs.filter((log) => log.status === "failure")
+      .length;
+    const uniqueUsers = new Set(auditLogs.map((log) => log.user_id)).size;
+
+    const reportData = {
+      period: { from: dateFrom, to: dateTo },
+      summary: {
+        total: auditLogs.length,
+        critical: criticalActions,
+        failed: failedActions,
+        uniqueUsers,
+      },
+      actionBreakdown: this.groupAuditsByAction(auditLogs),
+      userActivity: this.groupAuditsByUser(auditLogs),
+    };
+
+    return this.createComplianceReport(spaceId, {
+      report_type: reportType,
+      period_start: dateFrom,
+      period_end: dateTo,
+      total_actions: auditLogs.length,
+      critical_actions: criticalActions,
+      failed_actions: failedActions,
+      unique_users: uniqueUsers,
+      data: reportData,
+    });
+  }
+
+  /**
+   * Clean up old audit logs
+   */
+  async cleanupOldLogs(daysToKeep = 90): Promise<number> {
+    return this.registry.getAuditLogRepository().deleteOlderThan(daysToKeep);
+  }
+
+  /**
+   * Clean up old permission denial logs
+   */
+  async cleanupOldDenials(daysToKeep = 90): Promise<number> {
+    return this.registry
+      .getPermissionDenialLogRepository()
+      .deleteOlderThan(daysToKeep);
+  }
+
+  private groupAuditsByAction(logs: AuditLog[]): Record<string, number> {
+    return logs.reduce(
+      (acc, log) => {
+        acc[log.action] = (acc[log.action] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+  }
+
+  private groupAuditsByUser(logs: AuditLog[]): Record<number, number> {
+    return logs.reduce(
+      (acc, log) => {
+        acc[log.user_id] = (acc[log.user_id] || 0) + 1;
+        return acc;
+      },
+      {} as Record<number, number>,
+    );
   }
 }

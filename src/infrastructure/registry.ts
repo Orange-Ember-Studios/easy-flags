@@ -19,6 +19,9 @@ import type {
   FlagEvaluationRepository,
   FlagUsageMetricRepository,
   PerformanceMetricRepository,
+  AuditLogRepository,
+  PermissionDenialLogRepository,
+  ComplianceReportRepository,
 } from "@application/ports/repositories";
 import { LibSqlUserRepository } from "./adapters/libsql.adapter";
 import { LibSqlRoleRepository } from "./adapters/libsql.adapter";
@@ -36,6 +39,11 @@ import {
   LibSqlFlagUsageMetricRepository,
   LibSqlPerformanceMetricRepository,
 } from "./adapters/libsql-analytics.adapter";
+import {
+  LibSqlAuditLogRepository,
+  LibSqlPermissionDenialLogRepository,
+  LibSqlComplianceReportRepository,
+} from "./adapters/libsql-audit.adapter";
 
 class LibSqlRepositoryRegistry implements RepositoryRegistry {
   private userRepository: UserRepository | null = null;
@@ -53,6 +61,9 @@ class LibSqlRepositoryRegistry implements RepositoryRegistry {
   private flagEvaluationRepository: FlagEvaluationRepository | null = null;
   private flagUsageMetricRepository: FlagUsageMetricRepository | null = null;
   private performanceMetricRepository: PerformanceMetricRepository | null = null;
+  private auditLogRepository: AuditLogRepository | null = null;
+  private permissionDenialLogRepository: PermissionDenialLogRepository | null = null;
+  private complianceReportRepository: ComplianceReportRepository | null = null;
 
   getUserRepository(): UserRepository {
     if (!this.userRepository) {
@@ -151,6 +162,27 @@ class LibSqlRepositoryRegistry implements RepositoryRegistry {
       this.performanceMetricRepository = new LibSqlPerformanceMetricRepository();
     }
     return this.performanceMetricRepository;
+  }
+
+  getAuditLogRepository(): AuditLogRepository {
+    if (!this.auditLogRepository) {
+      this.auditLogRepository = new LibSqlAuditLogRepository();
+    }
+    return this.auditLogRepository;
+  }
+
+  getPermissionDenialLogRepository(): PermissionDenialLogRepository {
+    if (!this.permissionDenialLogRepository) {
+      this.permissionDenialLogRepository = new LibSqlPermissionDenialLogRepository();
+    }
+    return this.permissionDenialLogRepository;
+  }
+
+  getComplianceReportRepository(): ComplianceReportRepository {
+    if (!this.complianceReportRepository) {
+      this.complianceReportRepository = new LibSqlComplianceReportRepository();
+    }
+    return this.complianceReportRepository;
   }
 }
 

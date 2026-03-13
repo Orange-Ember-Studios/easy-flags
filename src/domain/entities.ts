@@ -294,3 +294,124 @@ export interface AnalyticsQueryFilters {
   limit?: number;
   offset?: number;
 }
+
+// ====================
+// Audit & Compliance
+// ====================
+
+export type AuditAction =
+  | "SPACE_CREATED"
+  | "SPACE_UPDATED"
+  | "SPACE_DELETED"
+  | "ENVIRONMENT_CREATED"
+  | "ENVIRONMENT_UPDATED"
+  | "ENVIRONMENT_DELETED"
+  | "FEATURE_CREATED"
+  | "FEATURE_UPDATED"
+  | "FEATURE_DELETED"
+  | "FLAG_ENABLED"
+  | "FLAG_DISABLED"
+  | "MEMBER_INVITED"
+  | "MEMBER_REMOVED"
+  | "PERMISSION_GRANTED"
+  | "PERMISSION_REVOKED"
+  | "API_KEY_CREATED"
+  | "API_KEY_ROTATED"
+  | "API_KEY_REVOKED"
+  | "PERMISSION_DENIED"
+  | "FAILED_LOGIN"
+  | "SUCCESSFUL_LOGIN"
+  | "SETTINGS_CHANGED"
+  | "ADVANCED_CONFIG_UPDATED";
+
+export type AuditSeverity = "info" | "warning" | "critical";
+
+export interface AuditLog {
+  id: number;
+  space_id?: number;
+  user_id: number;
+  action: AuditAction;
+  resource_type: string; // e.g., "Space", "Feature", "User"
+  resource_id: number;
+  severity: AuditSeverity;
+  status: "success" | "failure";
+  error_message?: string;
+  changes_before?: string; // JSON stringified
+  changes_after?: string; // JSON stringified
+  metadata?: string; // JSON stringified (IP address, user agent, etc.)
+  ip_address?: string;
+  user_agent?: string;
+  created_at: string;
+}
+
+export interface ComplianceReport {
+  id: number;
+  space_id: number;
+  report_type:
+    | "access_log"
+    | "permission_audit"
+    | "data_access"
+    | "compliance_snapshot";
+  period_start: string;
+  period_end: string;
+  total_actions: number;
+  critical_actions: number;
+  failed_actions: number;
+  unique_users: number;
+  data: string; // JSON stringified report data
+  created_at: string;
+}
+
+export interface PermissionDenialLog {
+  id: number;
+  user_id: number;
+  space_id?: number;
+  resource_type: string;
+  resource_id: number;
+  required_permission: string;
+  user_role?: string;
+  ip_address?: string;
+  created_at: string;
+}
+
+// ====================
+// Audit DTOs
+// ====================
+
+export interface CreateAuditLogDTO {
+  space_id?: number;
+  user_id: number;
+  action: AuditAction;
+  resource_type: string;
+  resource_id: number;
+  severity: AuditSeverity;
+  status: "success" | "failure";
+  error_message?: string;
+  changes_before?: Record<string, any>;
+  changes_after?: Record<string, any>;
+  metadata?: Record<string, any>;
+  ip_address?: string;
+  user_agent?: string;
+}
+
+export interface AuditLogQueryFilters {
+  spaceId?: number;
+  userId?: number;
+  action?: AuditAction;
+  resourceType?: string;
+  severity?: AuditSeverity;
+  status?: "success" | "failure";
+  dateFrom?: string; // ISO date
+  dateTo?: string; // ISO date
+  limit?: number;
+  offset?: number;
+}
+
+export interface ComplianceReportQueryFilters {
+  spaceId: number;
+  reportType?: ComplianceReport["report_type"];
+  dateFrom?: string;
+  dateTo?: string;
+  limit?: number;
+  offset?: number;
+}
