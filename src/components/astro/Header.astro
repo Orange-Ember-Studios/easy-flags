@@ -29,6 +29,11 @@ const navItems = {
     label: "Spaces",
     showFor: !!user,
   },
+  metrics: {
+    href: "/metrics",
+    label: "Metrics",
+    showFor: !!user,
+  },
   settings: {
     href: "/settings",
     label: "Settings",
@@ -88,6 +93,17 @@ const getNavLinkClass = (href: string) => {
               class={getNavLinkClass(navItems.spaces.href)}
             >
               {navItems.spaces.label}
+            </a>
+          )
+        }
+
+        {
+          navItems.metrics.showFor && (
+            <a
+              href={navItems.metrics.href}
+              class={getNavLinkClass(navItems.metrics.href)}
+            >
+              {navItems.metrics.label}
             </a>
           )
         }

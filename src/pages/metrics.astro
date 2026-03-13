@@ -1,0 +1,25 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MetricsMonitor from "@/components/react/analytics/MetricsMonitor";
+import { requireAuth, getLoginUrl } from "@/utils/auth-redirect";
+import { getUserFromContext } from "@/utils/auth";
+
+export const prerender = false;
+
+// Check authentication
+if (!requireAuth(Astro)) {
+  return Astro.redirect(getLoginUrl(Astro));
+}
+
+// Get user
+const user = getUserFromContext(Astro);
+if (!user) {
+  return Astro.redirect("/login");
+}
+---
+
+<BaseLayout title="Metrics - Easy Flags" includeHeader={true}>
+  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <MetricsMonitor client:load userId={String(user.id)} />
+  </div>
+</BaseLayout>
