@@ -169,6 +169,13 @@ export class FeatureService {
     return this.registry.getFeatureRepository().findById(id);
   }
 
+  async getFeatureByKey(
+    spaceId: number,
+    key: string,
+  ): Promise<Feature | null> {
+    return this.registry.getFeatureRepository().findByKey(spaceId, key);
+  }
+
   async getSpaceFeatures(spaceId: number): Promise<Feature[]> {
     return this.registry.getFeatureRepository().findBySpaceId(spaceId);
   }
