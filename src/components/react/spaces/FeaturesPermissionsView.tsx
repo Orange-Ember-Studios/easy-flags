@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import PageContainer from "@/components/react/shared/PageContainer";
 
 interface RolePermission {
   roleId: number;
@@ -246,24 +245,14 @@ export default function FeaturesPermissionsView({
 
   if (isLoading) {
     return (
-      <PageContainer
-        spaceId={spaceId}
-        spaceName="Feature Permissions"
-        currentTab="permissions"
-      >
-        <div className="text-center py-12">
-          <p className="text-slate-400">Loading feature permissions...</p>
-        </div>
-      </PageContainer>
+      <div className="text-center py-12">
+        <p className="text-slate-400">Loading feature permissions...</p>
+      </div>
     );
   }
 
   return (
-    <PageContainer
-      spaceId={spaceId}
-      spaceName="System Administration"
-      currentTab="permissions"
-    >
+    <>
       {/* Header */}
       <div className="mb-12 mt-12">
         <h1 className="text-4xl font-bold text-white mb-2">
@@ -407,6 +396,6 @@ export default function FeaturesPermissionsView({
           )}
         </div>
       </div>
-    </PageContainer>
+    </>
   );
 }
