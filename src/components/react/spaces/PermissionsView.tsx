@@ -331,13 +331,12 @@ export default function PermissionsView({
   return (
     <>
       <div className="mt-12">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Team & Permissions
-          </h1>
-          <p className="text-slate-400">
-            Manage team members and control access to this space
-          </p>
-        </div>
+        <h1 className="text-4xl font-bold text-white mb-2">
+          Team & Permissions
+        </h1>
+        <p className="text-slate-400">
+          Manage team members and control access to this space
+        </p>
 
         {/* Error Message */}
         {error && (
