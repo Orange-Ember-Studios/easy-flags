@@ -1,0 +1,306 @@
+import React, { useState, useEffect, useMemo } from "react";
+import FlagMetricsView from "./views/FlagMetricsView";
+import AuditLogsView from "./views/AuditLogsView";
+import PerformanceMetricsView from "./views/PerformanceMetricsView";
+import ComplianceReportsView from "./views/ComplianceReportsView";
+import ComparisonView from "./views/ComparisonView";
+import AdvancedFilters from "./filters/AdvancedFilters";
+import { exportToCSV, exportToJSON } from "@lib/analytics-export";
+
+type TabType = "flags" | "audit" | "performance" | "compliance" | "comparison";
+
+export interface DateRange {
+  startDate: string;
+  endDate: string;
+}
+
+export interface AnalyticsFilters {
+  dateRange: DateRange;
+  spaceId?: string;
+  userId?: string;
+  actionType?: string;
+  severity?: "info" | "warning" | "critical";
+  status?: "success" | "failed";
+}
+
+interface AnalyticsManagerProps {
+  userId: string;
+  isAdmin?: boolean;
+  spaceId?: string;
+}
+
+const TabButton: React.FC<{
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}> = ({ active, onClick, icon, label }) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+      active
+        ? "bg-blue-600 text-white shadow-lg"
+        : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+    }`}
+  >
+    {icon}
+    {label}
+  </button>
+);
+
+export default function AnalyticsManager({
+  userId,
+  isAdmin = false,
+  spaceId: defaultSpaceId,
+}: AnalyticsManagerProps) {
+  const [activeTab, setActiveTab] = useState<TabType>("flags");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<AnalyticsFilters>({
+    dateRange: {
+      startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
+      endDate: new Date().toISOString().split("T")[0],
+    },
+    spaceId: defaultSpaceId,
+  });
+  const [exporting, setExporting] = useState(false);
+  const [exportFormat, setExportFormat] = useState<"csv" | "json">("csv");
+  const [showExportMenu, setShowExportMenu] = useState(false);
+
+  const dateRangeDisplay = useMemo(() => {
+    const start = new Date(filters.dateRange.startDate);
+    const end = new Date(filters.dateRange.endDate);
+    const diffDays = Math.floor(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Last 2 days";
+    if (diffDays === 6) return "Last 7 days";
+    if (diffDays === 29) return "Last 30 days";
+    if (diffDays === 89) return "Last 90 days";
+    return `${diffDays + 1} days`;
+  }, [filters.dateRange]);
+
+  const handleSetDatePreset = (days: number) => {
+    const endDate = new Date();
+    const startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
+
+    setFilters((prev) => ({
+      ...prev,
+      dateRange: {
+        startDate: startDate.toISOString().split("T")[0],
+        endDate: endDate.toISOString().split("T")[0],
+      },
+    }));
+  };
+
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+
+      // Fetch current view data
+      const viewData = await fetchViewData(activeTab);
+
+      if (exportFormat === "csv") {
+        exportToCSV(viewData, `${activeTab}-analytics-${Date.now()}.csv`);
+      } else {
+        exportToJSON(viewData, `${activeTab}-analytics-${Date.now()}.json`);
+      }
+
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const fetchViewData = async (tab: TabType) => {
+    // This will be implemented in each view component
+    const response = await fetch("/api/analytics/export", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tab,
+        filters,
+      }),
+    });
+    return response.json();
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Header */}
+      <div className="bg-slate-800/50 backdrop-blur border-b border-slate-700">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                📊 Analytics Manager
+              </h1>
+              <p className="text-slate-400">
+                Comprehensive analytics and compliance monitoring
+              </p>
+            </div>
+            <div className="flex gap-4 items-center">
+              {/* Quick date presets */}
+              <div className="flex gap-2 items-center">
+                <Calendar className="w-4 h-4 text-slate-400" />
+                <span className="text-sm text-slate-300 font-medium">
+                  {dateRangeDisplay}
+                </span>
+              </div>
+
+              {/* Export dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                  disabled={exporting}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  <Download className="w-4 h-4" />
+                  {exporting ? "Exporting..." : "Export"}
+                </button>
+
+                {showExportMenu && (
+                  <div className="absolute right-0 mt-2 bg-slate-800 border border-slate-700 rounded-lg overflow-hidden z-50 shadow-lg">
+                    <button
+                      onClick={() => {
+                        setExportFormat("csv");
+                        handleExport();
+                      }}
+                      className="block w-full text-left px-4 py-2 text-slate-300 hover:bg-slate-700 transition-colors"
+                    >
+                      Export as CSV
+                    </button>
+                    <button
+                      onClick={() => {
+                        setExportFormat("json");
+                        handleExport();
+                      }}
+                      className="block w-full text-left px-4 py-2 text-slate-300 hover:bg-slate-700 transition-colors border-t border-slate-700"
+                    >
+                      Export as JSON
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Filter toggle */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  showFilters
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                }`}
+              >
+                <Filter className="w-4 h-4" />
+                Filters
+              </button>
+            </div>
+          </div>
+
+          {/* Quick date presets */}
+          <div className="flex gap-2 flex-wrap">
+            {[
+              { label: "Today", days: 0 },
+              { label: "Last 7 days", days: 7 },
+              { label: "Last 30 days", days: 30 },
+              { label: "Last 90 days", days: 90 },
+            ].map(({ label, days }) => (
+              <button
+                key={label}
+                onClick={() => handleSetDatePreset(days)}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  filters.dateRange.startDate ===
+                  new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+                    .toISOString()
+                    .split("T")[0]
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Advanced Filters */}
+      {showFilters && (
+        <div className="bg-slate-800/30 border-b border-slate-700 p-6">
+          <AdvancedFilters filters={filters} onChange={setFilters} />
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="bg-slate-800/20 border-b border-slate-700 p-6">
+        <div className="flex gap-3 flex-wrap">
+          <TabButton
+            active={activeTab === "flags"}
+            onClick={() => setActiveTab("flags")}
+            icon={<BarChart3 className="w-4 h-4" />}
+            label="Flag Metrics"
+          />
+          <TabButton
+            active={activeTab === "audit"}
+            onClick={() => setActiveTab("audit")}
+            icon={<TrendingUp className="w-4 h-4" />}
+            label="Audit Logs"
+          />
+          <TabButton
+            active={activeTab === "performance"}
+            onClick={() => setActiveTab("performance")}
+            icon={<BarChart3 className="w-4 h-4" />}
+            label="Performance"
+          />
+          <TabButton
+            active={activeTab === "compliance"}
+            onClick={() => setActiveTab("compliance")}
+            icon={<TrendingUp className="w-4 h-4" />}
+            label="Compliance"
+          />
+          {isAdmin && (
+            <TabButton
+              active={activeTab === "comparison"}
+              onClick={() => setActiveTab("comparison")}
+              icon={<BarChart3 className="w-4 h-4" />}
+              label="Comparison"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        {activeTab === "flags" && (
+          <FlagMetricsView filters={filters} userId={userId} />
+        )}
+        {activeTab === "audit" && (
+          <AuditLogsView
+            filters={filters}
+            userId={userId}
+            isAdmin={isAdmin}
+          />
+        )}
+        {activeTab === "performance" && (
+          <PerformanceMetricsView filters={filters} userId={userId} />
+        )}
+        {activeTab === "compliance" && (
+          <ComplianceReportsView
+            filters={filters}
+            userId={userId}
+            isAdmin={isAdmin}
+          />
+        )}
+        {activeTab === "comparison" && isAdmin && (
+          <ComparisonView filters={filters} />
+        )}
+      </div>
+    </div>
+  );
+}

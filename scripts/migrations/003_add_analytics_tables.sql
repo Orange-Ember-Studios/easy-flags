@@ -16,11 +16,12 @@ CREATE TABLE IF NOT EXISTS flag_evaluations (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (space_id) REFERENCES spaces(id),
   FOREIGN KEY (environment_id) REFERENCES environments(id),
-  FOREIGN KEY (feature_id) REFERENCES features(id),
-  INDEX idx_flag_evaluations_space_env (space_id, environment_id),
-  INDEX idx_flag_evaluations_feature (feature_id),
-  INDEX idx_flag_evaluations_created (created_at)
+  FOREIGN KEY (feature_id) REFERENCES features(id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_flag_evaluations_space_env ON flag_evaluations(space_id, environment_id);
+CREATE INDEX IF NOT EXISTS idx_flag_evaluations_feature ON flag_evaluations(feature_id);
+CREATE INDEX IF NOT EXISTS idx_flag_evaluations_created ON flag_evaluations(created_at);
 
 CREATE TABLE IF NOT EXISTS flag_usage_metrics (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,11 +41,12 @@ CREATE TABLE IF NOT EXISTS flag_usage_metrics (
   FOREIGN KEY (space_id) REFERENCES spaces(id),
   FOREIGN KEY (environment_id) REFERENCES environments(id),
   FOREIGN KEY (feature_id) REFERENCES features(id),
-  UNIQUE(space_id, environment_id, feature_id, metric_date),
-  INDEX idx_flag_usage_metrics_space (space_id),
-  INDEX idx_flag_usage_metrics_feature (feature_id),
-  INDEX idx_flag_usage_metrics_date (metric_date)
+  UNIQUE(space_id, environment_id, feature_id, metric_date)
 );
+
+CREATE INDEX IF NOT EXISTS idx_flag_usage_metrics_space ON flag_usage_metrics(space_id);
+CREATE INDEX IF NOT EXISTS idx_flag_usage_metrics_feature ON flag_usage_metrics(feature_id);
+CREATE INDEX IF NOT EXISTS idx_flag_usage_metrics_date ON flag_usage_metrics(metric_date);
 
 CREATE TABLE IF NOT EXISTS performance_metrics (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,12 +57,13 @@ CREATE TABLE IF NOT EXISTS performance_metrics (
   environment_id INTEGER,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (space_id) REFERENCES spaces(id),
-  FOREIGN KEY (environment_id) REFERENCES environments(id),
-  INDEX idx_performance_metrics_space (space_id),
-  INDEX idx_performance_metrics_type (metric_type),
-  INDEX idx_performance_metrics_endpoint (endpoint),
-  INDEX idx_performance_metrics_created (created_at)
+  FOREIGN KEY (environment_id) REFERENCES environments(id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_performance_metrics_space ON performance_metrics(space_id);
+CREATE INDEX IF NOT EXISTS idx_performance_metrics_type ON performance_metrics(metric_type);
+CREATE INDEX IF NOT EXISTS idx_performance_metrics_endpoint ON performance_metrics(endpoint);
+CREATE INDEX IF NOT EXISTS idx_performance_metrics_created ON performance_metrics(created_at);
 
 -- Create indexes for common queries
 CREATE INDEX IF NOT EXISTS idx_flag_evaluations_time_range 

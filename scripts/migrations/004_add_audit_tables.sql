@@ -72,15 +72,3 @@ CREATE INDEX IF NOT EXISTS idx_compliance_space_id ON compliance_reports(space_i
 CREATE INDEX IF NOT EXISTS idx_compliance_report_type ON compliance_reports(report_type);
 CREATE INDEX IF NOT EXISTS idx_compliance_created_at ON compliance_reports(created_at);
 CREATE INDEX IF NOT EXISTS idx_compliance_space_type ON compliance_reports(space_id, report_type);
-
--- Audit Log Actions Reference (documentation)
--- The following are the supported audit actions:
--- Space Management: SPACE_CREATED, SPACE_UPDATED, SPACE_DELETED
--- Environment Management: ENVIRONMENT_CREATED, ENVIRONMENT_UPDATED, ENVIRONMENT_DELETED
--- Feature Management: FEATURE_CREATED, FEATURE_UPDATED, FEATURE_DELETED
--- Flag Toggling: FLAG_ENABLED, FLAG_DISABLED
--- Team Management: MEMBER_INVITED, MEMBER_REMOVED
--- Permission Management: PERMISSION_GRANTED, PERMISSION_REVOKED
--- API Management: API_KEY_CREATED, API_KEY_ROTATED, API_KEY_REVOKED
--- Authentication: FAILED_LOGIN, SUCCESSFUL_LOGIN, PERMISSION_DENIED
--- Configuration: SETTINGS_CHANGED, ADVANCED_CONFIG_UPDATED
