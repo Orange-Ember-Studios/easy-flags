@@ -194,6 +194,114 @@ async function initializeSchema(client) {
       UNIQUE(role_id, feature_name)
     );
 
+    CREATE TABLE IF NOT EXISTS environment_configs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      environment_id INTEGER NOT NULL,
+      key TEXT NOT NULL,
+      default_value TEXT NOT NULL,
+      overridden_value TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (environment_id) REFERENCES environments(id),
+      UNIQUE(environment_id, key)
+    );
+
+    CREATE TABLE IF NOT EXISTS api_keys (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      environment_id INTEGER NOT NULL,
+      key TEXT UNIQUE NOT NULL,
+      last_used DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (environment_id) REFERENCES environments(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS user_api_keys (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      key TEXT UNIQUE NOT NULL,
+      last_used DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS user_preferences (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL UNIQUE,
+      email_notifications BOOLEAN DEFAULT 1,
+      security_alerts BOOLEAN DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS advanced_configurations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      feature_flag_id INTEGER NOT NULL,
+      rollout_percentage INTEGER DEFAULT 0,
+      rollout_start_date DATETIME,
+      rollout_end_date DATETIME,
+      default_value TEXT,
+      scheduling_enabled BOOLEAN DEFAULT 0,
+      schedule_start_date DATETIME,
+      schedule_start_time TEXT,
+      schedule_end_date DATETIME,
+      schedule_end_time TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (feature_flag_id) REFERENCES feature_flags(id),
+      UNIQUE(feature_flag_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS flag_evaluations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      space_id INTEGER NOT NULL,
+      environment_id INTEGER NOT NULL,
+      feature_id INTEGER NOT NULL,
+      api_key_hash TEXT NOT NULL,
+      was_enabled BOOLEAN DEFAULT 0,
+      evaluation_result TEXT NOT NULL,
+      evaluation_time_ms INTEGER NOT NULL,
+      error_message TEXT,
+      context_data TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (space_id) REFERENCES spaces(id),
+      FOREIGN KEY (environment_id) REFERENCES environments(id),
+      FOREIGN KEY (feature_id) REFERENCES features(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS flag_usage_metrics (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      space_id INTEGER NOT NULL,
+      environment_id INTEGER NOT NULL,
+      feature_id INTEGER NOT NULL,
+      metric_date TEXT NOT NULL,
+      total_evaluations INTEGER DEFAULT 0,
+      enabled_count INTEGER DEFAULT 0,
+      disabled_count INTEGER DEFAULT 0,
+      error_count INTEGER DEFAULT 0,
+      avg_evaluation_time_ms REAL DEFAULT 0,
+      min_evaluation_time_ms INTEGER DEFAULT 0,
+      max_evaluation_time_ms INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (space_id) REFERENCES spaces(id),
+      FOREIGN KEY (environment_id) REFERENCES environments(id),
+      FOREIGN KEY (feature_id) REFERENCES features(id),
+      UNIQUE(space_id, environment_id, feature_id, metric_date)
+    );
+
+    CREATE TABLE IF NOT EXISTS performance_metrics (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      space_id INTEGER NOT NULL,
+      metric_type TEXT NOT NULL,
+      value_ms INTEGER NOT NULL,
+      endpoint TEXT,
+      environment_id INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (space_id) REFERENCES spaces(id),
+      FOREIGN KEY (environment_id) REFERENCES environments(id)
+    );
+
     CREATE TABLE IF NOT EXISTS migrations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
