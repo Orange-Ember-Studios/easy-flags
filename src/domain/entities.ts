@@ -415,3 +415,123 @@ export interface ComplianceReportQueryFilters {
   limit?: number;
   offset?: number;
 }
+
+// ====================
+// Pricing & Billing
+// ====================
+
+export type BillingPeriod = "monthly" | "yearly" | "one-time";
+export type SubscriptionStatus = "active" | "canceled" | "past_due" | "trial";
+
+export interface PricingPlan {
+  id: number;
+  slug: string;
+  name: string;
+  description?: string;
+  price: number;
+  billing_period: BillingPeriod;
+  is_active: boolean;
+  is_recommended: boolean;
+  sort_order: number;
+  stripe_price_id?: string;
+  created_at: string;
+  updated_at: string;
+  features?: PricingPlanFeature[];
+  limits?: PricingPlanLimit[];
+}
+
+export interface PricingPlanFeature {
+  id: number;
+  pricing_plan_id: number;
+  feature_name: string;
+  feature_description?: string;
+  feature_value?: string;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface PricingPlanLimit {
+  id: number;
+  pricing_plan_id: number;
+  limit_name: string; // e.g., "max_flags", "max_environments", "api_requests_per_month"
+  limit_value: number;
+  limit_description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SpaceSubscription {
+  id: number;
+  space_id: number;
+  pricing_plan_id: number;
+  status: SubscriptionStatus;
+  stripe_subscription_id?: string;
+  trial_start_date?: string;
+  trial_end_date?: string;
+  current_period_start?: string;
+  current_period_end?: string;
+  cancellation_date?: string;
+  canceled_at?: string;
+  created_at: string;
+  updated_at: string;
+  pricing_plan?: PricingPlan;
+}
+
+// ====================
+// Pricing DTOs
+// ====================
+
+export interface CreatePricingPlanDTO {
+  slug: string;
+  name: string;
+  description?: string;
+  price: number;
+  billing_period: BillingPeriod;
+  is_active?: boolean;
+  is_recommended?: boolean;
+  sort_order?: number;
+  stripe_price_id?: string;
+}
+
+export interface UpdatePricingPlanDTO {
+  name?: string;
+  description?: string;
+  price?: number;
+  is_active?: boolean;
+  is_recommended?: boolean;
+  sort_order?: number;
+  stripe_price_id?: string;
+}
+
+export interface CreatePricingPlanFeatureDTO {
+  pricing_plan_id: number;
+  feature_name: string;
+  feature_description?: string;
+  feature_value?: string;
+  sort_order?: number;
+}
+
+export interface CreatePricingPlanLimitDTO {
+  pricing_plan_id: number;
+  limit_name: string;
+  limit_value: number;
+  limit_description?: string;
+}
+
+export interface CreateSpaceSubscriptionDTO {
+  space_id: number;
+  pricing_plan_id: number;
+  status?: SubscriptionStatus;
+  stripe_subscription_id?: string;
+  trial_start_date?: string;
+  trial_end_date?: string;
+}
+
+export interface UpdateSpaceSubscriptionDTO {
+  pricing_plan_id?: number;
+  status?: SubscriptionStatus;
+  current_period_start?: string;
+  current_period_end?: string;
+  cancellation_date?: string;
+  canceled_at?: string;
+}

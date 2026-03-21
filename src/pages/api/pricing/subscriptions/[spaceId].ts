@@ -1,0 +1,138 @@
+import type { APIRoute } from "astro";
+import { getUserFromContext } from "@/utils/auth";
+import {
+  successResponse,
+  unauthorizedResponse,
+  badRequestResponse,
+} from "@/utils/api";
+import { PricingService } from "@application/services/pricing.service";
+import { SpaceService } from "@application/services";
+
+export const prerender = false;
+
+// GET /api/pricing/subscriptions/[spaceId] - Get subscription for a space
+export const GET: APIRoute = async ({ params, ...context }) => {
+  const user = getUserFromContext(context);
+
+  if (!user) {
+    return new Response(JSON.stringify(unauthorizedResponse()), {
+      status: 401,
+    });
+  }
+
+  try {
+    const { spaceId } = params;
+
+    if (!spaceId || typeof spaceId !== "string") {
+      return new Response(
+        JSON.stringify(badRequestResponse("Space ID is required")),
+        { status: 400 },
+      );
+    }
+
+    // Verify user has access to this space
+    const spaceService = new SpaceService();
+    const space = await spaceService.getSpaceById(Number(spaceId));
+
+    if (!space) {
+      return new Response(
+        JSON.stringify(badRequestResponse("Space not found")),
+        { status: 404 },
+      );
+    }
+
+    // TODO: Add permission check here
+    // if (!hasAccess(user.id, space.id)) { return unauthorizedResponse(); }
+
+    const pricingService = PricingService.getInstance();
+    const subscription = await pricingService.getSpaceSubscription(
+      Number(spaceId),
+    );
+
+    return new Response(JSON.stringify(successResponse(subscription)), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching space subscription:", error);
+    return new Response(
+      JSON.stringify(badRequestResponse("Failed to fetch subscription")),
+      { status: 400 },
+    );
+  }
+};
+
+// POST /api/pricing/subscriptions/[spaceId] - Assign a pricing plan to a space
+export const POST: APIRoute = async ({ params, request, ...context }) => {
+  const user = getUserFromContext(context);
+
+  if (!user) {
+    return new Response(JSON.stringify(unauthorizedResponse()), {
+      status: 401,
+    });
+  }
+
+  try {
+    const { spaceId } = params;
+    const body = await request.json();
+    const { planSlug } = body;
+
+    if (!spaceId || typeof spaceId !== "string") {
+      return new Response(
+        JSON.stringify(badRequestResponse("Space ID is required")),
+        { status: 400 },
+      );
+    }
+
+    if (!planSlug) {
+      return new Response(
+        JSON.stringify(badRequestResponse("Plan slug is required")),
+        { status: 400 },
+      );
+    }
+
+    // Verify user has access to this space
+    const spaceService = new SpaceService();
+    const space = await spaceService.getSpaceById(Number(spaceId));
+
+    if (!space) {
+      return new Response(
+        JSON.stringify(badRequestResponse("Space not found")),
+        { status: 404 },
+      );
+    }
+
+    // TODO: Add permission check - only space owner/admin can change plan
+    // if (space.owner_id !== user.id && !isAdmin(user)) { return unauthorizedResponse(); }
+
+    const pricingService = PricingService.getInstance();
+    await pricingService.assignPlanToSpace(Number(spaceId), planSlug);
+
+    const subscription = await pricingService.getSpaceSubscription(
+      Number(spaceId),
+    );
+
+    return new Response(
+      JSON.stringify(
+        successResponse({
+          message: "Pricing plan assigned successfully",
+          subscription,
+        }),
+      ),
+      {
+        status: 201,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  } catch (error) {
+    console.error("Error assigning pricing plan:", error);
+    return new Response(
+      JSON.stringify(badRequestResponse("Failed to assign pricing plan")),
+      { status: 400 },
+    );
+  }
+};

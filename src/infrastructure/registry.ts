@@ -22,6 +22,10 @@ import type {
   AuditLogRepository,
   PermissionDenialLogRepository,
   ComplianceReportRepository,
+  PricingPlanRepository,
+  PricingPlanFeatureRepository,
+  PricingPlanLimitRepository,
+  SpaceSubscriptionRepository,
 } from "@application/ports/repositories";
 import { LibSqlUserRepository } from "./adapters/libsql.adapter";
 import { LibSqlRoleRepository } from "./adapters/libsql.adapter";
@@ -44,6 +48,12 @@ import {
   LibSqlPermissionDenialLogRepository,
   LibSqlComplianceReportRepository,
 } from "./adapters/libsql-audit.adapter";
+import {
+  LibSqlPricingPlanRepository,
+  LibSqlPricingPlanFeatureRepository,
+  LibSqlPricingPlanLimitRepository,
+  LibSqlSpaceSubscriptionRepository,
+} from "./adapters/libsql-pricing.adapter";
 
 class LibSqlRepositoryRegistry implements RepositoryRegistry {
   private userRepository: UserRepository | null = null;
@@ -60,10 +70,18 @@ class LibSqlRepositoryRegistry implements RepositoryRegistry {
   private targetingRuleRepository: TargetingRuleRepository | null = null;
   private flagEvaluationRepository: FlagEvaluationRepository | null = null;
   private flagUsageMetricRepository: FlagUsageMetricRepository | null = null;
-  private performanceMetricRepository: PerformanceMetricRepository | null = null;
+  private performanceMetricRepository: PerformanceMetricRepository | null =
+    null;
   private auditLogRepository: AuditLogRepository | null = null;
-  private permissionDenialLogRepository: PermissionDenialLogRepository | null = null;
+  private permissionDenialLogRepository: PermissionDenialLogRepository | null =
+    null;
   private complianceReportRepository: ComplianceReportRepository | null = null;
+  private pricingPlanRepository: PricingPlanRepository | null = null;
+  private pricingPlanFeatureRepository: PricingPlanFeatureRepository | null =
+    null;
+  private pricingPlanLimitRepository: PricingPlanLimitRepository | null = null;
+  private spaceSubscriptionRepository: SpaceSubscriptionRepository | null =
+    null;
 
   getUserRepository(): UserRepository {
     if (!this.userRepository) {
@@ -159,7 +177,8 @@ class LibSqlRepositoryRegistry implements RepositoryRegistry {
 
   getPerformanceMetricRepository(): PerformanceMetricRepository {
     if (!this.performanceMetricRepository) {
-      this.performanceMetricRepository = new LibSqlPerformanceMetricRepository();
+      this.performanceMetricRepository =
+        new LibSqlPerformanceMetricRepository();
     }
     return this.performanceMetricRepository;
   }
@@ -173,7 +192,8 @@ class LibSqlRepositoryRegistry implements RepositoryRegistry {
 
   getPermissionDenialLogRepository(): PermissionDenialLogRepository {
     if (!this.permissionDenialLogRepository) {
-      this.permissionDenialLogRepository = new LibSqlPermissionDenialLogRepository();
+      this.permissionDenialLogRepository =
+        new LibSqlPermissionDenialLogRepository();
     }
     return this.permissionDenialLogRepository;
   }
@@ -183,6 +203,36 @@ class LibSqlRepositoryRegistry implements RepositoryRegistry {
       this.complianceReportRepository = new LibSqlComplianceReportRepository();
     }
     return this.complianceReportRepository;
+  }
+
+  getPricingPlanRepository(): PricingPlanRepository {
+    if (!this.pricingPlanRepository) {
+      this.pricingPlanRepository = new LibSqlPricingPlanRepository();
+    }
+    return this.pricingPlanRepository;
+  }
+
+  getPricingPlanFeatureRepository(): PricingPlanFeatureRepository {
+    if (!this.pricingPlanFeatureRepository) {
+      this.pricingPlanFeatureRepository =
+        new LibSqlPricingPlanFeatureRepository();
+    }
+    return this.pricingPlanFeatureRepository;
+  }
+
+  getPricingPlanLimitRepository(): PricingPlanLimitRepository {
+    if (!this.pricingPlanLimitRepository) {
+      this.pricingPlanLimitRepository = new LibSqlPricingPlanLimitRepository();
+    }
+    return this.pricingPlanLimitRepository;
+  }
+
+  getSpaceSubscriptionRepository(): SpaceSubscriptionRepository {
+    if (!this.spaceSubscriptionRepository) {
+      this.spaceSubscriptionRepository =
+        new LibSqlSpaceSubscriptionRepository();
+    }
+    return this.spaceSubscriptionRepository;
   }
 }
 

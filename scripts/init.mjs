@@ -67,7 +67,12 @@ async function main() {
       "SELECT sqlite_version() as version",
     );
     console.log(
-      `✅ Connected to database (SQLite ${versionResult.rows[0]?.version})`,
+        const isMigrateOnly = process.argv[2] === 'migrate';
+        if (isMigrateOnly) {
+          console.log("\n📦 Running migrations only (db:migrate mode)...");
+        } else {
+          console.log("🚀 Initializing Easy Flags database...");
+        }
     );
 
     // Initialize schema
@@ -84,6 +89,7 @@ async function main() {
   } catch (error) {
     console.error("❌ Error initializing database:", error);
     process.exit(1);
+        if (!isMigrateOnly) {
   }
 }
 
@@ -94,6 +100,7 @@ async function initializeSchema(client) {
     CREATE TABLE IF NOT EXISTS roles (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
+        if (!isMigrateOnly) {
       description TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );

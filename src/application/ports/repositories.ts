@@ -35,6 +35,16 @@ import type {
   CreateAuditLogDTO,
   AuditLogQueryFilters,
   ComplianceReportQueryFilters,
+  PricingPlan,
+  PricingPlanFeature,
+  PricingPlanLimit,
+  SpaceSubscription,
+  CreatePricingPlanDTO,
+  UpdatePricingPlanDTO,
+  CreatePricingPlanFeatureDTO,
+  CreatePricingPlanLimitDTO,
+  CreateSpaceSubscriptionDTO,
+  UpdateSpaceSubscriptionDTO,
 } from "@domain/entities";
 
 // ====================
@@ -223,16 +233,23 @@ export interface FlagEvaluationRepository {
 // ====================
 
 export interface FlagUsageMetricRepository {
-  create(metric: Omit<FlagUsageMetric, "id" | "created_at" | "updated_at">): Promise<FlagUsageMetric>;
+  create(
+    metric: Omit<FlagUsageMetric, "id" | "created_at" | "updated_at">,
+  ): Promise<FlagUsageMetric>;
   findById(id: number): Promise<FlagUsageMetric | null>;
   findByFilters(filters: AnalyticsQueryFilters): Promise<FlagUsageMetric[]>;
-  findLatestByFeature(featureId: number, days: number): Promise<FlagUsageMetric[]>;
+  findLatestByFeature(
+    featureId: number,
+    days: number,
+  ): Promise<FlagUsageMetric[]>;
   findBySpaceAndDate(
     spaceId: number,
     dateFrom: string,
     dateTo: string,
   ): Promise<FlagUsageMetric[]>;
-  upsert(metric: Omit<FlagUsageMetric, "id" | "created_at" | "updated_at">): Promise<FlagUsageMetric>;
+  upsert(
+    metric: Omit<FlagUsageMetric, "id" | "created_at" | "updated_at">,
+  ): Promise<FlagUsageMetric>;
 }
 
 // ====================
@@ -240,7 +257,9 @@ export interface FlagUsageMetricRepository {
 // ====================
 
 export interface PerformanceMetricRepository {
-  create(metric: Omit<PerformanceMetric, "id" | "created_at">): Promise<PerformanceMetric>;
+  create(
+    metric: Omit<PerformanceMetric, "id" | "created_at">,
+  ): Promise<PerformanceMetric>;
   findById(id: number): Promise<PerformanceMetric | null>;
   findByMetricType(
     metricType: PerformanceMetric["metric_type"],
@@ -269,11 +288,19 @@ export interface AuditLogRepository {
 // ====================
 
 export interface PermissionDenialLogRepository {
-  create(log: Omit<PermissionDenialLog, "id" | "created_at">): Promise<PermissionDenialLog>;
+  create(
+    log: Omit<PermissionDenialLog, "id" | "created_at">,
+  ): Promise<PermissionDenialLog>;
   findById(id: number): Promise<PermissionDenialLog | null>;
   findByUserId(userId: number, limit?: number): Promise<PermissionDenialLog[]>;
-  findBySpaceId(spaceId: number, limit?: number): Promise<PermissionDenialLog[]>;
-  findRecentByUser(userId: number, hours: number): Promise<PermissionDenialLog[]>;
+  findBySpaceId(
+    spaceId: number,
+    limit?: number,
+  ): Promise<PermissionDenialLog[]>;
+  findRecentByUser(
+    userId: number,
+    hours: number,
+  ): Promise<PermissionDenialLog[]>;
   deleteOlderThan(days: number): Promise<number>;
 }
 
@@ -282,14 +309,94 @@ export interface PermissionDenialLogRepository {
 // ====================
 
 export interface ComplianceReportRepository {
-  create(report: Omit<ComplianceReport, "id" | "created_at">): Promise<ComplianceReport>;
+  create(
+    report: Omit<ComplianceReport, "id" | "created_at">,
+  ): Promise<ComplianceReport>;
   findById(id: number): Promise<ComplianceReport | null>;
-  findByFilters(filters: ComplianceReportQueryFilters): Promise<ComplianceReport[]>;
+  findByFilters(
+    filters: ComplianceReportQueryFilters,
+  ): Promise<ComplianceReport[]>;
   findLatestBySpaceAndType(
     spaceId: number,
     reportType: ComplianceReport["report_type"],
   ): Promise<ComplianceReport | null>;
   findBySpaceId(spaceId: number): Promise<ComplianceReport[]>;
+}
+
+// ====================
+// Pricing Plan Repository Port
+// ====================
+
+export interface PricingPlanRepository {
+  create(dto: CreatePricingPlanDTO): Promise<PricingPlan>;
+  findById(id: number): Promise<PricingPlan | null>;
+  findBySlug(slug: string): Promise<PricingPlan | null>;
+  findAll(includeInactive?: boolean): Promise<PricingPlan[]>;
+  findActive(): Promise<PricingPlan[]>;
+  update(id: number, dto: UpdatePricingPlanDTO): Promise<PricingPlan>;
+  delete(id: number): Promise<void>;
+  findByIdWithDetails(id: number): Promise<PricingPlan | null>;
+  updateSortOrder(
+    plans: Array<{ id: number; sort_order: number }>,
+  ): Promise<void>;
+}
+
+// ====================
+// Pricing Plan Feature Repository Port
+// ====================
+
+export interface PricingPlanFeatureRepository {
+  create(dto: CreatePricingPlanFeatureDTO): Promise<PricingPlanFeature>;
+  findById(id: number): Promise<PricingPlanFeature | null>;
+  findByPricingPlanId(pricingPlanId: number): Promise<PricingPlanFeature[]>;
+  update(
+    id: number,
+    feature: Partial<PricingPlanFeature>,
+  ): Promise<PricingPlanFeature>;
+  delete(id: number): Promise<void>;
+  deleteByPricingPlanId(pricingPlanId: number): Promise<void>;
+  updateSortOrder(
+    features: Array<{ id: number; sort_order: number }>,
+  ): Promise<void>;
+}
+
+// ====================
+// Pricing Plan Limit Repository Port
+// ====================
+
+export interface PricingPlanLimitRepository {
+  create(dto: CreatePricingPlanLimitDTO): Promise<PricingPlanLimit>;
+  findById(id: number): Promise<PricingPlanLimit | null>;
+  findByPricingPlanId(pricingPlanId: number): Promise<PricingPlanLimit[]>;
+  findLimitByPlanAndName(
+    pricingPlanId: number,
+    limitName: string,
+  ): Promise<PricingPlanLimit | null>;
+  update(
+    id: number,
+    limit: Partial<PricingPlanLimit>,
+  ): Promise<PricingPlanLimit>;
+  delete(id: number): Promise<void>;
+  deleteByPricingPlanId(pricingPlanId: number): Promise<void>;
+}
+
+// ====================
+// Space Subscription Repository Port
+// ====================
+
+export interface SpaceSubscriptionRepository {
+  create(dto: CreateSpaceSubscriptionDTO): Promise<SpaceSubscription>;
+  findById(id: number): Promise<SpaceSubscription | null>;
+  findBySpaceId(spaceId: number): Promise<SpaceSubscription | null>;
+  findByPricingPlanId(pricingPlanId: number): Promise<SpaceSubscription[]>;
+  findByStatus(status: string): Promise<SpaceSubscription[]>;
+  update(
+    id: number,
+    dto: UpdateSpaceSubscriptionDTO,
+  ): Promise<SpaceSubscription>;
+  delete(id: number): Promise<void>;
+  findBySpaceIdWithDetails(spaceId: number): Promise<SpaceSubscription | null>;
+  findAll(): Promise<SpaceSubscription[]>;
 }
 
 // ====================
@@ -314,4 +421,8 @@ export interface RepositoryRegistry {
   getAuditLogRepository(): AuditLogRepository;
   getPermissionDenialLogRepository(): PermissionDenialLogRepository;
   getComplianceReportRepository(): ComplianceReportRepository;
+  getPricingPlanRepository(): PricingPlanRepository;
+  getPricingPlanFeatureRepository(): PricingPlanFeatureRepository;
+  getPricingPlanLimitRepository(): PricingPlanLimitRepository;
+  getSpaceSubscriptionRepository(): SpaceSubscriptionRepository;
 }

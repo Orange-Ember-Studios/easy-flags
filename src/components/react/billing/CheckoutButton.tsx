@@ -1,16 +1,8 @@
 import { useState } from "react";
-
-interface BillingPlan {
-  name: string;
-  price: number;
-  features: string[];
-  recommended?: boolean;
-  priceId?: string;
-  description?: string;
-}
+import type { PricingPlan } from "@domain/entities";
 
 interface CheckoutButtonProps {
-  plan: BillingPlan;
+  plan: PricingPlan;
 }
 
 export default function CheckoutButton({ plan }: CheckoutButtonProps) {

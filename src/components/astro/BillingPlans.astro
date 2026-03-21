@@ -1,118 +1,100 @@
 ---
 import CheckoutButton from "@/components/react/billing/CheckoutButton";
+import { PricingService } from "@application/services/pricing.service";
+import type { PricingPlan } from "@domain/entities";
 
-interface BillingPlan {
-  name: string;
-  price: number;
-  features: string[];
-  recommended?: boolean;
-  priceId?: string;
-  description?: string;
+// Fetch pricing plans from database
+const pricingService = PricingService.getInstance();
+let plans: PricingPlan[] = [];
+let loadingError: string | null = null;
+
+try {
+  // Initialize default pricing plans if not already done
+  await pricingService.initializeDefaultPricing();
+
+  // Fetch all active pricing plans with features and limits
+  plans = await pricingService.getAllPricingPlans();
+} catch (error) {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  console.error("Error loading pricing plans:", error);
+  loadingError =
+    "Failed to load pricing plans. Please try refreshing the page.";
+  plans = [];
 }
-
-// Dummy billing plans for now
-const plans: BillingPlan[] = [
-  {
-    name: "Lab",
-    price: 0,
-    features: [
-      "Up to 5 feature flags",
-      "1 environment",
-      "Basic analytics",
-      "Community support",
-      "Rate limit: 1000 requests/month",
-    ],
-    description: "Perfect for testing and learning",
-    recommended: false,
-  },
-  {
-    name: "Basic",
-    price: 9.99,
-    features: [
-      "Up to 50 feature flags",
-      "3 environments",
-      "Advanced analytics",
-      "Email support",
-      "API access",
-      "Rate limit: 100,000 requests/month",
-    ],
-    description: "Essential features for your project",
-    recommended: true,
-  },
-  {
-    name: "Pro",
-    price: 29.99,
-    features: [
-      "Unlimited flags",
-      "Unlimited environments",
-      "Advanced analytics",
-      "Priority support",
-      "Advanced API",
-      "Team collaboration",
-      "Rate limit: 1,000,000 requests/month",
-    ],
-    description: "Advanced features for growing teams",
-    recommended: false,
-  },
-];
 ---
 
-<div
-  class="flex flex-nowrap justify-center gap-8 md:gap-12 overflow-x-auto pb-4 px-4 md:px-12 my-16 md:my-24"
-  style="overflow:visible"
->
-  {
-    plans.map((plan) => (
-      <div
-        class={`border rounded-xl p-8 transition space-y-8 mx-auto min-w-[340px] max-w-[420px] w-full ${
-          plan.recommended
-            ? "border-cyan-500/80 bg-gradient-to-b from-cyan-500/10 to-slate-800/50 ring-2 ring-cyan-500/30 scale-105"
-            : "border-slate-700 bg-slate-800/50 hover:border-cyan-500/30"
-        }`}
-      >
-        {plan.recommended && (
-          <div class="mb-4 text-sm font-semibold text-cyan-400 bg-cyan-500/10 w-fit px-3 py-1 rounded-full">
-            Recommended
-          </div>
-        )}
-        <h3 class="text-2xl font-bold text-cyan-300 mb-2">{plan.name}</h3>
-        {plan.description && (
-          <p class="text-slate-400 text-sm mb-4">{plan.description}</p>
-        )}
-        <div class="flex items-baseline gap-1 mb-6">
-          <span class="text-4xl font-bold text-white">${plan.price}</span>
-          <span class="text-slate-400">/month</span>
-        </div>
-        <CheckoutButton client:load plan={plan} />
-        <div class="space-y-3">
-          {plan.features.map((feature) => (
-            <div class="flex gap-2 items-start">
-              <svg
-                class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              <span class="text-slate-300 text-sm">{feature}</span>
+{
+  loadingError ? (
+    <div class="bg-red-900/20 border border-red-700 rounded-lg p-6 my-12 text-center">
+      <p class="text-red-300">⚠️ {loadingError}</p>
+      <p class="text-red-400 text-sm mt-2">
+        If this persists, please contact support.
+      </p>
+    </div>
+  ) : plans.length === 0 ? (
+    <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-8 my-12 text-center">
+      <p class="text-slate-300">📋 No pricing plans available</p>
+      <p class="text-slate-400 text-sm mt-2">
+        Please contact support or try refreshing the page.
+      </p>
+    </div>
+  ) : (
+    <div
+      class="flex flex-nowrap justify-center gap-8 md:gap-12 overflow-x-auto pb-4 px-4 md:px-12 my-16 md:my-24"
+      style="overflow:visible"
+    >
+      {plans.map((plan) => (
+        <div
+          class={`border rounded-xl p-8 transition space-y-8 mx-auto min-w-[340px] max-w-[420px] w-full ${
+            plan.is_recommended
+              ? "border-cyan-500/80 bg-gradient-to-b from-cyan-500/10 to-slate-800/50 ring-2 ring-cyan-500/30 scale-105"
+              : "border-slate-700 bg-slate-800/50 hover:border-cyan-500/30"
+          }`}
+        >
+          {plan.is_recommended && (
+            <div class="mb-4 text-sm font-semibold text-cyan-400 bg-cyan-500/10 w-fit px-3 py-1 rounded-full">
+              Recommended
             </div>
-          ))}
+          )}
+          <h3 class="text-2xl font-bold text-cyan-300 mb-2">{plan.name}</h3>
+          {plan.description && (
+            <p class="text-slate-400 text-sm mb-4">{plan.description}</p>
+          )}
+          <div class="flex items-baseline gap-1 mb-6">
+            <span class="text-4xl font-bold text-white">
+              {plan.price === null || plan.price === 0
+                ? "Free"
+                : `$${plan.price}`}
+            </span>
+            <span class="text-slate-400">/month</span>
+          </div>
+          <CheckoutButton client:load plan={plan} />
+          <div class="space-y-3">
+            {plan.features?.length ? (
+              plan.features.map((feature) => (
+                <div class="flex gap-2 items-start">
+                  <svg
+                    class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  <span class="text-slate-300 text-sm">
+                    {feature.feature_name}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p class="text-slate-400 text-sm">No features listed</p>
+            )}
+          </div>
         </div>
-      </div>
-    ))
-  }
-</div>
-<div class="card text-center my-12">
-  <h3 class="text-xl font-bold text-cyan-300 mb-2">Custom Plan</h3>
-  <p class="text-slate-400 mb-4">
-    Need something different? Contact our sales team for a custom plan tailored
-    to your needs.
-  </p>
-  <a href="/contact" class="text-cyan-400 hover:text-cyan-300 transition">
-    Get in touch →
-  </a>
-</div>
+      ))}
+    </div>
+  )
+}
