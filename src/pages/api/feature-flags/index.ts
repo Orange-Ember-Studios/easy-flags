@@ -1,5 +1,5 @@
 /**
- * API Handler - Feature Flags
+ * API Handler - Easy Flags
  */
 
 import type { APIRoute } from "astro";

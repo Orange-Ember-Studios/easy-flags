@@ -73,7 +73,7 @@ export default function SettingsView() {
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    "profile" | "security" | "api-keys" | "preferences"
+    "profile" | "security" | "api-keys" | "preferences" | "sessions"
   >("profile");
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -90,6 +90,9 @@ export default function SettingsView() {
   const [togglingPreference, setTogglingPreference] = useState<string | null>(
     null,
   );
+  const [isRevokingTokens, setIsRevokingTokens] = useState(false);
+  const [revokeTargetUserId, setRevokeTargetUserId] = useState("");
+  const [revokeTargetUsername, setRevokeTargetUsername] = useState("");
 
   useEffect(() => {
     fetchUser();
@@ -311,6 +314,82 @@ export default function SettingsView() {
     }
   };
 
+  const handleRevokeMyTokens = async () => {
+    if (
+      !confirm(
+        "This will revoke all your tokens and log you out from all devices. Continue?",
+      )
+    ) {
+      return;
+    }
+
+    setIsRevokingTokens(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setSuccess("All tokens revoked successfully. Redirecting to login...");
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+      } else {
+        setError(data.message || "Failed to revoke tokens");
+      }
+    } catch (error) {
+      console.error("Error revoking tokens:", error);
+      setError("Failed to revoke tokens");
+    } finally {
+      setIsRevokingTokens(false);
+    }
+  };
+
+  const handleRevokeUserTokens = async (userId: number) => {
+    const username = revokeTargetUsername || `User ${userId}`;
+    if (
+      !confirm(
+        `Revoke all tokens for ${username}? This will log them out from all devices.`,
+      )
+    ) {
+      return;
+    }
+
+    setIsRevokingTokens(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch("/api/auth/revoke-user-tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setSuccess(`All tokens revoked for ${username}`);
+        setRevokeTargetUserId("");
+        setRevokeTargetUsername("");
+        setTimeout(() => setSuccess(""), 3000);
+      } else {
+        setError(data.message || "Failed to revoke user tokens");
+      }
+    } catch (error) {
+      console.error("Error revoking user tokens:", error);
+      setError("Failed to revoke user tokens");
+    } finally {
+      setIsRevokingTokens(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-12">
@@ -351,6 +430,7 @@ export default function SettingsView() {
               { id: "security", label: "Security" },
               { id: "api-keys", label: "API Keys" },
               { id: "preferences", label: "Preferences" },
+              { id: "sessions", label: "Sessions" },
             ] as const
           ).map((tab) => (
             <button
@@ -725,6 +805,190 @@ export default function SettingsView() {
                   </span>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sessions Tab */}
+        {activeTab === "sessions" && (
+          <div className="space-y-6">
+            {/* Revoke My Tokens */}
+            <div className="card border-l-4 border-orange-500/50">
+              <h2 className="text-2xl font-bold text-orange-400 mb-2">
+                🔐 Active Sessions
+              </h2>
+              <p className="text-slate-400 text-sm mb-6">
+                Manage your authentication tokens and active sessions
+              </p>
+
+              <div className="space-y-4">
+                <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                  <h3 className="text-lg font-semibold text-cyan-300 mb-3">
+                    Current Session
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Status</span>
+                      <span className="text-green-400 font-medium">Active</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">User</span>
+                      <span className="text-cyan-300">{user?.username}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Login Time</span>
+                      <span className="text-slate-300">
+                        {user?.created_at
+                          ? new Date(user.created_at).toLocaleDateString(
+                              undefined,
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )
+                          : "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleRevokeMyTokens}
+                  disabled={isRevokingTokens}
+                  className="w-full px-6 py-3 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white rounded-lg transition font-medium flex items-center justify-center gap-2"
+                >
+                  {isRevokingTokens ? (
+                    <>
+                      <div className="animate-spin h-4 w-4 border-2 border-transparent border-t-white rounded-full"></div>
+                      Revoking...
+                    </>
+                  ) : (
+                    <>
+                      <span>🚪</span>
+                      Revoke All Sessions
+                    </>
+                  )}
+                </button>
+
+                <div className="p-3 bg-orange-900/20 border border-orange-700/30 rounded-lg">
+                  <p className="text-xs text-orange-200">
+                    ⚠️ Revoking all sessions will log you out from all devices.
+                    You'll need to log in again.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Super User Token Revocation */}
+            {user && user.role_id === 1 && (
+              <div className="card border-l-4 border-red-500/50">
+                <h2 className="text-2xl font-bold text-red-400 mb-2">
+                  🔑 Admin: Revoke User Tokens
+                </h2>
+                <p className="text-slate-400 text-sm mb-6">
+                  As a super user, you can revoke tokens for any user (super
+                  user access only)
+                </p>
+
+                <div className="space-y-4">
+                  <div className="p-4 bg-red-900/10 border border-red-700/30 rounded-lg">
+                    <p className="text-sm text-red-300">
+                      🔐 This action will immediately log out the specified user
+                      from all devices. Use with caution.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="userId"
+                        className="text-sm font-semibold text-slate-300 block mb-2"
+                      >
+                        User ID
+                      </label>
+                      <input
+                        id="userId"
+                        type="number"
+                        value={revokeTargetUserId}
+                        onChange={(e) => setRevokeTargetUserId(e.target.value)}
+                        className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition"
+                        placeholder="Enter user ID"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="username"
+                        className="text-sm font-semibold text-slate-300 block mb-2"
+                      >
+                        Username (optional, for confirmation)
+                      </label>
+                      <input
+                        id="username"
+                        type="text"
+                        value={revokeTargetUsername}
+                        onChange={(e) =>
+                          setRevokeTargetUsername(e.target.value)
+                        }
+                        className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition"
+                        placeholder="e.g., john_doe"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      if (!revokeTargetUserId) {
+                        setError("Please enter a valid user ID");
+                        return;
+                      }
+                      handleRevokeUserTokens(parseInt(revokeTargetUserId, 10));
+                    }}
+                    disabled={isRevokingTokens || !revokeTargetUserId}
+                    className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg transition font-medium flex items-center justify-center gap-2"
+                  >
+                    {isRevokingTokens ? (
+                      <>
+                        <div className="animate-spin h-4 w-4 border-2 border-transparent border-t-white rounded-full"></div>
+                        Revoking...
+                      </>
+                    ) : (
+                      <>
+                        <span>⚡</span>
+                        Revoke User Tokens
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Info Card */}
+            <div className="card bg-slate-800/20 border-l-4 border-cyan-500/50">
+              <h3 className="font-semibold text-cyan-300 mb-3">
+                ℹ️ How Token Revocation Works
+              </h3>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li>
+                  ✅ Revoking your tokens logs you out from all devices
+                  instantly
+                </li>
+                <li>
+                  ✅ Revoked tokens become invalid immediately (don't wait for
+                  expiration)
+                </li>
+                <li>✅ You can revoke your own tokens anytime for security</li>
+                <li>
+                  ✅ Super users can revoke tokens for any user in case of
+                  compromised accounts
+                </li>
+                <li>
+                  ⏰ Tokens normally expire after 24 hours (revocation speeds
+                  this up)
+                </li>
+              </ul>
             </div>
           </div>
         )}

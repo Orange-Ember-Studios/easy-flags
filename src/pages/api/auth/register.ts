@@ -9,9 +9,12 @@ export const prerender = false;
 export const POST: APIRoute = async (context) => {
   try {
     console.log("🔍 register.ts - Received request");
-    console.log("📋 Content-Type:", context.request.headers.get("content-type"));
+    console.log(
+      "📋 Content-Type:",
+      context.request.headers.get("content-type"),
+    );
     console.log("📦 Method:", context.request.method);
-    
+
     let body;
     try {
       // Clone the request to avoid consuming the stream
@@ -19,13 +22,11 @@ export const POST: APIRoute = async (context) => {
       const text = await clonedRequest.text();
       console.log("📝 Raw body text:", text);
       console.log("📐 Body length:", text.length);
-      
+
       if (!text || text.trim() === "") {
         console.error("❌ Empty request body");
         return new Response(
-          JSON.stringify(
-            badRequestResponse("Request body cannot be empty"),
-          ),
+          JSON.stringify(badRequestResponse("Request body cannot be empty")),
           { status: 400, headers: { "Content-Type": "application/json" } },
         );
       }
@@ -83,12 +84,15 @@ export const POST: APIRoute = async (context) => {
       username: user.username,
       email: user.email,
       role_id: user.role_id,
+      token_version: user.token_version,
     });
 
     // Set authentication cookie
     setAuthCookie(context, token);
 
-    console.log(`✅ Registration successful for user: ${username} (ID: ${user.id})`);
+    console.log(
+      `✅ Registration successful for user: ${username} (ID: ${user.id})`,
+    );
 
     return new Response(
       JSON.stringify(
@@ -112,17 +116,15 @@ export const POST: APIRoute = async (context) => {
     );
 
     // Check for specific error messages
-    const errorMessage = error instanceof Error ? error.message : "Registration failed";
+    const errorMessage =
+      error instanceof Error ? error.message : "Registration failed";
     const isDuplicateError =
       errorMessage.includes("already exists") ||
       errorMessage.includes("UNIQUE");
 
-    return new Response(
-      JSON.stringify(badRequestResponse(errorMessage)),
-      {
-        status: isDuplicateError ? 409 : 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return new Response(JSON.stringify(badRequestResponse(errorMessage)), {
+      status: isDuplicateError ? 409 : 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 };

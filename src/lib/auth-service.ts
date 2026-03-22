@@ -7,6 +7,7 @@ export interface User {
   email: string;
   role_id: number;
   is_active: boolean;
+  token_version: number;
   created_at: string;
   updated_at: string;
 }
@@ -54,7 +55,7 @@ export async function getUserByUsername(
   try {
     const db = await getDatabase();
     const result = await db.execute({
-      sql: "SELECT id, username, email, role_id, is_active, created_at, updated_at FROM users WHERE username = ?",
+      sql: "SELECT id, username, email, role_id, is_active, token_version, created_at, updated_at FROM users WHERE username = ?",
       args: [username],
     });
 
@@ -69,6 +70,7 @@ export async function getUserByUsername(
       email: row.email as string,
       role_id: row.role_id as number,
       is_active: (row.is_active as number) === 1,
+      token_version: (row.token_version as number) || 0,
       created_at: row.created_at as string,
       updated_at: row.updated_at as string,
     };
@@ -85,7 +87,7 @@ export async function getUserById(id: number): Promise<User | null> {
   try {
     const db = await getDatabase();
     const result = await db.execute({
-      sql: "SELECT id, username, email, role_id, is_active, created_at, updated_at FROM users WHERE id = ?",
+      sql: "SELECT id, username, email, role_id, is_active, token_version, created_at, updated_at FROM users WHERE id = ?",
       args: [id],
     });
 
@@ -100,6 +102,7 @@ export async function getUserById(id: number): Promise<User | null> {
       email: row.email as string,
       role_id: row.role_id as number,
       is_active: (row.is_active as number) === 1,
+      token_version: (row.token_version as number) || 0,
       created_at: row.created_at as string,
       updated_at: row.updated_at as string,
     };
@@ -116,7 +119,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   try {
     const db = await getDatabase();
     const result = await db.execute({
-      sql: "SELECT id, username, email, role_id, is_active, created_at, updated_at FROM users WHERE email = ?",
+      sql: "SELECT id, username, email, role_id, is_active, token_version, created_at, updated_at FROM users WHERE email = ?",
       args: [email],
     });
 
@@ -131,6 +134,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
       email: row.email as string,
       role_id: row.role_id as number,
       is_active: (row.is_active as number) === 1,
+      token_version: (row.token_version as number) || 0,
       created_at: row.created_at as string,
       updated_at: row.updated_at as string,
     };
@@ -155,7 +159,7 @@ export async function verifyCredentials(
 
     // Get user with password hash
     const result = await db.execute({
-      sql: "SELECT id, username, email, password_hash, role_id, is_active, created_at, updated_at FROM users WHERE username = ? AND is_active = 1",
+      sql: "SELECT id, username, email, password_hash, role_id, is_active, token_version, created_at, updated_at FROM users WHERE username = ? AND is_active = 1",
       args: [username],
     });
 
@@ -192,6 +196,7 @@ export async function verifyCredentials(
       email: row.email as string,
       role_id: row.role_id as number,
       is_active: (row.is_active as number) === 1,
+      token_version: (row.token_version as number) || 0,
       created_at: row.created_at as string,
       updated_at: row.updated_at as string,
     };
@@ -525,6 +530,26 @@ export async function deactivateUser(userId: number): Promise<void> {
     console.log(`✅ User deactivated: ID ${userId}`);
   } catch (error) {
     console.error("Error deactivating user:", error);
+    throw error;
+  }
+}
+
+/**
+ * Revoke all tokens for a user by incrementing their token version
+ * This invalidates all existing JWT tokens issued before this call
+ */
+export async function revokeUserTokens(userId: number): Promise<void> {
+  try {
+    const db = await getDatabase();
+
+    await db.execute({
+      sql: "UPDATE users SET token_version = token_version + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      args: [userId],
+    });
+
+    console.log(`✅ All tokens revoked for user ID: ${userId}`);
+  } catch (error) {
+    console.error("Error revoking tokens:", error);
     throw error;
   }
 }
