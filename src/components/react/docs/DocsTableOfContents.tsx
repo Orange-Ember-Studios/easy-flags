@@ -81,28 +81,27 @@ export default function DocsTableOfContents() {
 
       {/* Table of Contents */}
       <nav
-        className={`fixed left-0 top-0 h-screen w-72 bg-gradient-to-b from-slate-800/98 to-slate-900/95 border-r border-cyan-700/40 p-8 pt-28 overflow-y-auto transition-transform duration-300 z-30 md:relative md:w-80 md:pt-8 md:translate-x-0 ${
+        className={`fixed left-0 top-0 h-screen w-72 bg-gradient-to-b from-slate-800/98 to-slate-900/95 border-r border-cyan-700/40 p-8 pt-28 pb-32 overflow-y-auto transition-transform duration-300 z-30 md:relative md:w-80 md:pt-8 md:pb-32 md:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="hidden md:block mb-12">
+        <div className="hidden md:block mb-4">
           <h2 className="text-xl font-bold text-gradient bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-200 bg-clip-text text-transparent mb-2">
             Documentation
           </h2>
-          <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">
-            Navigation
-          </p>
           <div className="h-1 w-12 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full mt-3"></div>
         </div>
 
         <ul className="space-y-1">
           {sections.map((section, index) => (
-            <li key={section.id} className="mb-6 last:mb-0">
+            <li key={section.id} className="mb-3 last:mb-0">
               <button
                 onClick={() => scrollToSection(section.id)}
                 className="w-full text-left px-4 py-3.5 rounded-lg text-slate-200 hover:bg-cyan-500/20 hover:text-cyan-100 hover:translate-x-1 transition-all duration-200 text-sm font-semibold block group"
               >
-                <span className="inline-block opacity-60 group-hover:opacity-100 transition-opacity mr-2">
+                <span
+                  className={`inline-block mr-2 ${index === 0 ? "" : "opacity-60 group-hover:opacity-100 transition-opacity"}`}
+                >
                   {index === 0
                     ? "🚀"
                     : index === 1
@@ -142,7 +141,7 @@ export default function DocsTableOfContents() {
           ))}
         </ul>
 
-        <div className="hidden md:flex flex-col gap-3 mt-12 pt-8 border-t border-slate-700/50">
+        <div className="hidden md:flex flex-col gap-3 mt-6 pt-4 border-t border-slate-700/50">
           <p className="text-slate-500 text-xs">Need help? Visit our</p>
           <a
             href="/contact"
