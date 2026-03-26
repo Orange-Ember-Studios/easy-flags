@@ -13,8 +13,8 @@
         "db:init": "node scripts/init.mjs",
         "db:migrate": "node scripts/init.mjs migrate",
         "migration:create": "node scripts/create-migration.mjs",
-        "test": "jest",
-        "test:watch": "jest --watch"
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "dependencies": {
         "@astrojs/node": "^10.0.3",
@@ -31,6 +31,9 @@
         "react-dom": "^19.2.4"
     },
     "devDependencies": {
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@testing-library/user-event": "^14.6.1",
         "@types/bcryptjs": "2.4.6",
         "@types/cookie": "0.5.4",
         "@types/node": "20.19.37",
@@ -38,9 +41,12 @@
         "@types/react-dom": "^19.2.3",
         "autoprefixer": "10.4.27",
         "dotenv": "16.6.1",
+        "jsdom": "^29.0.1",
         "postcss": "8.5.8",
         "tailwindcss": "^4.2.2",
-        "typescript": "5.9.3"
+        "typescript": "5.9.3",
+        "vite-tsconfig-paths": "^6.1.1",
+        "vitest": "^4.1.1"
     },
     "packageManager": "pnpm@10.32.1"
 }

@@ -33,7 +33,7 @@ export default function CheckoutButton({ plan }: CheckoutButtonProps) {
       <div className="space-y-2 mb-6">
         <a
           href="/spaces"
-          className="block w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition"
+          className="block w-full bg-linear-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition"
         >
           Get Started
         </a>
@@ -47,7 +47,7 @@ export default function CheckoutButton({ plan }: CheckoutButtonProps) {
       <button
         onClick={handleCheckout}
         disabled={loading}
-        className={`w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg transition ${
+        className={`w-full bg-linear-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg transition ${
           loading ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
