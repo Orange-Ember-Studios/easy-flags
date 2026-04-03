@@ -22,33 +22,35 @@ export function FilterSection({
   if (!hasData) return null;
 
   return (
-    <div className="flex gap-2 items-center mb-4 pb-4 border-b border-slate-700/50">
-      <label className="text-sm text-slate-300 font-medium whitespace-nowrap">
-        🔍 Filter:
-      </label>
-      <select
-        value={filterColumn || ""}
-        onChange={(e) => onFilterColumnChange(e.target.value || null)}
-        className="px-2 py-1 border border-slate-600 bg-slate-700 text-slate-200 rounded text-sm focus:outline-none focus:border-cyan-500"
-      >
-        <option value="">Select column...</option>
-        {schema.map((col) => (
-          <option key={col.name} value={col.name}>
-            {col.name}
-          </option>
-        ))}
-      </select>
+    <div className="flex gap-4 items-center mb-8 pb-8 border-b border-white/5 flex-wrap">
+      <div className="flex items-center gap-3">
+        <label className="text-xs font-bold uppercase tracking-widest text-slate-500 whitespace-nowrap">
+          🔍 Filter:
+        </label>
+        <select
+          value={filterColumn || ""}
+          onChange={(e) => onFilterColumnChange(e.target.value || null)}
+          className="px-3 py-1.5 bg-white/5 border border-white/10 text-slate-300 rounded-xl text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
+        >
+          <option value="">All columns</option>
+          {schema.map((col) => (
+            <option key={col.name} value={col.name}>
+              {col.name}
+            </option>
+          ))}
+        </select>
+      </div>
       <input
         type="text"
         value={filterText}
         onChange={(e) => onFilterTextChange(e.target.value)}
-        placeholder="Filter value..."
-        className="flex-1 px-3 py-1 border border-slate-600 bg-slate-700 text-slate-200 rounded text-sm focus:outline-none focus:border-cyan-500"
+        placeholder="Search records..."
+        className="flex-1 min-w-[200px] px-4 py-1.5 bg-white/5 border border-white/10 text-slate-300 rounded-xl text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
       />
       {(filterText || filterColumn) && (
         <button
           onClick={onClearFilter}
-          className="px-3 py-1 bg-slate-700 text-slate-300 rounded text-sm hover:bg-slate-600 transition-colors font-medium whitespace-nowrap"
+          className="btn-secondary !text-xs !py-1.5 !px-4 border-white/10"
         >
           ✕ Clear
         </button>

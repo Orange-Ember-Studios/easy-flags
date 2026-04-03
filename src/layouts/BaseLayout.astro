@@ -22,7 +22,7 @@ const {
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charSet="utf-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -30,25 +30,23 @@ const {
     <link
       rel="preconnect"
       href="https://fonts.gstatic.com"
-      crossOrigin="anonymous"
+      crossorigin="anonymous"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>
-  <body class={`h-screen ${fullWidth ? "overflow-hidden" : ""}`}>
-    <div class="root h-full">
+  <body class={`bg-[#06080f] text-slate-100 selection:bg-cyan-500/30 min-h-screen`}>
+    <div class="root flex flex-col min-h-screen">
       {includeHeader && <Header />}
       {
         fullWidth ? (
           <slot />
         ) : (
-          <div class="container mx-auto mt-12 px-4">
-            <div class="flex flex-col flex-1">
-              <slot />
-            </div>
-          </div>
+          <main class="flex-1 max-w-7xl mx-auto px-4 w-full">
+            <slot />
+          </main>
         )
       }
       <Modals client:load />

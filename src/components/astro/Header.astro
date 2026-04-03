@@ -69,22 +69,29 @@ const getNavLinkClass = (href: string) => {
 };
 ---
 
-<header class="bg-slate-900/50 border-b border-cyan-700/30 backdrop-blur">
-  <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-    <div class="flex justify-between items-center">
+<header class="sticky top-0 z-50 w-full border-b border-white/5 bg-[#06080f]/80 backdrop-blur-xl">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        </svg>
+      </div>
       <a
         href="/"
-        class="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 bg-clip-text text-transparent"
+        class="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-white to-slate-400 bg-clip-text text-transparent font-display"
       >
         Easy Flags
       </a>
+    </div>
 
-      <div class="hidden md:flex gap-8 items-center">
+    <div class="hidden md:flex gap-10 items-center">
+      <div class="flex items-center gap-8">
         {
           navItems.pricing.showFor && (
             <a
               href={navItems.pricing.href}
-              class={getNavLinkClass(navItems.pricing.href)}
+              class="text-sm font-medium text-slate-400 hover:text-white transition-colors"
             >
               {navItems.pricing.label}
             </a>
@@ -95,7 +102,7 @@ const getNavLinkClass = (href: string) => {
           navItems.spaces.showFor && (
             <a
               href={navItems.spaces.href}
-              class={getNavLinkClass(navItems.spaces.href)}
+              class="text-sm font-medium text-slate-400 hover:text-white transition-colors"
             >
               {navItems.spaces.label}
             </a>
@@ -106,7 +113,7 @@ const getNavLinkClass = (href: string) => {
           navItems.metrics.showFor && (
             <a
               href={navItems.metrics.href}
-              class={getNavLinkClass(navItems.metrics.href)}
+              class="text-sm font-medium text-slate-400 hover:text-white transition-colors"
             >
               {navItems.metrics.label}
             </a>
@@ -117,7 +124,7 @@ const getNavLinkClass = (href: string) => {
           navItems.settings.showFor && (
             <a
               href={navItems.settings.href}
-              class={getNavLinkClass(navItems.settings.href)}
+              class="text-sm font-medium text-slate-400 hover:text-white transition-colors"
             >
               {navItems.settings.label}
             </a>
@@ -126,11 +133,15 @@ const getNavLinkClass = (href: string) => {
 
         <a
           href={navItems.docs.href}
-          class={getNavLinkClass(navItems.docs.href)}
+          class="text-sm font-medium text-slate-400 hover:text-white transition-colors"
         >
           {navItems.docs.label}
         </a>
+      </div>
 
+      <div class="h-6 w-px bg-white/10 mx-2"></div>
+
+      <div class="flex items-center gap-4">
         {
           user ? (
             <HeaderDropdown client:load username={user.username} />
@@ -138,12 +149,12 @@ const getNavLinkClass = (href: string) => {
             <>
               <a
                 href={navItems.login.href}
-                class={getNavLinkClass(navItems.login.href)}
+                class="text-sm font-semibold text-white hover:text-cyan-400 transition-colors px-4"
               >
                 {navItems.login.label}
               </a>
-              <a href="/create-account" class="btn-primary text-sm">
-                Sign Up
+              <a href="/create-account" class="btn-primary text-sm !px-6 !py-2.5">
+                Get Started
               </a>
             </>
           )

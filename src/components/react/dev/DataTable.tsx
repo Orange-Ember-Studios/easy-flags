@@ -19,24 +19,27 @@ export function DataTable({
   onEditRow,
 }: DataTableProps) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs">
+    <div className="overflow-x-auto rounded-2xl border border-white/5 bg-white/[0.01]">
+      <table className="w-full text-left">
         <thead>
-          <tr className="bg-slate-700/50 border-b-2 border-cyan-700/30 sticky top-0">
-            <th className="text-left px-3 py-2 font-semibold text-cyan-300 whitespace-nowrap w-12">
+          <tr className="bg-white/5 border-b border-white/10">
+            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-500 w-24">
               Actions
             </th>
             {schema.map((col) => (
               <th
                 key={col.name}
-                className="text-left px-3 py-2 font-semibold text-cyan-300 whitespace-nowrap"
+                className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-500 whitespace-nowrap"
               >
-                {col.name}
+                <div className="flex items-center gap-2">
+                  <span className={col.pk ? 'text-cyan-500' : ''}>{col.name}</span>
+                  {col.pk && <span className="text-[10px] bg-cyan-500/10 text-cyan-500 px-1.5 py-0.5 rounded-md">PK</span>}
+                </div>
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-white/5">
           {paginatedData.map((row, idx) => {
             const primaryKeyColumn = schema.find((c) => c.pk);
             const rowId = (
@@ -46,9 +49,9 @@ export function DataTable({
             return (
               <tr
                 key={idx}
-                className="border-b border-slate-700/50 hover:bg-slate-700/30"
+                className="group hover:bg-white/[0.03] transition-colors"
               >
-                <td className="px-3 py-2 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
@@ -58,9 +61,12 @@ export function DataTable({
                         });
                         onEditRow(rowId, rowData);
                       }}
-                      className="px-2 py-1 text-xs bg-blue-900/40 text-blue-300 rounded border border-blue-700/30 hover:bg-blue-900/60 disabled:opacity-50 transition-colors font-medium"
+                      className="p-2 text-blue-400 bg-blue-500/10 rounded-xl hover:bg-blue-500/20 transition-all border border-blue-500/20"
+                      title="Edit Row"
                     >
-                      ✏️
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
                     </button>
                     <button
                       onClick={() => {
@@ -71,26 +77,33 @@ export function DataTable({
                         onRequestDeleteRow(rowId, rowData);
                       }}
                       disabled={deleting === rowId}
-                      className="px-2 py-1 text-xs bg-red-900/40 text-red-300 rounded border border-red-700/30 hover:bg-red-900/60 disabled:opacity-50 transition-colors font-medium"
+                      className="p-2 text-red-400 bg-red-500/10 rounded-xl hover:bg-red-500/20 transition-all border border-red-500/20 disabled:opacity-50"
+                      title="Delete Row"
                     >
-                      {deleting === rowId ? "..." : "🗑️"}
+                      {deleting === rowId ? (
+                        <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
                     </button>
                   </div>
                 </td>
                 {schema.map((col) => (
                   <td
                     key={col.name}
-                    className="px-3 py-2 text-slate-300 max-w-xs overflow-hidden text-ellipsis"
+                    className="px-6 py-4 text-slate-300 max-w-xs overflow-hidden text-ellipsis font-mono text-sm"
                     title={String(row[col.name] ?? "")}
                   >
                     {row[col.name] ? (
-                      <span className="font-mono">
+                      <span className={col.pk ? 'text-cyan-400 font-bold' : ''}>
                         {typeof row[col.name] === "object"
                           ? JSON.stringify(row[col.name])
                           : String(row[col.name])}
                       </span>
                     ) : (
-                      <span className="text-slate-500 italic">null</span>
+                      <span className="text-slate-600 italic text-xs">null</span>
                     )}
                   </td>
                 ))}

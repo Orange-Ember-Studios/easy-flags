@@ -21,47 +21,41 @@ export default function QuickStartSection() {
   ];
 
   return (
-    <section className="mt-10 mb-8" aria-labelledby="quickstart-heading">
-      <div className="card">
+    <section className="mt-16 mb-20 relative max-w-7xl mx-auto px-4" aria-labelledby="quickstart-heading">
+      <div className="flex flex-col items-center mb-10 text-center">
         <h2
           id="quickstart-heading"
-          className="section-title flex items-center gap-2 mb-3"
+          className="section-title text-center"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="inline w-7 h-7 text-cyan-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
-            />
-          </svg>
-          Quick Start
+          Quick Start Guide
         </h2>
-        <p className="text-slate-400 mb-6">
-          Everything you need to launch your first feature flag in minutes:
+        <p className="text-slate-400 max-w-2xl">
+          Everything you need to launch your first feature flag in minutes. 
+          Choose your path and start shipping with confidence.
         </p>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {resources.map((resource) => (
-            <a
-              key={resource.href}
-              href={resource.href}
-              className="group block p-4 rounded-lg border border-cyan-700/20 bg-slate-700/30 hover:bg-slate-700/50 hover:border-cyan-500/50 transition card-hover"
-            >
-              <div className="text-3xl mb-2">{resource.icon}</div>
-              <h3 className="font-semibold text-cyan-300 group-hover:text-cyan-200 transition mb-1">
-                {resource.title}
-              </h3>
-              <p className="text-sm text-slate-400">{resource.description}</p>
-            </a>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {resources.map((resource) => (
+          <a
+            key={resource.href}
+            href={resource.href}
+            className="card group flex flex-col items-start text-left hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-2xl mb-6 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/30 transition-colors">
+              {resource.icon}
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+              {resource.title}
+            </h3>
+            <p className="text-slate-400 leading-relaxed mb-6">
+              {resource.description}
+            </p>
+            <div className="mt-auto flex items-center text-cyan-500 font-semibold group-hover:translate-x-1 transition-transform">
+              Explore <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </div>
+          </a>
+        ))}
       </div>
     </section>
   );

@@ -7,57 +7,62 @@ interface SchemaTableProps {
 
 export function SchemaTable({ selectedTable, schema }: SchemaTableProps) {
   return (
-    <div className="bg-slate-800/80 rounded-xl shadow-lg p-6 border border-cyan-700/30">
-      <h2 className="text-lg font-semibold text-cyan-300 mb-4">
-        Schema: <span className="text-cyan-400 font-mono">{selectedTable}</span>
-      </h2>
+    <div className="p-8">
+      <div className="flex items-center gap-4 mb-8">
+        <h2 className="text-2xl font-bold text-white tracking-tight">
+          Schema: <span className="text-cyan-400 font-display">{selectedTable}</span>
+        </h2>
+      </div>
 
       {schema.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-2xl border border-white/5 bg-white/[0.01]">
+          <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-700/50 border-b-2 border-cyan-700/30">
-                <th className="text-left px-4 py-2 font-semibold text-cyan-300">
+              <tr className="bg-white/5 border-b border-white/10">
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-500">
                   Column
                 </th>
-                <th className="text-left px-4 py-2 font-semibold text-cyan-300">
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-500">
                   Type
                 </th>
-                <th className="text-left px-4 py-2 font-semibold text-cyan-300">
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-500">
                   Default
                 </th>
-                <th className="text-left px-4 py-2 font-semibold text-cyan-300">
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-500">
                   Constraints
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-white/5">
               {schema.map((col) => (
                 <tr
                   key={col.cid}
-                  className="border-b border-slate-700/50 hover:bg-slate-700/30"
+                  className="group hover:bg-white/[0.02] transition-colors"
                 >
-                  <td className="px-4 py-2 font-mono text-slate-200">
-                    {col.pk ? "🔑" : ""} {col.name}
+                  <td className="px-6 py-4 font-mono text-slate-200 text-sm">
+                    <div className="flex items-center gap-2">
+                       {col.pk && <span className="text-amber-400">🔑</span>} 
+                       <span className={col.pk ? 'text-cyan-400 font-bold' : ''}>{col.name}</span>
+                    </div>
                   </td>
-                  <td className="px-4 py-2 text-slate-400">{col.type}</td>
-                  <td className="px-4 py-2 text-slate-400 font-mono text-xs">
+                  <td className="px-6 py-4 text-slate-400 text-sm font-medium">{col.type}</td>
+                  <td className="px-6 py-4 text-slate-400 font-mono text-xs">
                     {col.dflt_value ? (
-                      <span className="text-slate-300">{col.dflt_value}</span>
+                      <span className="text-slate-300 bg-white/5 px-2 py-1 rounded-md">{col.dflt_value}</span>
                     ) : (
-                      <span className="text-slate-500 italic">-</span>
+                      <span className="text-slate-600 italic">-</span>
                     )}
                   </td>
-                  <td className="px-4 py-2 text-slate-400">
+                  <td className="px-6 py-4 text-slate-400">
                     {(!!col.pk || !!col.notnull) && (
-                      <div className="flex gap-1 flex-wrap">
+                      <div className="flex gap-2 flex-wrap">
                         {!!col.pk && (
-                          <span className="px-2 py-1 bg-purple-900/40 text-purple-300 rounded text-xs border border-purple-700/30">
+                          <span className="px-2 py-1 bg-cyan-500/10 text-cyan-500 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-cyan-500/20">
                             PK
                           </span>
                         )}
                         {!!col.notnull && (
-                          <span className="px-2 py-1 bg-red-900/40 text-red-300 rounded text-xs border border-red-700/30">
+                          <span className="px-2 py-1 bg-red-500/10 text-red-500 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-red-500/20">
                             NOT NULL
                           </span>
                         )}
@@ -70,7 +75,9 @@ export function SchemaTable({ selectedTable, schema }: SchemaTableProps) {
           </table>
         </div>
       ) : (
-        <p className="text-slate-400">No schema available</p>
+        <div className="text-center py-12 bg-white/[0.02] rounded-3xl border border-dashed border-white/10">
+          <p className="text-slate-500 font-medium tracking-tight">No schema available for this table.</p>
+        </div>
       )}
     </div>
   );

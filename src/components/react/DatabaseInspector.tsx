@@ -55,69 +55,80 @@ export default function DatabaseInspector() {
   }, [dataManipulation.filterText, dataManipulation.filterColumn]);
 
   return (
-    <div className="w-full">
-      <div className="space-y-8">
+    <div className="w-full pt-10 pb-20">
+      <div className="space-y-10">
         {/* Header */}
-        <div className="mb-8 pb-6 border-b border-slate-700/50">
-          <h1
-            className="text-3xl font-bold text-cyan-300 mb-3"
-            style={{ lineHeight: "1.2" }}
-          >
-            🗄️ Database Inspector
+        <div className="mb-12 pb-10 border-b border-white/5">
+          <h1 className="section-title !mb-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center text-cyan-400">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 4.477 4 10 4s10-1.79 10-4V7M4 7c0 2.21 4.477 4 10 4s10-1.79 10-4M4 7c0-2.21 4.477-4 10-4s10 1.79 10 4m0 5c0 2.21-4.477 4-10 4s-10-1.79-10-4" />
+              </svg>
+            </div>
+            <span className="text-gradient text-4xl md:text-5xl">Database Inspector</span>
           </h1>
-          <p className="text-slate-300 text-sm" style={{ lineHeight: "1.8" }}>
-            Development tool to inspect SQLite database tables and data
+          <p className="text-slate-400 text-xl leading-relaxed max-w-3xl">
+            Secure development tool for real-time inspection, monitoring, and 
+            manipulation of your database records.
           </p>
         </div>
 
         {tableInspection.error && (
-          <div className="mb-8 rounded-lg bg-red-900/30 border border-red-700/50 p-4 text-red-300">
-            <div className="font-semibold">
-              ⚠️ Error: {tableInspection.error}
+          <div className="mb-8 rounded-2xl bg-red-500/10 border border-red-500/20 p-5 text-red-400 flex items-center gap-3">
+            <span className="text-xl">⚠️</span>
+            <div className="font-medium text-sm">
+              Error: {tableInspection.error}
             </div>
           </div>
         )}
 
         {/* Tabs Navigation */}
         <div className="mb-10">
-          <div className="flex items-center gap-2 border-b border-slate-700/50 overflow-x-auto pb-0">
+          <div className="flex items-center gap-2 border-b border-white/5 overflow-x-auto pb-0 no-scrollbar">
             {tableInspection.loading && tableInspection.tables.length === 0 ? (
-              <div className="text-center py-6 flex-1">
-                <div className="inline-block animate-spin text-3xl">⏳</div>
-                <p className="text-cyan-200/60 text-sm mt-3 font-medium">
+              <div className="text-center py-8 flex-1">
+                <div className="inline-block animate-spin text-3xl text-cyan-500">⏳</div>
+                <p className="text-cyan-500/60 text-sm mt-3 font-bold tracking-widest uppercase">
                   Loading tables...
                 </p>
               </div>
             ) : tableInspection.tables.length === 0 ? (
-              <div className="text-center py-6 flex-1">
-                <p className="text-slate-400 text-sm">
-                  No tables found in the database
+              <div className="text-center py-8 flex-1">
+                <p className="text-slate-500 text-sm font-medium">
+                  No tables found in the database.
                 </p>
               </div>
             ) : (
-              <>
+              <div className="flex gap-1">
                 {tableInspection.tables.map((table) => (
                   <button
                     key={table.name}
                     onClick={() => tableInspection.setSelectedTable(table.name)}
-                    className={`px-4 py-3 font-mono text-sm whitespace-nowrap transition-colors border-b-2 ${
+                    className={`px-6 py-4 font-display text-sm font-bold tracking-tight whitespace-nowrap transition-all relative group ${
                       tableInspection.selectedTable === table.name
-                        ? "border-cyan-500 text-cyan-300 bg-slate-800/50"
-                        : "border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-600"
+                        ? "text-cyan-400"
+                        : "text-slate-500 hover:text-slate-300"
                     }`}
                   >
-                    {table.name}
-                    <div className="text-xs text-slate-500/80 font-normal mt-1">
-                      ({table.rowCount} rows)
+                    <div className="flex flex-col items-start">
+                      <span>{table.name}</span>
+                      <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${
+                        tableInspection.selectedTable === table.name ? 'text-cyan-500/60' : 'text-slate-600'
+                      }`}>
+                        {table.rowCount} rows
+                      </span>
                     </div>
+                    {tableInspection.selectedTable === table.name && (
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full" />
+                    )}
                   </button>
                 ))}
-              </>
+              </div>
             )}
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto pb-2 pl-4">
               <button
                 onClick={tableInspection.fetchTables}
-                className="px-4 py-2 text-sm bg-slate-700 text-slate-200 border border-slate-600 rounded hover:bg-slate-600 hover:border-slate-500 transition-colors font-medium whitespace-nowrap"
+                className="btn-secondary !text-xs !py-2 !px-4 !rounded-xl border-white/10"
               >
                 🔄 Refresh
               </button>
@@ -130,23 +141,23 @@ export default function DatabaseInspector() {
           {tableInspection.selectedTable ? (
             <div>
               {/* Sub-tabs Navigation */}
-              <div className="flex gap-1 border-b border-slate-700/50 mb-6">
+              <div className="flex gap-1 mb-8 p-1 bg-white/5 rounded-2xl w-fit">
                 <button
                   onClick={() => tableInspection.setViewTab("records")}
-                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                  className={`px-6 py-2.5 text-sm font-bold tracking-tight rounded-xl transition-all ${
                     tableInspection.viewTab === "records"
-                      ? "border-cyan-500 text-cyan-300 bg-slate-800/30"
-                      : "border-transparent text-slate-400 hover:text-slate-300"
+                      ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
+                      : "text-slate-500 hover:text-slate-300"
                   }`}
                 >
                   📊 Records
                 </button>
                 <button
                   onClick={() => tableInspection.setViewTab("structure")}
-                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                  className={`px-6 py-2.5 text-sm font-bold tracking-tight rounded-xl transition-all ${
                     tableInspection.viewTab === "structure"
-                      ? "border-cyan-500 text-cyan-300 bg-slate-800/30"
-                      : "border-transparent text-slate-400 hover:text-slate-300"
+                      ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
+                      : "text-slate-500 hover:text-slate-300"
                   }`}
                 >
                   📋 Structure
@@ -156,40 +167,39 @@ export default function DatabaseInspector() {
               <div className="space-y-8">
                 {/* Schema Section */}
                 {tableInspection.viewTab === "structure" && (
-                  <SchemaTable
-                    selectedTable={tableInspection.selectedTable}
-                    schema={tableInspection.schema}
-                  />
+                  <div className="card !bg-white/[0.02]">
+                    <SchemaTable
+                      selectedTable={tableInspection.selectedTable}
+                      schema={tableInspection.schema}
+                    />
+                  </div>
                 )}
 
                 {/* Data Section */}
                 {tableInspection.viewTab === "records" && (
-                  <div className="bg-slate-800/80 rounded-lg border border-slate-700/50 p-6">
-                    <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-                      <h2 className="text-lg font-semibold text-cyan-300">
-                        Data
+                  <div className="card !bg-white/[0.02] !p-8">
+                    <div className="flex items-center justify-between mb-10 flex-wrap gap-6">
+                      <h2 className="text-2xl font-bold text-white tracking-tight">
+                        Table Records
                       </h2>
-                      <div className="flex gap-3 items-center flex-wrap">
-                        <div className="flex items-center gap-2">
-                          <label className="text-sm text-slate-300 font-medium">
+                      <div className="flex gap-4 items-center flex-wrap">
+                        <div className="flex items-center gap-3">
+                          <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
                             Per Page:
                           </label>
                           <select
                             value="20"
-                            onChange={(e) => {
-                              // Items per page is fixed at 20 in this version
-                              // Can be made dynamic if needed
-                            }}
-                            className="px-2 py-1 border border-slate-600 bg-slate-700 text-slate-200 rounded text-sm focus:outline-none focus:border-cyan-500"
+                            onChange={(e) => {}}
+                            className="px-3 py-1.5 bg-white/5 border border-white/10 text-slate-300 rounded-xl text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
                           >
                             <option value={20}>20</option>
                             <option value={50}>50</option>
                             <option value={100}>100</option>
                           </select>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <label className="text-sm text-slate-300 font-medium">
-                            Query Limit:
+                        <div className="flex items-center gap-3">
+                          <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                            Limit:
                           </label>
                           <input
                             type="number"
@@ -197,19 +207,19 @@ export default function DatabaseInspector() {
                             max="1000"
                             value={tableInspection.rowLimit}
                             onChange={tableInspection.handleRowLimitChange}
-                            className="w-20 px-2 py-1 border border-slate-600 bg-slate-700 text-slate-200 rounded text-sm focus:outline-none focus:border-cyan-500"
+                            className="w-24 px-3 py-1.5 bg-white/5 border border-white/10 text-slate-300 rounded-xl text-sm focus:outline-none focus:border-cyan-500/50 transition-colors"
                           />
                         </div>
                         <button
                           onClick={tableInspection.refetchData}
                           disabled={tableInspection.loading}
-                          className="px-4 py-1 bg-cyan-600 text-cyan-100 rounded text-sm hover:bg-cyan-700 disabled:opacity-50 transition-colors font-medium"
+                          className="btn-secondary !text-xs !py-2 !px-5"
                         >
-                          {tableInspection.loading ? "Loading..." : "Fetch"}
+                          {tableInspection.loading ? "..." : "Fetch"}
                         </button>
                         <button
                           onClick={addRowModal.openAddModal}
-                          className="px-4 py-1 bg-green-600 text-green-100 rounded text-sm hover:bg-green-700 transition-colors font-medium whitespace-nowrap"
+                          className="btn-primary !text-xs !py-2 !px-5 shadow-none hover:shadow-cyan-500/20"
                         >
                           ➕ Add Row
                         </button>
@@ -256,12 +266,11 @@ export default function DatabaseInspector() {
                           }}
                         />
 
-                        <div className="space-y-4">
-                          <p className="text-sm text-slate-400">
-                            📄 Page {dataManipulation.currentPage} of{" "}
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-10 border-t border-white/5">
+                          <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                            Page {dataManipulation.currentPage} of{" "}
                             {dataManipulation.getTotalPages()} •{" "}
-                            {dataManipulation.getPaginatedData().length} of{" "}
-                            {dataManipulation.getFilteredData().length} records
+                            {dataManipulation.getFilteredData().length} total records
                           </p>
                           <PaginationControls
                             currentPage={dataManipulation.currentPage}
@@ -271,18 +280,26 @@ export default function DatabaseInspector() {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-center text-slate-400 py-8 text-sm">
-                        No data in this table
-                      </p>
+                      <div className="text-center py-20 bg-white/[0.02] rounded-3xl border border-dashed border-white/10">
+                        <div className="text-4xl mb-4 opacity-50">📂</div>
+                        <p className="text-slate-500 font-medium tracking-tight">
+                          No records found in this table.
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="bg-slate-800/80 rounded-lg border border-slate-700/50 p-12 text-center">
-              <p className="text-slate-400 text-base">
-                Select a table from the tabs above to view its schema and data
+            <div className="card !bg-white/[0.02] !p-20 text-center border-dashed">
+              <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center text-4xl mx-auto mb-8">
+                🖱️
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-3 tracking-tight">Select a Table</h2>
+              <p className="text-slate-500 max-w-sm mx-auto leading-relaxed">
+                Choose a table from the list above to explore its structure 
+                and manipulate its data records.
               </p>
             </div>
           )}
