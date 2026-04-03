@@ -1,11 +1,11 @@
 import type { APIRoute } from "astro";
-import { getUserFromContext } from "@/utils/auth";
+import { getUserFromContext, isSuperUser } from "@/utils/auth";
 import { unauthorizedResponse } from "@/utils/api";
-import { getDatabase } from "../../../lib/db";
+import { getDatabase } from "@/lib/db";
 import type { InArgs } from "@libsql/client";
 import bcrypt from "bcryptjs";
 
-// Only allow in development for authenticated users
+// Database inspector API - restricted to development OR super users
 export const prerender = false;
 
 interface InspectorRequest {
@@ -24,21 +24,26 @@ interface InspectorRequest {
 }
 
 export const POST: APIRoute = async (context) => {
-  // Check authentication first
+  // Check authentication
   const user = getUserFromContext(context);
+  
+  // Rule: Allow in DEVELOPMENT environment for any authenticated user
+  // OR Allow in any environment if the user is a SUPER USER
+  const isDevelopment = !import.meta.env.PROD;
+  const isUserSuperUser = isSuperUser(user);
+
   if (!user) {
     return new Response(JSON.stringify(unauthorizedResponse()), {
       status: 401,
+      headers: { "Content-Type": "application/json" },
     });
   }
 
-  // Only allow in development environment
-  const isDevelopment = !import.meta.env.PROD;
-  if (!isDevelopment) {
+  if (!isDevelopment && !isUserSuperUser) {
     return new Response(
       JSON.stringify({
         error:
-          "Database inspector is only available in development environment",
+          "Database inspector is restricted to Super Users in production environments",
       }),
       {
         status: 403,
@@ -227,7 +232,7 @@ export const POST: APIRoute = async (context) => {
       if (!primaryKeyColumn) {
         return new Response(
           JSON.stringify({
-            error: "Could not determine primary key for table",
+            error: "Could determine primary key for table",
           }),
           {
             status: 400,

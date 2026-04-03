@@ -65,7 +65,7 @@ export function getSafeRedirectUrl(
  */
 export const PROTECTED_REDIRECT_PATHS = [
   "/spaces",
-  "/dev/db-inspector",
+  "/admin/db-inspector",
 ] as const;
 
 /**

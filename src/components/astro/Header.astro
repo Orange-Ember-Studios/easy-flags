@@ -1,5 +1,6 @@
 ---
 import { getUserFromContext } from "@/utils/auth";
+import { isSuperUser } from "@/utils/permissions";
 import HeaderDropdown from "@/components/react/shared/HeaderDropdown";
 
 const user = getUserFromContext(Astro);
@@ -34,11 +35,6 @@ const navItems = {
     label: "Metrics",
     showFor: !!user,
   },
-  settings: {
-    href: "/settings",
-    label: "Settings",
-    showFor: !!user,
-  },
   docs: {
     href: "/docs",
     label: "Docs",
@@ -69,7 +65,7 @@ const getNavLinkClass = (href: string) => {
 };
 ---
 
-<header class="sticky top-0 z-50 w-full border-b border-white/5 bg-[#06080f]/80 backdrop-blur-xl">
+<header id="main-header" class="sticky top-0 z-50 w-full border-b border-white/5 bg-[#06080f]/80 backdrop-blur-xl transition-all duration-300">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
     <div class="flex items-center gap-2">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
@@ -120,16 +116,6 @@ const getNavLinkClass = (href: string) => {
           )
         }
 
-        {
-          navItems.settings.showFor && (
-            <a
-              href={navItems.settings.href}
-              class="text-sm font-medium text-slate-400 hover:text-white transition-colors"
-            >
-              {navItems.settings.label}
-            </a>
-          )
-        }
 
         <a
           href={navItems.docs.href}
@@ -144,7 +130,11 @@ const getNavLinkClass = (href: string) => {
       <div class="flex items-center gap-4">
         {
           user ? (
-            <HeaderDropdown client:load username={user.username} />
+            <HeaderDropdown
+              client:load
+              username={user.username}
+              isSuperUser={isSuperUser(user)}
+            />
           ) : (
             <>
               <a
@@ -161,5 +151,176 @@ const getNavLinkClass = (href: string) => {
         }
       </div>
     </div>
+
+    <!-- Mobile Menu Button -->
+    <div class="flex items-center md:hidden">
+      <button 
+        id="mobile-menu-button"
+        class="relative z-[10000] p-2 text-slate-400 hover:text-white transition-colors focus:outline-none"
+        aria-label="Toggle Menu"
+      >
+        <div class="w-7 h-5 flex flex-col justify-between items-end">
+          <span id="bar-1" class="w-7 h-0.5 bg-white transition-all duration-300"></span>
+          <span id="bar-2" class="w-5 h-0.5 bg-white transition-all duration-300"></span>
+          <span id="bar-3" class="w-6 h-0.5 bg-white transition-all duration-300"></span>
+        </div>
+      </button>
+    </div>
   </nav>
+
 </header>
+
+<div 
+  id="mobile-menu" 
+  class="fixed inset-0 bg-[#06080f] z-[9999] flex flex-col items-center justify-center opacity-0 pointer-events-none transition-all duration-300 ease-in-out"
+  style="background-color: #06080f; opacity: 0; visibility: hidden;"
+>
+  <!-- Background Glows -->
+  <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+  <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+  <div class="flex flex-col items-center gap-10 w-full px-10">
+    <div class="flex flex-col items-center gap-6">
+      {
+        navItems.pricing.showFor && (
+          <a 
+            href={navItems.pricing.href} 
+            class="mobile-nav-link text-3xl font-bold text-white uppercase tracking-[0.3em] hover:text-cyan-400 transition-colors"
+          >
+            {navItems.pricing.label}
+          </a>
+        )
+      }
+      {
+        navItems.spaces.showFor && (
+          <a 
+            href={navItems.spaces.href} 
+            class="mobile-nav-link text-3xl font-bold text-white uppercase tracking-[0.3em] hover:text-cyan-400 transition-colors"
+          >
+            {navItems.spaces.label}
+          </a>
+        )
+      }
+      {
+        navItems.metrics.showFor && (
+          <a 
+            href={navItems.metrics.href} 
+            class="mobile-nav-link text-3xl font-bold text-white uppercase tracking-[0.3em] hover:text-cyan-400 transition-colors"
+          >
+            {navItems.metrics.label}
+          </a>
+        )
+      }
+      <a 
+        href={navItems.docs.href} 
+        class="mobile-nav-link text-3xl font-bold text-white uppercase tracking-[0.3em] hover:text-cyan-400 transition-colors"
+      >
+        {navItems.docs.label}
+      </a>
+    </div>
+    
+    <div class="w-20 h-px bg-white/10 my-4"></div>
+    
+    {
+      user ? (
+        <div class="flex flex-col items-center gap-8">
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-cyan-500/20">
+              {user.username.charAt(0).toUpperCase()}
+            </div>
+            <span class="text-white text-xl font-medium tracking-tight">{user.username}</span>
+          </div>
+          
+          <div class="flex flex-col items-center gap-4">
+            {isSuperUser(user) && (
+              <a href="/admin/db-inspector" class="px-8 py-3 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 font-bold uppercase tracking-widest text-sm hover:bg-cyan-500 hover:text-white transition-all">
+                Inspector
+              </a>
+            )}
+            
+            <a href="/settings" class="text-slate-400 hover:text-white transition-colors uppercase tracking-widest text-xs font-bold">Settings</a>
+            
+            <form action="/api/auth/logout" method="POST">
+              <button type="submit" class="text-red-500/60 hover:text-red-500 transition-colors uppercase tracking-widest text-xs font-bold">
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+      ) : (
+        <div class="flex flex-col items-center gap-6 w-full max-w-xs">
+          <a href={navItems.login.href} class="text-xl font-bold text-white uppercase tracking-widest hover:text-cyan-400 transition-colors">
+            {navItems.login.label}
+          </a>
+          <a href="/create-account" class="w-full btn-primary text-center py-5 rounded-2xl shadow-none">
+            Get Started
+          </a>
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<script>
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const bar1 = document.getElementById('bar-1');
+  const bar2 = document.getElementById('bar-2');
+  const bar3 = document.getElementById('bar-3');
+  const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+
+  const mainHeader = document.getElementById('main-header');
+
+  if (mobileMenuButton && mobileMenu && bar1 && bar2 && bar3 && mainHeader) {
+    const toggleMenu = () => {
+      const isOpen = !mobileMenu.classList.contains('opacity-0');
+      
+      if (!isOpen) {
+        // Open
+        mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
+        mobileMenu.classList.add('opacity-100');
+        mobileMenu.style.opacity = '1';
+        mobileMenu.style.visibility = 'visible';
+        mainHeader.style.zIndex = '10000';
+        mainHeader.style.backgroundColor = 'transparent';
+        mainHeader.style.borderBottom = 'none';
+        bar1.style.transform = 'translateY(9px) rotate(45deg)';
+        bar2.style.opacity = '0';
+        bar3.style.transform = 'translateY(-9px) rotate(-45deg)';
+        document.body.style.overflow = 'hidden';
+      } else {
+        // Close
+        mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+        mobileMenu.classList.remove('opacity-100');
+        mobileMenu.style.opacity = '0';
+        mobileMenu.style.visibility = 'hidden';
+        mainHeader.style.zIndex = '50';
+        mainHeader.style.backgroundColor = ''; // Reset to class default
+        mainHeader.style.borderBottom = '';
+        bar1.style.transform = 'none';
+        bar2.style.opacity = '1';
+        bar3.style.transform = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    };
+
+    mobileMenuButton.addEventListener('click', toggleMenu);
+
+    // Close menu when clicking links
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+        mobileMenu.classList.remove('opacity-100');
+        mobileMenu.style.opacity = '0';
+        mobileMenu.style.visibility = 'hidden';
+        mainHeader.style.zIndex = '50';
+        mainHeader.style.backgroundColor = '';
+        mainHeader.style.borderBottom = '';
+        bar1.style.transform = 'none';
+        bar2.style.opacity = '1';
+        bar3.style.transform = 'none';
+        document.body.style.overflow = 'auto';
+      });
+    });
+  }
+</script>

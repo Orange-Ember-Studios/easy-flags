@@ -12,17 +12,19 @@ if (!requireAuth(Astro)) {
   return Astro.redirect(getLoginUrl(Astro));
 }
 
-// Check if user is a super user
+// Get user and check permissions
 const user = getUserFromContext(Astro);
+const isDevelopment = !import.meta.env.PROD;
 
-if (!user || !isSuperUser(user)) {
+// Allow access if in development OR if the user is a super user
+if (!isDevelopment && (!user || !isSuperUser(user))) {
   return Astro.redirect("/forbidden");
 }
 ---
 
 <BaseLayout
-  title="Database Inspector - Development"
-  description="Development database inspection tool"
+  title="Database Inspector - Management"
+  description="System database inspection and management tool"
   includeHeader={true}
 >
   <DatabaseInspector client:load />

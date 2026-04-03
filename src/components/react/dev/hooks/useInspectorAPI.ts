@@ -19,7 +19,7 @@ export function useInspectorAPI() {
     action: string,
     payload?: Record<string, unknown>,
   ): Promise<APIResponse<T>> => {
-    const response = await fetch("/api/dev/inspector", {
+    const response = await fetch("/api/admin/db-inspector", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, ...payload }),
