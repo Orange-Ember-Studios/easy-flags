@@ -10,6 +10,27 @@ interface Space {
   created_at: string;
 }
 
+const Icons = {
+  Search: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  ),
+  Plus: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+  ),
+  Users: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+  ),
+  Calendar: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+  ),
+  Folder: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+  ),
+  ChevronRight: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+  )
+};
+
 export default function SpacesDashboard() {
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,207 +88,234 @@ export default function SpacesDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-cyan-400">Loading spaces...</div>
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Loading Workspaces</p>
       </div>
     );
   }
 
+  const filteredSpaces = spaces.filter(
+    (s) =>
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6">
-        <div className="flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gradient mb-2">Spaces</h1>
-          <p className="text-slate-400 max-w-2xl text-sm sm:text-base">
-            Spaces represent your organizations or projects. Each space contains
-            features, and features exist in environments (Production, Staging,
-            Development, etc.)
+    <div className="space-y-10 py-10 animate-in fade-in duration-700">
+      {/* Header Section */}
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-8">
+        <div className="max-w-2xl relative">
+          <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight leading-[1.1]">
+            Your <span className="text-gradient">Spaces</span>
+          </h1>
+          <p className="text-slate-400 text-lg leading-relaxed">
+            Spaces are the foundation of your feature management. Organize projects, teams, and environments in dedicated, secure workspaces.
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+          <div className="relative w-full sm:w-80 group">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400 transition-colors">
+              <Icons.Search />
+            </div>
             <input
               type="text"
-              placeholder="Search spaces..."
+              placeholder="Search workspaces..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900/50 border border-slate-700/50 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
             />
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="btn-primary w-full sm:w-auto !py-2.5 text-sm"
+            className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2 !py-3.5 !px-8 shadow-xl shadow-cyan-500/20"
           >
-            + Create Space
+            <Icons.Plus />
+            Create Space
           </button>
         </div>
       </div>
 
-      {/* Hierarchy visualization */}
-      <div className="bg-slate-800/30 border border-cyan-500/10 rounded-xl p-4 sm:p-5">
-        <p className="text-sm text-slate-400 mb-3">
-          <span className="text-cyan-300 font-semibold">Hierarchy:</span>
-        </p>
-        <div className="text-xs sm:text-sm text-slate-300 font-mono ml-2 sm:ml-4 space-y-2 overflow-x-auto pb-2">
-          <div className="whitespace-nowrap">📦 Space: "Acme Corp"</div>
-          <div className="ml-4 whitespace-nowrap">├─ 🌍 Environment: Production</div>
-          <div className="ml-4 whitespace-nowrap">├─ 🌍 Environment: Staging</div>
-          <div className="ml-4 whitespace-nowrap">├─ 🌍 Environment: Development</div>
-          <div className="ml-4 whitespace-nowrap">
-            └─ ⚙️ Features (configured per environment)
-          </div>
+      {/* Hierarchy Schematic */}
+      <div className="relative group overflow-hidden bg-[#0b0e14]/50 border border-white/5 rounded-[2rem] p-8 md:p-10 transition-all hover:border-white/10">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[100px] rounded-full group-hover:bg-cyan-500/10 transition-colors"></div>
+        
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
+           <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20">
+              <Icons.Folder />
+           </div>
+           <div>
+              <h3 className="text-xl font-bold text-white tracking-tight">System Architecture</h3>
+              <p className="text-slate-500 text-sm">Visualizing the flag hierarchy within each space</p>
+           </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-[11px] sm:text-xs">
+          <HierNode icon="📦" label="Space" value="Acme Corp" color="text-cyan-400" />
+          <HierNode icon="🌍" label="Env" value="Production" color="text-emerald-400" />
+          <HierNode icon="🌍" label="Env" value="Staging" color="text-blue-400" />
+          <HierNode icon="⚙️" label="Flags" value="Ruleset" color="text-purple-400" />
         </div>
       </div>
 
+      {/* Spaces Grid */}
       {spaces.length === 0 ? (
-        <div className="card text-center py-16 relative overflow-hidden">
-          <div className="absolute -top-20 -left-20 w-40 h-40 bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none"></div>
-          <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none"></div>
-          <div className="relative z-10">
-
-          <div className="text-6xl mb-4">🚀</div>
-          <h2 className="text-2xl font-bold text-cyan-300 mb-2">
-            No spaces yet
-          </h2>
-          <p className="text-slate-400 mb-4">
-            A space represents your organization or project. Create your first
-            space to get started with feature flags.
-          </p>
-          <p className="text-slate-500 text-sm mb-6">
-            Example: "Acme Corp", "Mobile App", "E-commerce Platform", etc.
+        <div className="card text-center py-20 relative overflow-hidden flex flex-col items-center justify-center border-dashed border-2 border-white/10 bg-transparent">
+          <div className="text-7xl mb-8 opacity-50 group-hover:scale-110 transition-transform duration-500">🚀</div>
+          <h2 className="text-3xl font-bold text-white mb-4">Launch Your First Space</h2>
+          <p className="text-slate-500 max-w-md mx-auto mb-10 leading-relaxed font-medium">
+            Ready to take control? Create your first environment to start shipping features with total confidence.
           </p>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="btn-primary inline-block w-full sm:w-auto"
+            className="btn-primary flex items-center gap-2 !px-10 !py-4"
           >
-            Create First Space
+            <Icons.Plus />
+            Build Workspace
           </button>
-          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {spaces
-            .filter((s) =>
-              s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              s.description?.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-            .map((space) => (
+          {filteredSpaces.map((space) => (
             <a
               key={space.id}
               href={`/spaces/${space.slug}`}
-              className="card group hover:shadow-2xl p-5 sm:p-6"
+              className="group relative bg-white/5 border border-white/5 rounded-[2rem] p-8 transition-all duration-500 hover:bg-white/[0.08] hover:border-cyan-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/10 flex flex-col h-full"
             >
-              <h3 className="text-lg sm:text-xl font-bold text-cyan-300 group-hover:text-cyan-200 transition mb-2 break-words">
-                {space.name}
-              </h3>
-              {space.description && (
-                <p className="text-slate-400 text-sm mb-4 line-clamp-2">
-                  {space.description}
-                </p>
-              )}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-4 border-t border-slate-700/50">
-                <div className="text-xs sm:text-sm text-slate-500">
-                  {new Date(space.created_at).toLocaleDateString()}
+              <div className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-500 opacity-0 group-hover:opacity-100 transition-all rotate-45 group-hover:rotate-0">
+                 <Icons.ChevronRight />
+              </div>
+
+              <div className="mb-6">
+                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400/20 to-blue-600/20 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
+                    <Icons.Folder />
+                 </div>
+                 <h3 className="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors mb-2 break-words tracking-tight">
+                    {space.name}
+                 </h3>
+                 {space.description ? (
+                   <p className="text-slate-400 text-sm leading-relaxed line-clamp-2 font-medium">
+                     {space.description}
+                   </p>
+                 ) : (
+                   <p className="text-slate-600 text-xs italic font-medium">No description provided for this space.</p>
+                 )}
+              </div>
+
+              <div className="mt-auto pt-6 border-t border-white/5 flex items-center gap-6">
+                <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-400 transition-colors">
+                  <Icons.Calendar />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">{new Date(space.created_at).toLocaleDateString()}</span>
                 </div>
                 {space.members_count !== undefined && (
-                  <div className="text-xs sm:text-sm text-slate-500">
-                    {space.members_count} members
+                  <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-400 transition-colors">
+                    <Icons.Users />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{space.members_count} team</span>
                   </div>
                 )}
               </div>
             </a>
           ))}
-          {spaces.filter((s) =>
-            s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            s.description?.toLowerCase().includes(searchQuery.toLowerCase())
-          ).length === 0 && (
-            <div className="col-span-full py-12 text-center text-slate-500">
-              <div className="text-4xl mb-4">🔍</div>
-              <p className="text-lg">No spaces match "{searchQuery}"</p>
+
+          {filteredSpaces.length === 0 && (
+            <div className="col-span-full py-24 text-center bg-white/5 rounded-[2rem] border border-dashed border-white/10">
+              <div className="text-5xl mb-6 grayscale opacity-50">🔍</div>
+              <p className="text-xl font-bold text-white mb-2">No matches found</p>
+              <p className="text-slate-500 text-sm mb-6">We couldn't find any space matching "{searchQuery}"</p>
               <button
                 onClick={() => setSearchQuery("")}
-                className="text-cyan-400 hover:text-cyan-300 mt-2 text-sm"
+                className="text-cyan-400 hover:text-cyan-300 font-bold text-sm underline underline-offset-4 decoration-2"
               >
-                Clear search
+                Clear Search Results
               </button>
             </div>
           )}
         </div>
       )}
 
+      {/* Simplified Create Modal for this component - re-using the premium style */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-slate-800 border border-cyan-700/30 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-cyan-300">Create Space</h2>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-[#06080f]/60 backdrop-blur-md animate-in fade-in duration-300"
+            onClick={() => setShowCreateModal(false)}
+          />
+          <div className="relative bg-[#0b0e14]/95 border border-white/10 rounded-[2rem] p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden">
+            {/* Header Highlight - centered and faded at edges */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+
+            
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold text-white tracking-tight">Create Space</h2>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-slate-200 transition"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-400 hover:text-white transition-all"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleCreateSpace} className="space-y-4">
+            <form onSubmit={handleCreateSpace} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Space Name
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">
+                  Workspace Name
                 </label>
                 <input
                   type="text"
                   value={newSpaceName}
                   onChange={(e) => setNewSpaceName(e.target.value)}
                   required
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                  placeholder="e.g., Production"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
+                  placeholder="e.g., Mobile App"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Description (Optional)
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">
+                  Purpose / Description
                 </label>
                 <textarea
                   value={newSpaceDescription}
                   onChange={(e) => setNewSpaceDescription(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none h-20"
-                  placeholder="Describe this space..."
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all h-28 resize-none text-sm"
+                  placeholder="Describe the scope of this workspace..."
                 />
               </div>
 
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-4 justify-end pt-2">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 transition"
+                  className="flex-1 py-3 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="px-4 py-2 rounded-lg bg-cyan-500 text-white hover:bg-cyan-600 transition disabled:opacity-50"
+                  className="flex-1 btn-primary !py-3 shadow-lg shadow-cyan-500/20"
                 >
-                  {isCreating ? "Creating..." : "Create"}
+                  {isCreating ? "Deploying..." : "Create Space"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function HierNode({ icon, label, value, color }: { icon: string; label: string; value: string; color: string }) {
+  return (
+    <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 rounded-2xl p-4 transition-all hover:bg-white/[0.05]">
+       <div className="text-xl">{icon}</div>
+       <div>
+          <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em]">{label}</p>
+          <p className={`font-bold tracking-tight ${color}`}>{value}</p>
+       </div>
     </div>
   );
 }

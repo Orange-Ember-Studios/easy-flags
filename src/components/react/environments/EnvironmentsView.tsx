@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import SpaceNavigation from "@/components/react/shared/SpaceNavigation";
+import { Modal } from "@/components/react/shared/Modals";
 
 type EnvironmentType = "production" | "staging" | "development" | "other";
 
@@ -23,35 +24,163 @@ const ENVIRONMENT_TYPES: EnvironmentType[] = [
   "other",
 ];
 
+const Icons = {
+  Production: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  ),
+  Staging: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="m16 12-4-4-4 4" />
+      <path d="M12 16V8" />
+    </svg>
+  ),
+  Development: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m18 16 4-4-4-4" />
+      <path d="m6 8-4 4 4 4" />
+      <path d="m14.5 4-5 16" />
+    </svg>
+  ),
+  Other: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </svg>
+  ),
+  Edit: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+    </svg>
+  ),
+  Delete: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      <line x1="10" x2="10" y1="11" y2="17" />
+      <line x1="14" x2="14" y1="11" y2="17" />
+    </svg>
+  ),
+  ArrowRight: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
+  ),
+};
+
 const getEnvironmentColor = (type: EnvironmentType) => {
   switch (type) {
     case "production":
       return {
-        bg: "from-red-900/20 to-red-900/10",
-        border: "border-red-500/30",
-        accent: "text-red-400",
-        badge: "bg-red-500/20 text-red-300",
+        bg: "from-rose-500/10 to-rose-600/5",
+        border: "border-rose-500/20",
+        accent: "text-rose-400",
+        badge: "bg-rose-500/10 text-rose-300 border-rose-500/20",
+        icon: <Icons.Production />,
+        glow: "bg-rose-500/10",
       };
     case "staging":
       return {
-        bg: "from-yellow-900/20 to-yellow-900/10",
-        border: "border-yellow-500/30",
-        accent: "text-yellow-400",
-        badge: "bg-yellow-500/20 text-yellow-300",
+        bg: "from-amber-500/10 to-amber-600/5",
+        border: "border-amber-500/20",
+        accent: "text-amber-400",
+        badge: "bg-amber-500/10 text-amber-300 border-amber-500/20",
+        icon: <Icons.Staging />,
+        glow: "bg-amber-500/10",
       };
     case "development":
       return {
-        bg: "from-blue-900/20 to-blue-900/10",
-        border: "border-blue-500/30",
+        bg: "from-blue-500/10 to-blue-600/5",
+        border: "border-blue-500/20",
         accent: "text-blue-400",
-        badge: "bg-blue-500/20 text-blue-300",
+        badge: "bg-blue-500/10 text-blue-300 border-blue-500/20",
+        icon: <Icons.Development />,
+        glow: "bg-blue-500/10",
       };
     case "other":
+    default:
       return {
-        bg: "from-cyan-900/20 to-cyan-900/10",
-        border: "border-cyan-500/30",
+        bg: "from-cyan-500/10 to-cyan-600/5",
+        border: "border-cyan-500/20",
         accent: "text-cyan-400",
-        badge: "bg-cyan-500/20 text-cyan-300",
+        badge: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",
+        icon: <Icons.Other />,
+        glow: "bg-cyan-500/10",
       };
   }
 };
@@ -63,7 +192,10 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editingEnv, setEditingEnv] = useState<Environment | null>(null);
+  const [envToDelete, setEnvToDelete] = useState<Environment | null>(null);
+
   const [newEnvName, setNewEnvName] = useState("");
   const [newEnvDescription, setNewEnvDescription] = useState("");
   const [newEnvType, setNewEnvType] = useState<EnvironmentType>("other");
@@ -84,7 +216,6 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
       });
       if (response.ok) {
         const data = await response.json();
-        // Ensure all environments have a type field
         const envs = (Array.isArray(data) ? data : []).map((env: any) => ({
           ...env,
           type: env.type || "other",
@@ -121,10 +252,7 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
       if (response.ok) {
         const newEnv = await response.json();
         setEnvironments([...environments, newEnv]);
-        setNewEnvName("");
-        setNewEnvDescription("");
-        setNewEnvType("other");
-        setShowCreateModal(false);
+        resetForms();
       } else {
         setError("Failed to create environment");
       }
@@ -163,11 +291,7 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
             env.id === editingEnv.id ? updatedEnv : env,
           ),
         );
-        setEditingEnv(null);
-        setNewEnvName("");
-        setNewEnvDescription("");
-        setNewEnvType("other");
-        setShowEditModal(false);
+        resetForms();
       } else {
         setError("Failed to update environment");
       }
@@ -179,6 +303,17 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
     }
   };
 
+  const resetForms = () => {
+    setEditingEnv(null);
+    setEnvToDelete(null);
+    setNewEnvName("");
+    setNewEnvDescription("");
+    setNewEnvType("other");
+    setShowCreateModal(false);
+    setShowEditModal(false);
+    setShowDeleteModal(false);
+  };
+
   const startEditingEnvironment = (env: Environment) => {
     setEditingEnv(env);
     setNewEnvName(env.name);
@@ -187,13 +322,13 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
     setShowEditModal(true);
   };
 
-  const deleteEnvironment = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this environment?")) return;
+  const handleDeleteEnvironment = async () => {
+    if (!envToDelete || !spaceId) return;
 
     try {
       setIsSubmitting(true);
       const response = await fetch(
-        `/api/spaces/${spaceId}/environments/${id}`,
+        `/api/spaces/${spaceId}/environments/${envToDelete.id}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -201,7 +336,8 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
       );
 
       if (response.ok) {
-        setEnvironments(environments.filter((e) => e.id !== id));
+        setEnvironments(environments.filter((e) => e.id !== envToDelete.id));
+        resetForms();
       } else {
         setError("Failed to delete environment");
       }
@@ -214,259 +350,349 @@ export default function EnvironmentsView({ spaceId }: EnvironmentsViewProps) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-12 px-4">
+    <div className="max-w-7xl mx-auto py-12 px-6 animate-in fade-in duration-700">
       <SpaceNavigation
         spaceId={spaceId}
         spaceName="Acme Corporation"
         currentTab="environments"
       />
 
-      <div className="mt-12">
+      <div className="mt-16">
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-            <p className="text-red-400">{error}</p>
+          <div className="mb-8 bg-rose-500/5 border border-rose-500/20 rounded-2xl p-6 flex items-center gap-4 animate-in slide-in-from-top-4">
+            <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500">
+              <Icons.Delete />
+            </div>
+            <div>
+              <p className="text-rose-400 font-bold text-sm">Critical Error</p>
+              <p className="text-rose-500/80 text-xs">{error}</p>
+            </div>
           </div>
         )}
 
         {/* Header Section */}
-        <div className="mb-12">
-          <div className="flex justify-between items-start mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-2">
-                Environments
+        <div className="mb-16">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+            <div className="max-w-2xl">
+              <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+                Manage your <span className="text-gradient">Environments</span>
               </h2>
-              <p className="text-slate-400">
-                Manage deployment stages for your feature flags. Each
-                environment has its own configuration.
+              <p className="text-slate-400 text-lg leading-relaxed">
+                Control deployment stages. Flags exist in all environments but
+                can have different values independently.
               </p>
             </div>
             <button
               onClick={() => {
-                setEditingEnv(null);
-                setNewEnvName("");
-                setNewEnvDescription("");
-                setNewEnvType("other");
+                resetForms();
                 setShowCreateModal(true);
               }}
               disabled={isLoading}
-              className="bg-gradient-to-br from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 disabled:opacity-50"
+              className="btn-primary flex items-center gap-2 !px-8 !py-4 shadow-xl shadow-cyan-500/20"
             >
-              + Create Environment
+              <Icons.Other />
+              New Environment
             </button>
           </div>
 
-          {/* Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-              <p className="text-red-400 text-sm font-semibold mb-1">
-                Production
-              </p>
-              <p className="text-slate-400 text-xs">
-                Live environment with real users
-              </p>
-            </div>
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-              <p className="text-yellow-400 text-sm font-semibold mb-1">
-                Staging
-              </p>
-              <p className="text-slate-400 text-xs">
-                Pre-production testing stage
-              </p>
-            </div>
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-              <p className="text-blue-400 text-sm font-semibold mb-1">
-                Development
-              </p>
-              <p className="text-slate-400 text-xs">
-                Local development environment
-              </p>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <TypePill
+              type="production"
+              label="Production Stage"
+              color="text-rose-400"
+              icon={<Icons.Production />}
+            />
+            <TypePill
+              type="staging"
+              label="Quality Control"
+              color="text-amber-400"
+              icon={<Icons.Staging />}
+            />
+            <TypePill
+              type="development"
+              label="Active Dev"
+              color="text-blue-400"
+              icon={<Icons.Development />}
+            />
+            <TypePill
+              type="other"
+              label="Custom / Misc"
+              color="text-cyan-400"
+              icon={<Icons.Other />}
+            />
           </div>
         </div>
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="text-center py-12">
-            <p className="text-slate-400">Loading environments...</p>
-          </div>
-        )}
-
         {/* Environments Grid */}
-        {!isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="w-12 h-12 border-4 border-white/5 border-t-cyan-500 rounded-full animate-spin"></div>
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
+              Syincing Worlds
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {environments.map((env) => {
-              const colors = getEnvironmentColor(env.type);
+              const styles = getEnvironmentColor(env.type);
               return (
                 <div
                   key={env.id}
-                  className={`bg-gradient-to-br ${colors.bg} border ${colors.border} rounded-xl p-6 hover:shadow-lg transition-all duration-300`}
+                  className={`group relative bg-gradient-to-br ${styles.bg} border ${styles.border} rounded-[2.5rem] p-8 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full`}
                 >
-                  <div className="flex items-start justify-between mb-4">
+                  <div
+                    className={`absolute -top-12 -right-12 w-24 h-24 ${styles.glow} blur-[60px] rounded-full pointer-events-none opacity-50`}
+                  ></div>
+
+                  <div className="flex items-start justify-between mb-8">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className={`text-xl font-bold ${colors.accent}`}>
-                          {env.name}
-                        </h3>
-                        <span
-                          className={`text-xs px-2 py-1 rounded ${colors.badge} font-semibold`}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div
+                          className={`p-2.5 rounded-xl bg-white/5 ${styles.accent} border border-white/5`}
                         >
-                          {env.type}
-                        </span>
+                          {styles.icon}
+                        </div>
+                        <div>
+                          <h3
+                            className={`text-2xl font-extrabold tracking-tight ${styles.accent}`}
+                          >
+                            {env.name}
+                          </h3>
+                          <span className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-60">
+                            {env.type} level
+                          </span>
+                        </div>
                       </div>
                       {env.description && (
-                        <p className="text-slate-300 text-sm leading-relaxed">
+                        <p className="text-slate-400 text-sm leading-relaxed mb-6 font-medium line-clamp-2">
                           {env.description}
                         </p>
                       )}
                     </div>
+
                     <div className="flex gap-2">
                       <button
                         onClick={() => startEditingEnvironment(env)}
-                        className="text-slate-400 hover:text-slate-200 p-2 hover:bg-slate-700/50 rounded transition"
+                        className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-500 hover:text-white transition-all hover:bg-white/10"
                         title="Edit environment"
                       >
-                        ✏️
+                        <Icons.Edit />
                       </button>
                       <button
-                        onClick={() => deleteEnvironment(env.id)}
-                        className="text-slate-400 hover:text-red-400 p-2 hover:bg-red-900/20 rounded transition"
+                        onClick={() => {
+                          setEnvToDelete(env);
+                          setShowDeleteModal(true);
+                        }}
+                        className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-500 hover:text-rose-400 transition-all hover:bg-rose-500/10 hover:border-rose-500/20 border border-transparent"
                         title="Delete environment"
                       >
-                        🗑️
+                        <Icons.Delete />
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-700/50">
-                    <span className="text-xs text-slate-500">
-                      Created {new Date(env.created_at).toLocaleDateString()}
+                  <div className="mt-auto flex items-center justify-between pt-6 border-t border-white/5">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                      DEP. {new Date(env.created_at).toLocaleDateString()}
                     </span>
                     <a
                       href={`/spaces/${spaceId}/environments/${env.slug}`}
-                      className={`text-sm font-semibold ${colors.accent} hover:brightness-110 transition`}
+                      className={`inline-flex items-center gap-2 text-sm font-bold ${styles.accent} hover:underline underline-offset-4 tracking-tight`}
                     >
-                      View →
+                      Connect
+                      <Icons.ArrowRight />
                     </a>
                   </div>
                 </div>
               );
             })}
-          </div>
-        )}
 
-        {!isLoading && environments.length === 0 && (
-          <div className="text-center py-12 card">
-            <p className="text-slate-400 mb-4">No environments yet</p>
-            <button
-              onClick={() => {
-                setEditingEnv(null);
-                setNewEnvName("");
-                setNewEnvDescription("");
-                setNewEnvType("other");
-                setShowCreateModal(true);
-              }}
-              className="text-cyan-400 hover:text-cyan-300 font-semibold"
-            >
-              Create your first environment
-            </button>
+            {environments.length === 0 && (
+              <div className="col-span-full py-24 text-center card border-dashed border-2 bg-transparent flex flex-col items-center justify-center gap-6">
+                <div className="text-6xl grayscale opacity-40">🌍</div>
+                <h4 className="text-2xl font-bold text-white">Dimension Gap</h4>
+                <p className="text-slate-500 max-w-sm mx-auto">
+                  This space exists in a vacuum. Create a staging or production
+                  environment to bridge the gap.
+                </p>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="btn-primary !px-10"
+                >
+                  Bridge Dimension
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Create/Edit Modal */}
-      {(showCreateModal || showEditModal) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-slate-800 border border-cyan-700/30 rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl">
-            <h2 className="text-2xl font-bold text-cyan-300 mb-6">
-              {editingEnv ? "Edit Environment" : "Create Environment"}
-            </h2>
+      <Modal
+        id="env-modal"
+        isOpen={showCreateModal || showEditModal}
+        onClose={resetForms}
+        title={editingEnv ? "Edit Environment" : "New Environment"}
+      >
+        <form
+          onSubmit={
+            editingEnv ? handleEditEnvironment : handleCreateEnvironment
+          }
+          className="space-y-8"
+        >
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 px-1">
+              Environment Name
+            </label>
+            <input
+              type="text"
+              value={newEnvName}
+              onChange={(e) => setNewEnvName(e.target.value)}
+              placeholder="e.g., Staging, Production"
+              className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-5 py-4 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
+              required
+            />
+          </div>
 
-            <form
-              onSubmit={
-                editingEnv ? handleEditEnvironment : handleCreateEnvironment
-              }
-              className="space-y-6"
-            >
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  Environment Name
-                </label>
-                <input
-                  type="text"
-                  value={newEnvName}
-                  onChange={(e) => setNewEnvName(e.target.value)}
-                  placeholder="e.g., Production, Staging"
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-                  required
-                />
-              </div>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 px-1">
+              Description
+            </label>
+            <textarea
+              value={newEnvDescription}
+              onChange={(e) => setNewEnvDescription(e.target.value)}
+              placeholder="Optional: Briefly describe this environment stage"
+              className="w-full bg-slate-950/40 border border-white/5 rounded-[2rem] px-5 py-4 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all h-28 resize-none text-sm font-medium"
+            />
+          </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  Description (optional)
-                </label>
-                <textarea
-                  value={newEnvDescription}
-                  onChange={(e) => setNewEnvDescription(e.target.value)}
-                  placeholder="What is this environment for?"
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none h-24 transition"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">
-                  Environment Type
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {ENVIRONMENT_TYPES.map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setNewEnvType(type)}
-                      className={`px-3 py-2 rounded-lg font-medium transition capitalize ${
-                        newEnvType === type
-                          ? "bg-cyan-600 text-white ring-2 ring-cyan-400"
-                          : "bg-slate-700 text-slate-300 hover:bg-slate-600"
-                      }`}
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 px-1">
+              Environment Type
+            </label>
+            <div className="grid grid-cols-2 gap-3 pb-2">
+              {ENVIRONMENT_TYPES.map((type) => {
+                const colors = getEnvironmentColor(type);
+                const isActive = newEnvType === type;
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setNewEnvType(type)}
+                    className={`flex items-center gap-3 px-4 py-4 rounded-2xl font-bold transition-all border ${
+                      isActive
+                        ? `${colors.accent} ${colors.border} bg-white/5 shadow-lg shadow-white/5`
+                        : "bg-slate-950/40 border-transparent text-slate-600 hover:text-slate-400"
+                    }`}
+                  >
+                    <div
+                      className={isActive ? colors.accent : "text-slate-700"}
                     >
+                      {colors.icon}
+                    </div>
+                    <span className="text-xs uppercase tracking-widest">
                       {type}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setShowEditModal(false);
-                    setEditingEnv(null);
-                    setNewEnvName("");
-                    setNewEnvDescription("");
-                    setNewEnvType("other");
-                  }}
-                  className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 text-white rounded-lg transition font-semibold disabled:opacity-50"
-                >
-                  {isSubmitting
-                    ? "Saving..."
-                    : editingEnv
-                      ? "Save Changes"
-                      : "Create"}
-                </button>
-              </div>
-            </form>
+          <div className="flex gap-4 pt-4">
+            <button
+              type="button"
+              onClick={resetForms}
+              className="flex-1 py-4 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 btn-primary !py-4 shadow-xl shadow-cyan-500/20"
+            >
+              {isSubmitting
+                ? "Saving..."
+                : editingEnv
+                  ? "Save Changes"
+                  : "Create"}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        id="delete-confirm-modal"
+        isOpen={showDeleteModal}
+        onClose={resetForms}
+        title="Confirm Deletion"
+      >
+        <div className="space-y-8">
+          <div className="bg-rose-500/5 border border-rose-500/20 rounded-[2rem] p-6 text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mx-auto border border-rose-500/20">
+              <Icons.Delete />
+            </div>
+            <div>
+              <p className="text-white font-bold text-xl mb-2">Delete Stage?</p>
+              <p className="text-slate-400 text-sm leading-relaxed font-medium">
+                You are about to permanently remove the{" "}
+                <span className="text-rose-400 font-bold">
+                  "{envToDelete?.name}"
+                </span>{" "}
+                environment. This will affect all flags within this environment.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <button
+              onClick={resetForms}
+              disabled={isSubmitting}
+              className="flex-1 py-4 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
+            >
+              Back Out
+            </button>
+            <button
+              onClick={handleDeleteEnvironment}
+              disabled={isSubmitting}
+              className="flex-1 btn-primary !py-4 shadow-xl shadow-rose-500/20 !bg-gradient-to-r !from-rose-600 !to-red-700"
+            >
+              {isSubmitting ? "Processing..." : "Confirm Delete"}
+            </button>
           </div>
         </div>
-      )}
+      </Modal>
+    </div>
+  );
+}
+
+function TypePill({
+  type,
+  label,
+  color,
+  icon,
+}: {
+  type: string;
+  label: string;
+  color: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-4 bg-[#0b0e14]/50 border border-white/5 px-5 py-4 rounded-[1.5rem] hover:border-white/10 transition-all group">
+      <div
+        className={`${color} bg-white/5 p-2 rounded-xl group-hover:scale-110 transition-transform`}
+      >
+        {icon}
+      </div>
+      <div>
+        <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-none mb-1">
+          {type} tier
+        </p>
+        <p className="text-xs font-bold text-white tracking-tight">{label}</p>
+      </div>
     </div>
   );
 }

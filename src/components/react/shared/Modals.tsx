@@ -16,28 +16,28 @@ export default function Modals({}: ModalsProps) {
         onClose={closeModal}
         title="Create Environment"
       >
-        <form className="space-y-4">
+        <form className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">
               Environment Name
             </label>
             <input
               type="text"
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
               placeholder="e.g., Development, Staging"
             />
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex gap-4 justify-end pt-2">
             <button
               type="button"
               onClick={closeModal}
-              className="px-4 py-2 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 transition"
+              className="flex-1 py-3 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-cyan-500 text-white hover:bg-cyan-600 transition"
+              className="flex-1 btn-primary !py-3 shadow-lg shadow-cyan-500/20"
             >
               Create
             </button>
@@ -52,37 +52,37 @@ export default function Modals({}: ModalsProps) {
         onClose={closeModal}
         title="Create Feature Flag"
       >
-        <form className="space-y-4">
+        <form className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">
               Feature Key
             </label>
             <input
               type="text"
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-mono text-sm"
               placeholder="e.g., NEW_DASHBOARD"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">
               Description
             </label>
             <textarea
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent h-24 resize-none"
-              placeholder="Describe this feature flag..."
+              className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all h-32 resize-none text-sm leading-relaxed"
+              placeholder="What does this feature flag do?"
             />
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex gap-4 justify-end pt-2">
             <button
               type="button"
               onClick={closeModal}
-              className="px-4 py-2 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 transition"
+              className="flex-1 py-3 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-cyan-500 text-white hover:bg-cyan-600 transition"
+              className="flex-1 btn-primary !py-3 shadow-lg shadow-cyan-500/20"
             >
               Create
             </button>
@@ -93,7 +93,7 @@ export default function Modals({}: ModalsProps) {
   );
 }
 
-function Modal({
+export function Modal({
   id,
   isOpen,
   onClose,
@@ -109,18 +109,35 @@ function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-slate-800 border border-cyan-700/30 rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-cyan-300">{title}</h2>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-[#06080f]/70 backdrop-blur-md animate-in fade-in duration-300"
+        onClick={onClose}
+      />
+      
+      {/* Modal Container */}
+      <div className="relative bg-[#0b0e14]/95 border border-white/10 rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden">
+        {/* Fixed Top Gradient Line - now centered and faded at the edges to avoid corner issues */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+        
+        {/* Background Glow */}
+        <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none"></div>
+
+        <div className="flex justify-between items-center mb-10">
+          <h2 className="text-2xl font-bold font-display tracking-tight text-white">{title}</h2>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all active:scale-90"
+            aria-label="Close"
           >
-            ✕
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
-        {children}
+        
+        <div className="relative z-10">
+          {children}
+        </div>
       </div>
     </div>
   );

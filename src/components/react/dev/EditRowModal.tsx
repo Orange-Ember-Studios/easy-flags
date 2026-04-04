@@ -36,122 +36,125 @@ export function EditRowModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 border border-cyan-600/30 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
-        <div className="flex-shrink-0 p-6 border-b border-slate-700/50">
-          <h2 className="text-2xl font-bold text-cyan-300">
-            Edit Record in {selectedTable}
-          </h2>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-[#06080f]/70 backdrop-blur-md animate-in fade-in duration-300"
+        onClick={onClose}
+      />
+      
+      {/* Modal Container */}
+      <div className="relative bg-[#0b0e14]/95 border border-white/10 rounded-[2.5rem] shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col animate-in zoom-in-95 duration-300 overflow-hidden">
+        {/* Header Highlight - centered and faded at edges */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
+        
+        <div className="flex-shrink-0 p-10 flex justify-between items-start">
+          <div className="pt-2">
+            <h2 className="text-3xl font-bold text-white tracking-tight font-display mb-1">
+              Update Record
+            </h2>
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest">
+               <span className="w-1 h-1 rounded-full bg-blue-400 animate-pulse"></span>
+               EDITING / {selectedTable}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-500 hover:text-white transition-all hover:bg-white/10 active:scale-90"
+            aria-label="Close"
+          >
+             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-10 py-2 no-scrollbar space-y-8 pb-10 font-sans">
           {schema
             .filter((col) => !col.pk)
             .map((col) => {
-              const isPasswordField = col.name
-                .toLowerCase()
-                .includes("password");
+              const isPasswordField = col.name.toLowerCase().includes("password");
 
               return (
-                <div key={col.name}>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    {col.name}
-                    {col.notnull ? (
-                      <span className="text-red-400"> *</span>
-                    ) : (
-                      <span className="text-slate-500"> (optional)</span>
-                    )}
-                  </label>
+                <div key={col.name} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                  <div className="flex items-center justify-between mb-2.5 px-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                      {col.name}
+                      {col.notnull && <span className="text-rose-500 ml-1 font-bold">*</span>}
+                    </label>
+                    <span className="text-[9px] font-bold text-slate-600 bg-white/5 px-2 py-0.5 rounded-full uppercase border border-white/5">{col.type}</span>
+                  </div>
+
                   {isPasswordField ? (
-                    <div className="bg-gradient-to-r from-emerald-950/40 to-teal-950/40 border border-emerald-700/40 rounded-lg p-4 space-y-3">
+                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-[2rem] p-5 space-y-4 relative group">
                       <div className="flex items-center gap-2">
-                        <span className="text-emerald-400">🔐</span>
-                        <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider">
-                          Password Field
+                        <div className="w-6 h-6 flex items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <span className="text-[10px] font-bold text-blue-400/80 uppercase tracking-widest px-1">
+                          Secured Field (Bcrypt)
                         </span>
                       </div>
                       <div className="relative">
                         <input
-                          type={
-                            visiblePasswords[col.name] ? "text" : "password"
-                          }
+                          type={visiblePasswords[col.name] ? "text" : "password"}
                           value={formData[col.name] || ""}
-                          onChange={(e) =>
-                            onFormChange(col.name, e.target.value)
-                          }
-                          placeholder="Enter new password (will be hashed)"
-                          className="w-full px-3 py-2 pr-10 border border-emerald-600/50 bg-slate-700/80 text-slate-200 rounded focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 font-mono text-sm transition-all"
+                          onChange={(e) => onFormChange(col.name, e.target.value)}
+                          placeholder="Leave empty to keep existing password..."
+                          className="w-full px-5 py-4 pr-12 bg-slate-950/40 border border-blue-500/30 rounded-2xl text-white placeholder-blue-950/30 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 font-mono text-sm transition-all shadow-inner"
                         />
                         <button
                           type="button"
                           onClick={() => togglePasswordVisibility(col.name)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-400 transition-colors"
-                          title={
-                            visiblePasswords[col.name]
-                              ? "Hide password"
-                              : "Show password"
-                          }
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-950/40 hover:text-blue-400 transition-colors"
                         >
-                          {visiblePasswords[col.name] ? "👁️" : "👁️‍🗨️"}
+                          {visiblePasswords[col.name] ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88 3 3"/><path d="M2 12s3-7 10-7a10 10 0 0 1 5 1.43"/><path d="m16.62 16.62 4.38 4.38"/><path d="M19 12s-3 7-10 7a10 10 0 0 1-5-1.43"/><circle cx="12" cy="12" r="3"/><path d="m14.12 14.12 4.38 4.38"/></svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.349a12.24 12.24 0 0 1 0-0.698 12.24 12.24 0 0 1 19.876 0c.113.111.238.239.362.349a12.24 12.24 0 0 1-19.876 0Z"/><circle cx="12" cy="12" r="3"/></svg>
+                          )}
                         </button>
                       </div>
-                      <p className="text-xs text-emerald-300/80 leading-relaxed">
-                        Plain text will be securely hashed using bcrypt before
-                        saving to database.
-                      </p>
                     </div>
-                  ) : col.type.toLowerCase().includes("text") ||
-                    col.type.toLowerCase().includes("varchar") ? (
+                  ) : col.type.toLowerCase().includes("text") || col.type.toLowerCase().includes("varchar") ? (
                     <textarea
                       value={formData[col.name] || ""}
                       onChange={(e) => onFormChange(col.name, e.target.value)}
-                      placeholder={`Enter ${col.name}...`}
-                      className="w-full h-20 px-3 py-2 border border-slate-600 bg-slate-700 text-slate-200 rounded focus:outline-none focus:border-cyan-500 font-mono text-sm"
+                      placeholder={`Update content for ${col.name.toLowerCase()}...`}
+                      className="w-full h-32 px-5 py-4 bg-slate-950/40 border border-white/5 rounded-[2rem] text-white placeholder-slate-700 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 font-mono text-sm leading-relaxed transition-all resize-none shadow-inner"
                     />
                   ) : (
                     <input
-                      type={
-                        col.type.toLowerCase().includes("int")
-                          ? "number"
-                          : col.type.toLowerCase().includes("real")
-                            ? "number"
-                            : col.type.toLowerCase().includes("blob")
-                              ? "text"
-                              : "text"
-                      }
-                      step={
-                        col.type.toLowerCase().includes("real")
-                          ? "0.01"
-                          : undefined
-                      }
+                      type={ col.type.toLowerCase().includes("int") || col.type.toLowerCase().includes("real") ? "number" : "text" }
+                      step={ col.type.toLowerCase().includes("real") ? "0.01" : undefined }
                       value={formData[col.name] || ""}
                       onChange={(e) => onFormChange(col.name, e.target.value)}
-                      placeholder={`Enter ${col.name}...`}
-                      className="w-full px-3 py-2 border border-slate-600 bg-slate-700 text-slate-200 rounded focus:outline-none focus:border-cyan-500 font-mono text-sm"
+                      placeholder={`New val: ${col.name.toLowerCase()}`}
+                      className="w-full px-5 py-4 bg-slate-950/40 border border-white/5 rounded-2xl text-white placeholder-slate-700 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 font-mono text-sm transition-all shadow-inner"
                     />
                   )}
-                  <p className="text-xs text-slate-400 mt-1">
-                    Type: {col.type}
-                  </p>
                 </div>
               );
             })}
         </div>
 
-        <div className="flex-shrink-0 p-6 border-t border-slate-700/50 flex gap-4 justify-end">
+        <div className="flex-shrink-0 p-10 border-t border-white/5 flex gap-4 mt-auto">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-6 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 disabled:opacity-50 transition-colors font-medium"
+            className="flex-1 py-4 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={onEditRow}
             disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+            className="flex-1 btn-primary !py-4 shadow-xl shadow-blue-500/20 !bg-gradient-to-r !from-blue-500 !to-indigo-600"
           >
-            {loading ? "Updating..." : "Update Record"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                 <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                 Saving...
+              </span>
+            ) : "Save Changes"}
           </button>
         </div>
       </div>
