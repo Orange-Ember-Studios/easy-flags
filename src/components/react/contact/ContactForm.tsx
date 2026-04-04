@@ -1,6 +1,13 @@
 import { useState } from "react";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
-export default function ContactForm() {
+interface ContactFormProps {
+  initialLocale?: AvailableLanguages;
+}
+
+export default function ContactForm({ initialLocale }: ContactFormProps) {
+  const t = useTranslate(initialLocale);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,19 +44,19 @@ export default function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {submitted && (
-        <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm">
-          Thank you for your message. We'll get back to you soon!
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400 text-sm animate-in fade-in slide-in-from-top-2">
+          {t('contact.success')}
         </div>
       )}
 
       <div>
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-slate-300 mb-2"
+          className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1"
         >
-          Name
+          {t('contact.name')}
         </label>
         <input
           type="text"
@@ -58,17 +65,17 @@ export default function ContactForm() {
           value={formData.name}
           onChange={handleChange}
           required
-          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-          placeholder="Your name"
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
+          placeholder={t('contact.namePlaceholder')}
         />
       </div>
 
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-slate-300 mb-2"
+          className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1"
         >
-          Email
+          {t('contact.emailLabel')}
         </label>
         <input
           type="email"
@@ -77,17 +84,17 @@ export default function ContactForm() {
           value={formData.email}
           onChange={handleChange}
           required
-          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-          placeholder="your@email.com"
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
+          placeholder={t('contact.emailPlaceholder')}
         />
       </div>
 
       <div>
         <label
           htmlFor="subject"
-          className="block text-sm font-medium text-slate-300 mb-2"
+          className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1"
         >
-          Subject
+          {t('contact.subject')}
         </label>
         <input
           type="text"
@@ -96,17 +103,17 @@ export default function ContactForm() {
           value={formData.subject}
           onChange={handleChange}
           required
-          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-          placeholder="How can we help?"
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
+          placeholder={t('contact.subjectPlaceholder')}
         />
       </div>
 
       <div>
         <label
           htmlFor="message"
-          className="block text-sm font-medium text-slate-300 mb-2"
+          className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1"
         >
-          Message
+          {t('contact.message')}
         </label>
         <textarea
           id="message"
@@ -114,17 +121,17 @@ export default function ContactForm() {
           value={formData.message}
           onChange={handleChange}
           required
-          className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition resize-none h-32"
-          placeholder="Tell us more..."
+          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all h-32 resize-none text-sm font-medium"
+          placeholder={t('contact.messagePlaceholder')}
         />
       </div>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full btn-primary py-4! shadow-xl shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
       >
-        {isSubmitting ? "Sending..." : "Send Message"}
+        {isSubmitting ? t('contact.sending') : t('contact.sendMessage')}
       </button>
     </form>
   );

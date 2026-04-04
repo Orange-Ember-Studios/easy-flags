@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Modal } from "@/components/react/shared/Modals";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface Space {
   id: number;
@@ -49,12 +51,15 @@ interface SpaceMemberAPI {
 interface PermissionsViewProps {
   spaceId: string | undefined;
   canManageFeaturePermissions?: boolean;
+  initialLocale?: AvailableLanguages;
 }
 
 export default function PermissionsView({
   spaceId,
   canManageFeaturePermissions,
+  initialLocale,
 }: PermissionsViewProps) {
+  const t = useTranslate(initialLocale);
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [space, setSpace] = useState<Space | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -84,7 +89,7 @@ export default function PermissionsView({
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch team members");
+        throw new Error(t('permissions.fetchError'));
       }
 
       const data = await response.json();
@@ -107,12 +112,12 @@ export default function PermissionsView({
       setMembers(teamMembers);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to load team members";
+        err instanceof Error ? err.message : t('permissions.loadError');
       setError(message);
     } finally {
       setIsLoading(false);
     }
-  }, [spaceId]);
+  }, [spaceId, t]);
 
   const fetchSpaceInfo = useCallback(async () => {
     if (!spaceId) return;
@@ -120,13 +125,13 @@ export default function PermissionsView({
       const spaceRes = await fetch(`/api/spaces/${spaceId}`, {
         credentials: "include",
       });
-      if (!spaceRes.ok) throw new Error("Failed to fetch space");
+      if (!spaceRes.ok) throw new Error(t('permissions.spaceError'));
       const spaceData = await spaceRes.json();
       setSpace(spaceData.data || spaceData);
     } catch (err) {
       console.error("Error fetching space info:", err);
     }
-  }, [spaceId]);
+  }, [spaceId, t]);
 
   useEffect(() => {
     if (spaceId) {
@@ -155,7 +160,7 @@ export default function PermissionsView({
 
       if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.error || "Failed to invite member");
+        throw new Error(err.error || t('permissions.inviteError'));
       }
 
       await fetchTeamMembers();
@@ -164,7 +169,7 @@ export default function PermissionsView({
       setShowInviteModal(false);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to invite member";
+        err instanceof Error ? err.message : t('permissions.inviteError');
       setError(message);
     } finally {
       setIsInviting(false);
@@ -197,14 +202,14 @@ export default function PermissionsView({
 
       if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.error || "Failed to update member role");
+        throw new Error(err.error || t('permissions.updateError'));
       }
 
       await fetchTeamMembers();
       setSelectedMemberForEdit(null);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to save permissions";
+        err instanceof Error ? err.message : t('permissions.saveError');
       setError(message);
     } finally {
       setIsSaving(false);
@@ -228,7 +233,7 @@ export default function PermissionsView({
 
       if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.error || "Failed to remove member");
+        throw new Error(err.error || t('permissions.removeError'));
       }
 
       await fetchTeamMembers();
@@ -236,7 +241,7 @@ export default function PermissionsView({
       setMemberToRemove(null);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to remove member";
+        err instanceof Error ? err.message : t('permissions.removeError');
       setError(message);
     } finally {
       setIsSaving(false);
@@ -244,9 +249,9 @@ export default function PermissionsView({
   };
 
   const roleDescriptions: Record<string, string> = {
-    admin: "Full access including team management",
-    editor: "Can modify features and environments",
-    viewer: "Read-only access",
+    admin: t('permissions.adminDesc'),
+    editor: t('permissions.editorDesc'),
+    viewer: t('permissions.viewerDesc'),
   };
 
   const roleIcons: Record<string, string> = {
@@ -287,7 +292,7 @@ export default function PermissionsView({
             Team & <span className="text-gradient">Permissions</span>
           </h1>
           <p className="text-slate-400 max-w-2xl text-lg leading-relaxed">
-            Manage team members and control access to this space. Assign roles with different levels of permissions.
+            {t('permissions.description')}
           </p>
         </header>
 
@@ -310,42 +315,42 @@ export default function PermissionsView({
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white tracking-tight">
-                      Team Members
+                      {t('permissions.teamMembers')}
                     </h2>
                     <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mt-0.5">
-                      {isLoading ? "Fetching..." : `${members.length} members joined`}
+                      {isLoading ? t('permissions.fetching') : t('permissions.membersJoined', { count: members.length })}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowInviteModal(true)}
                   disabled={isLoading}
-                  className="btn-primary !px-6 !py-2.5 text-sm"
+                  className="btn-primary px-6! py-2.5! text-sm"
                 >
-                  <span className="mr-2">+</span> Invite Member
+                  <span className="mr-2">+</span> {t('permissions.inviteMember')}
                 </button>
               </div>
 
               {isLoading ? (
                 <div className="py-20 flex flex-col items-center justify-center gap-4">
                   <div className="w-10 h-10 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
-                  <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-600">Loading Team...</p>
+                  <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-600">{t('permissions.loadingTeam')}</p>
                 </div>
               ) : members.length === 0 ? (
-                <div className="text-center py-20 bg-white/2 border border-dashed border-white/10 rounded-[2rem]">
+                <div className="text-center py-20 bg-white/2 border border-dashed border-white/10 rounded-4xl">
                   <span className="text-4xl mb-4 block">🏝️</span>
-                  <p className="text-slate-400 font-medium">No team members yet</p>
-                  <p className="text-slate-600 text-sm mt-1">Start by inviting your colleagues.</p>
+                  <p className="text-slate-400 font-medium">{t('permissions.noMembers')}</p>
+                  <p className="text-slate-600 text-sm mt-1">{t('permissions.inviteColleagues')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {members.map((member) => (
                     <div
                       key={member.id}
-                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/2 border border-white/5 rounded-[1.5rem] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300"
+                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/2 border border-white/5 rounded-3xl hover:bg-white/4 hover:border-white/10 transition-all duration-300"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-white font-bold border border-white/10 group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-slate-700 to-slate-800 flex items-center justify-center text-white font-bold border border-white/10 group-hover:scale-110 transition-transform">
                           {member.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -353,7 +358,7 @@ export default function PermissionsView({
                             {member.name}
                             {space && member.user_id === space.owner_id && (
                               <span className="ml-2 text-[10px] font-black uppercase tracking-widest bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30">
-                                Owner
+                                {t('permissions.owner')}
                               </span>
                             )}
                           </p>
@@ -366,7 +371,7 @@ export default function PermissionsView({
                           className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${roleColors[member.role].bg} ${roleColors[member.role].text} ${roleColors[member.role].border} ${roleColors[member.role].glow}`}
                         >
                           <span className="text-xs">{roleIcons[member.role]}</span>
-                          {member.role}
+                          {t(`permissions.${member.role}`)}
                         </span>
                         
                         {space && member.user_id !== space.owner_id && (
@@ -375,7 +380,7 @@ export default function PermissionsView({
                               onClick={() => handleEditMember(member)}
                               disabled={isSaving}
                               className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 disabled:opacity-50"
-                              title="Edit permissions"
+                              title={t('permissions.editPermissions')}
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                             </button>
@@ -383,7 +388,7 @@ export default function PermissionsView({
                               onClick={() => setMemberToRemove(member)}
                               disabled={isSaving}
                               className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-95 disabled:opacity-50"
-                              title="Remove user"
+                              title={t('permissions.removeUser')}
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                             </button>
@@ -403,11 +408,11 @@ export default function PermissionsView({
                     <span className="text-2xl">📬</span>
                   </div>
                   <h2 className="text-xl font-bold text-white tracking-tight">
-                    Pending Invitations
+                    {t('permissions.pendingInvitations')}
                   </h2>
                 </div>
-              <div className="text-center py-12 bg-white/2 border border-dashed border-white/10 rounded-[1.5rem]">
-                <p className="text-slate-500 font-medium">No pending invitations</p>
+              <div className="text-center py-12 bg-white/2 border border-dashed border-white/10 rounded-3xl">
+                <p className="text-slate-500 font-medium">{t('permissions.noPending')}</p>
               </div>
             </div>
           </div>
@@ -420,19 +425,19 @@ export default function PermissionsView({
                 <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
                   <span className="text-xl">🔐</span>
                 </div>
-                <h2 className="text-xl font-bold text-white tracking-tight">Roles Guide</h2>
+                <h2 className="text-xl font-bold text-white tracking-tight">{t('permissions.rolesGuide')}</h2>
               </div>
 
               <div className="space-y-4">
                 {(Object.entries(roleIcons) as Array<[keyof typeof roleIcons, string]>).map(([role, icon]) => (
                   <div
                     key={role}
-                    className={`p-4 border rounded-[1.5rem] transition-colors ${roleColors[role].bg} ${roleColors[role].border}`}
+                    className={`p-4 border rounded-3xl transition-colors ${roleColors[role].bg} ${roleColors[role].border}`}
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-lg">{icon}</span>
                       <p className={`text-xs font-black uppercase tracking-[0.2em] ${roleColors[role].text}`}>
-                        {role}
+                        {t(`permissions.${role}`)}
                       </p>
                     </div>
                     <p className="text-xs text-slate-400 font-medium leading-relaxed">
@@ -445,19 +450,19 @@ export default function PermissionsView({
               <div className="mt-8 pt-6 border-t border-white/5 space-y-4">
                 <div className="bg-cyan-500/5 border border-cyan-500/10 rounded-2xl p-4 flex gap-3">
                   <span className="text-cyan-400 text-lg">💡</span>
-                  <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
-                    <span className="text-cyan-400 font-bold block mb-1">PRO TIP</span>
-                    A space must have at least one administrator. We recommend having at least two.
-                  </p>
+                  <div className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                    <span className="text-cyan-400 font-bold block mb-1">{t('permissions.proTip')}</span>
+                    {t('permissions.proTipDesc')}
+                  </div>
                 </div>
                 
                 {canManageFeaturePermissions && (
                   <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4 flex gap-3">
                     <span className="text-amber-400 text-lg">ⓘ</span>
-                    <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
-                      <span className="text-amber-400 font-bold block mb-1">SYSTEM ROLES</span>
-                      Super Admin roles are managed by system administrators.
-                    </p>
+                    <div className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                      <span className="text-amber-400 font-bold block mb-1">{t('permissions.systemRoles')}</span>
+                      {t('permissions.systemRolesDesc')}
+                    </div>
                   </div>
                 )}
               </div>
@@ -471,18 +476,18 @@ export default function PermissionsView({
         id="invite-member-modal"
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
-        title="Invite Team Member"
+        title={t('permissions.inviteModalTitle')}
       >
         <form onSubmit={handleInviteMember} className="space-y-6">
           <div className="space-y-2">
             <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 px-1">
-              Email Address
+              {t('permissions.emailLabel')}
             </label>
             <input
               type="email"
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
-              placeholder="colleague@example.com"
+              placeholder={t('permissions.emailPlaceholder')}
               disabled={isInviting}
               className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
               required
@@ -491,7 +496,7 @@ export default function PermissionsView({
 
           <div className="space-y-2">
             <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 px-1">
-              Assign Role
+              {t('permissions.assignRole')}
             </label>
             <div className="grid grid-cols-1 gap-2">
               {(["admin", "editor", "viewer"] as const).map((role) => (
@@ -514,7 +519,7 @@ export default function PermissionsView({
                   <span className="text-xl">{roleIcons[role]}</span>
                   <div className="flex-1">
                     <p className={`text-xs font-bold uppercase tracking-widest ${inviteRole === role ? "text-cyan-400" : "text-white"}`}>
-                      {role}
+                      {t(`permissions.${role}`)}
                     </p>
                     <p className="text-[10px] text-slate-500 font-medium">
                       {roleDescriptions[role]}
@@ -533,16 +538,16 @@ export default function PermissionsView({
               type="button"
               onClick={() => setShowInviteModal(false)}
               disabled={isInviting}
-              className="btn-secondary !flex-1 !py-3"
+              className="btn-secondary flex-1! py-3!"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={isInviting}
-              className="btn-primary !flex-1 !py-3"
+              className="btn-primary flex-1! py-3!"
             >
-              {isInviting ? "Sending..." : "Send Invitation"}
+              {isInviting ? t('permissions.sending') : t('permissions.sendInvitation')}
             </button>
           </div>
         </form>
@@ -552,12 +557,12 @@ export default function PermissionsView({
         id="edit-permissions-modal"
         isOpen={!!selectedMemberForEdit}
         onClose={() => setSelectedMemberForEdit(null)}
-        title="Edit Permissions"
+        title={t('permissions.editModalTitle')}
       >
         {selectedMemberForEdit && (
           <div className="space-y-6">
             <div className="flex items-center gap-4 p-5 bg-white/2 border border-white/10 rounded-3xl mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-white/10">
+              <div className="w-12 h-12 bg-linear-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-white/10">
                 <span className="text-2xl">👤</span>
               </div>
               <div>
@@ -568,7 +573,7 @@ export default function PermissionsView({
 
             <div className="space-y-2">
               <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 px-1">
-                New Role
+                {t('permissions.newRole')}
               </label>
               <div className="grid grid-cols-1 gap-2">
                 {(["admin", "editor", "viewer"] as const).map((role) => (
@@ -591,7 +596,7 @@ export default function PermissionsView({
                     <span className="text-xl">{roleIcons[role]}</span>
                     <div className="flex-1">
                       <p className={`text-xs font-bold uppercase tracking-widest ${editingRole === role ? "text-cyan-400" : "text-white"}`}>
-                        {role}
+                        {t(`permissions.${role}`)}
                       </p>
                       <p className="text-[10px] text-slate-500 font-medium">
                         {roleDescriptions[role]}
@@ -607,16 +612,16 @@ export default function PermissionsView({
                 <button
                   onClick={() => setSelectedMemberForEdit(null)}
                   disabled={isSaving}
-                  className="btn-secondary !flex-1 !py-3"
+                  className="btn-secondary flex-1! py-3!"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleSavePermissions}
                   disabled={isSaving}
-                  className="btn-primary !flex-1 !py-3"
+                  className="btn-primary flex-1! py-3!"
                 >
-                  {isSaving ? "Saving..." : "Save Changes"}
+                  {isSaving ? t('permissions.saving') : t('permissions.saveChanges')}
                 </button>
               </div>
               <button
@@ -626,7 +631,7 @@ export default function PermissionsView({
                 }}
                 className="w-full py-2 text-red-500/50 hover:text-red-400 text-[10px] font-black uppercase tracking-[0.3em] transition-colors"
               >
-                Remove from Team
+                {t('permissions.removeFromTeam')}
               </button>
             </div>
           </div>
@@ -637,31 +642,30 @@ export default function PermissionsView({
         id="remove-member-modal"
         isOpen={!!memberToRemove}
         onClose={() => setMemberToRemove(null)}
-        title="Confirm Removal"
+        title={t('permissions.confirmRemovalTitle')}
       >
         {memberToRemove && (
           <div className="space-y-6">
             <div className="text-center p-8 bg-red-500/5 border border-red-500/10 rounded-3xl">
               <span className="text-5xl mb-6 block">⚠️</span>
-              <p className="text-lg font-bold text-white tracking-tight mb-2">Remove Member?</p>
+              <p className="text-lg font-bold text-white tracking-tight mb-2">{t('permissions.removeMemberQ')}</p>
               <p className="text-slate-400 text-sm leading-relaxed">
-                You are about to remove <span className="text-white font-bold">{memberToRemove.name}</span>. 
-                They will immediately lose all access to this space and its configurations.
+                {t('permissions.removeMemberDesc', { name: memberToRemove.name })}
               </p>
             </div>
 
             <div className="flex gap-4 pt-4">
               <button
                 onClick={() => setMemberToRemove(null)}
-                className="btn-secondary !flex-1 !py-3"
+                className="btn-secondary flex-1! py-3!"
               >
-                Keep Member
+                {t('permissions.keepMember')}
               </button>
               <button
                 onClick={() => handleRemoveMember(memberToRemove.id)}
-                className="!flex-1 py-3 rounded-full bg-red-500 hover:bg-red-400 text-white font-bold font-display tracking-widest text-[10px] uppercase transition-all shadow-lg shadow-red-500/20 active:scale-95"
+                className="flex-1! py-3! rounded-full bg-red-500 hover:bg-red-400 text-white font-bold font-display tracking-widest text-[10px] uppercase transition-all shadow-lg shadow-red-500/20 active:scale-95"
               >
-                Confirm Removal
+                {t('permissions.confirmRemoval')}
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTranslator } from './translator';
+import { createTranslator } from '@/infrastructure/i18n/translator';
 
 describe('Translator', () => {
   const translations = {

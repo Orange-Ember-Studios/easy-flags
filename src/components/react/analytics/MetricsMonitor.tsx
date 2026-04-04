@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface MetricsData {
   spaceId: string;
@@ -22,6 +24,7 @@ interface MetricsData {
 
 interface MetricsMonitorProps {
   userId: string | number;
+  initialLocale?: AvailableLanguages;
 }
 
 // Custom Icons
@@ -66,7 +69,8 @@ function getDateRange(timeRange: "24h" | "7d" | "30d"): { from: string; to: stri
   };
 }
 
-export default function MetricsMonitor({ userId }: MetricsMonitorProps) {
+export default function MetricsMonitor({ userId, initialLocale }: MetricsMonitorProps) {
+  const t = useTranslate(initialLocale);
   const [metrics, setMetrics] = useState<MetricsData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +93,7 @@ export default function MetricsMonitor({ userId }: MetricsMonitorProps) {
 
         const response = await fetch(`/api/analytics/metrics?${params}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch metrics");
+          throw new Error(t('metrics.fetchError'));
         }
         const rawData = await response.json();
         
@@ -117,12 +121,12 @@ export default function MetricsMonitor({ userId }: MetricsMonitorProps) {
           space.totalEvaluations += metric.total_evaluations || 0;
           space.flagCount += 1;
           space.averageEvaluationTime = metric.avg_evaluation_time_ms || 0;
-          space.errorRate = metric.error_count > 0 ? ((metric.error_count / metric.total_evaluations) * 100) : 0;
+          space.errorRate = metric.total_evaluations > 0 ? ((metric.error_count || 0) / metric.total_evaluations) * 100 : 0;
         });
         
         setMetrics(Array.from(spacesMap.values()));
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
+        setError(err instanceof Error ? err.message : t('common.noResults'));
       } finally {
         setLoading(false);
       }
@@ -144,33 +148,39 @@ export default function MetricsMonitor({ userId }: MetricsMonitorProps) {
         )
       : 0;
 
+  const timeRangeOptions = [
+    { key: "24h" as const, label: t('metrics.last24h'), short: "24H" },
+    { key: "7d" as const, label: t('metrics.last7d'), short: "7D" },
+    { key: "30d" as const, label: t('metrics.last30d'), short: "30D" },
+  ];
+
   return (
     <div className="px-4 py-8 md:p-8 w-full max-w-7xl mx-auto animate-in fade-in duration-700">
       {/* Header */}
       <div className="mb-10 text-center md:text-left relative">
         <div className="absolute -top-20 -left-20 w-40 h-40 bg-cyan-500/10 blur-[100px] rounded-full"></div>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-          Metrics <span className="text-gradient">Dashboard</span>
+          {t('metrics.title').split(" Dashboard")[0]} <span className="text-gradient">{t('metrics.title').includes("Dashboard") ? "Dashboard" : "Tablero"}</span>
         </h1>
         <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto md:mx-0">
-          Real-time insights into your feature flag performance and system health across all monitored spaces.
+          {t('metrics.description')}
         </p>
       </div>
 
       {/* Time Range Selector */}
       <div className="flex items-center gap-2 sm:gap-3 mb-10 pb-2 overflow-x-auto no-scrollbar">
-        {(["24h", "7d", "30d"] as const).map((range) => (
+        {timeRangeOptions.map((option) => (
           <button
-            key={range}
-            onClick={() => setTimeRange(range)}
+            key={option.key}
+            onClick={() => setTimeRange(option.key)}
             className={`shrink-0 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-sm sm:base font-semibold transition-all duration-300 border ${
-              timeRange === range
+              timeRange === option.key
                 ? "bg-cyan-500 border-cyan-400 text-white shadow-lg shadow-cyan-500/25"
                 : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <span className="sm:hidden">{range.toUpperCase()}</span>
-            <span className="hidden sm:inline">Last {range === "24h" ? "24 Hours" : range === "7d" ? "7 Days" : "30 Days"}</span>
+            <span className="sm:hidden">{option.short}</span>
+            <span className="hidden sm:inline">{option.label}</span>
           </button>
         ))}
       </div>
@@ -178,25 +188,25 @@ export default function MetricsMonitor({ userId }: MetricsMonitorProps) {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
         <SummaryCard
-          title="Total Evaluations"
-          value={totalEvaluations.toLocaleString()}
+          title={t('metrics.totalEvaluations')}
+          value={totalEvaluations.toLocaleString(initialLocale || "en-US")}
           icon={<Icons.Chart />}
           color="cyan"
         />
         <SummaryCard
-          title="Spaces Monitored"
+          title={t('metrics.spacesMonitored')}
           value={metrics.length.toString()}
           icon={<Icons.Layers />}
           color="blue"
         />
         <SummaryCard
-          title="Error Rate"
+          title={t('metrics.errorRate')}
           value={`${(totalErrors / Math.max(totalEvaluations, 1)).toFixed(2)}%`}
           icon={<Icons.Alert />}
           color={totalErrors > 0 ? "red" : "green"}
         />
         <SummaryCard
-          title="Avg Response Time"
+          title={t('metrics.avgResponseTime')}
           value={`${avgResponseTime}ms`}
           icon={<Icons.Clock />}
           color="purple"
@@ -215,19 +225,20 @@ export default function MetricsMonitor({ userId }: MetricsMonitorProps) {
       {loading && (
         <div className="flex flex-col justify-center items-center py-24 gap-4">
           <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
-          <p className="text-slate-400 font-medium">Fetching real-time metrics...</p>
+          <p className="text-slate-400 font-medium">{t('metrics.fetching')}</p>
         </div>
       )}
 
       {/* Metrics by Space */}
       {!loading && metrics.length > 0 && (
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-white mb-6 px-1">Monitored Spaces</h2>
+          <h2 className="text-2xl font-bold text-white mb-6 px-1">{t('metrics.monitoredSpaces')}</h2>
           {metrics.map((space) => (
             <SpaceMetricsCard
               key={space.spaceId}
               space={space}
               isSelected={selectedSpace === space.spaceId}
+              initialLocale={initialLocale}
               onSelect={() =>
                 setSelectedSpace(
                   selectedSpace === space.spaceId ? null : space.spaceId
@@ -244,11 +255,11 @@ export default function MetricsMonitor({ userId }: MetricsMonitorProps) {
           <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 text-slate-500">
              <Icons.Chart />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">No data yet</h3>
+          <h3 className="text-xl font-bold text-white mb-2">{t('metrics.noData')}</h3>
           <p className="text-slate-400 mb-8">
-            Start evaluating feature flags in your application to see performance metrics here.
+            {t('metrics.noDataDesc')}
           </p>
-          <a href="/docs" className="btn-primary">Learn how to integrate</a>
+          <a href="/docs" className="btn-primary">{t('metrics.learnHowToIntegrate')}</a>
         </div>
       )}
     </div>
@@ -300,9 +311,11 @@ interface SpaceMetricsCardProps {
   space: MetricsData;
   isSelected: boolean;
   onSelect: () => void;
+  initialLocale?: AvailableLanguages;
 }
 
-function SpaceMetricsCard({ space, isSelected, onSelect }: SpaceMetricsCardProps) {
+function SpaceMetricsCard({ space, isSelected, onSelect, initialLocale }: SpaceMetricsCardProps) {
+  const t = useTranslate(initialLocale);
   return (
     <div 
       className={`card p-0! overflow-hidden transition-all duration-500 group ${
@@ -322,16 +335,16 @@ function SpaceMetricsCard({ space, isSelected, onSelect }: SpaceMetricsCardProps
           </div>
           <p className="text-slate-400 font-medium flex items-center gap-2">
             <span className="w-1 h-1 rounded-full bg-slate-600"></span>
-            {space.flagCount} active feature flags
+            {t('metrics.activeFeatureFlags', { count: space.flagCount })}
           </p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 md:flex md:items-center gap-8 md:gap-12">
-          <MetricItem label="Evaluations" value={space.totalEvaluations.toLocaleString()} />
-          <MetricItem label="Users" value={space.uniqueUsers.toLocaleString()} />
-          <MetricItem label="Latency" value={`${space.averageEvaluationTime.toFixed(1)}ms`} />
+          <MetricItem label={t('metrics.evaluations')} value={space.totalEvaluations.toLocaleString(initialLocale || "en-US")} />
+          <MetricItem label={t('metrics.users')} value={space.uniqueUsers.toLocaleString(initialLocale || "en-US")} />
+          <MetricItem label={t('metrics.latency')} value={`${space.averageEvaluationTime.toFixed(1)}ms`} />
           <MetricItem 
-            label="Errors" 
+            label={t('metrics.errors')} 
             value={`${space.errorRate.toFixed(2)}%`} 
             highlight={space.errorRate > 0} 
           />
@@ -350,8 +363,8 @@ function SpaceMetricsCard({ space, isSelected, onSelect }: SpaceMetricsCardProps
       }`}>
         <div className="p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
-            <h4 className="text-lg font-bold text-white">Top Performing Flags</h4>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Usage Distribution</span>
+            <h4 className="text-lg font-bold text-white">{t('metrics.topPerformingFlags')}</h4>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('metrics.usageDistribution')}</span>
           </div>
 
           {space.topFlags.length > 0 ? (
@@ -361,18 +374,18 @@ function SpaceMetricsCard({ space, isSelected, onSelect }: SpaceMetricsCardProps
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm font-mono text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded ring-1 ring-cyan-500/20">{flag.key}</p>
                     <p className="text-xs font-bold text-slate-500">
-                      {flag.evaluations.toLocaleString()} evals
+                      {flag.evaluations.toLocaleString(initialLocale || "en-US")} {t('metrics.evaluations').toLowerCase()}
                     </p>
                   </div>
                   
                   <div className="space-y-4">
                     <ProgressItem 
-                      label="Enabled" 
+                      label={t('metrics.enabled')} 
                       percentage={(flag.enabled / flag.evaluations) * 100} 
                       color="bg-emerald-500" 
                     />
                     <ProgressItem 
-                      label="Disabled" 
+                      label={t('metrics.disabled')} 
                       percentage={(flag.disabled / flag.evaluations) * 100} 
                       color="bg-slate-500" 
                     />
@@ -382,7 +395,7 @@ function SpaceMetricsCard({ space, isSelected, onSelect }: SpaceMetricsCardProps
             </div>
           ) : (
             <div className="py-8 text-center border-2 border-dashed border-white/5 rounded-3xl">
-              <p className="text-slate-500">Detailed flag data not available for this period.</p>
+              <p className="text-slate-500">{t('metrics.detailsNotAvailable')}</p>
             </div>
           )}
         </div>

@@ -2,7 +2,9 @@
 import { getUserFromContext } from "@/utils/auth";
 import { isSuperUser } from "@/utils/permissions";
 import HeaderDropdown from "@/components/react/shared/HeaderDropdown";
+import { getTranslator } from "@/infrastructure/i18n/astro";
 
+const { t } = getTranslator(Astro.request);
 const user = getUserFromContext(Astro);
 // Get current path safely - for prerendered pages, this will be undefined
 let currentPath = "";
@@ -22,27 +24,27 @@ const isActive = (path: string) => {
 const navItems = {
   pricing: {
     href: "/billing",
-    label: "Pricing",
+    label: t('navigation.pricing') || "Pricing",
     showFor: !user,
   },
   spaces: {
     href: "/spaces",
-    label: "Spaces",
+    label: t('navigation.spaces') || "Spaces",
     showFor: !!user,
   },
   metrics: {
     href: "/metrics",
-    label: "Metrics",
+    label: t('navigation.metrics') || "Metrics",
     showFor: !!user,
   },
   docs: {
     href: "/docs",
-    label: "Docs",
+    label: t('navigation.docs') || "Docs",
     showFor: true,
   },
   login: {
     href: "/login",
-    label: "Login",
+    label: t('auth.login') || "Login",
     showFor: !user,
   },
 };
@@ -68,14 +70,14 @@ const getNavLinkClass = (href: string) => {
 <header id="main-header" class="sticky top-0 z-50 w-full border-b border-white/5 bg-[#06080f]/80 backdrop-blur-xl transition-all duration-300">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
     <div class="flex items-center gap-2">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+      <div class="w-10 h-10 rounded-xl bg-linear-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
         </svg>
       </div>
       <a
         href="/"
-        class="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-white to-slate-400 bg-clip-text text-transparent font-display"
+        class="text-2xl font-bold tracking-tight bg-linear-to-r from-white via-white to-slate-400 bg-clip-text text-transparent font-display"
       >
         Easy Flags
       </a>
@@ -143,8 +145,8 @@ const getNavLinkClass = (href: string) => {
               >
                 {navItems.login.label}
               </a>
-              <a href="/create-account" class="btn-primary text-sm !px-6 !py-2.5">
-                Get Started
+              <a href="/create-account" class="btn-primary text-sm px-6! py-2.5!">
+                {t('auth.getStarted') || "Get Started"}
               </a>
             </>
           )
@@ -156,7 +158,7 @@ const getNavLinkClass = (href: string) => {
     <div class="flex items-center md:hidden">
       <button 
         id="mobile-menu-button"
-        class="relative z-[10000] p-2 text-slate-400 hover:text-white transition-colors focus:outline-none"
+        class="relative z-10000 p-2 text-slate-400 hover:text-white transition-colors focus:outline-none"
         aria-label="Toggle Menu"
       >
         <div class="w-7 h-5 flex flex-col justify-between items-end">
@@ -172,7 +174,7 @@ const getNavLinkClass = (href: string) => {
 
 <div 
   id="mobile-menu" 
-  class="fixed inset-0 bg-[#06080f] z-[9999] flex flex-col items-center justify-center opacity-0 pointer-events-none transition-all duration-300 ease-in-out"
+  class="fixed inset-0 bg-[#06080f] z-9999 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-all duration-300 ease-in-out"
   style="background-color: #06080f; opacity: 0; visibility: hidden;"
 >
   <!-- Background Glows -->
@@ -225,7 +227,7 @@ const getNavLinkClass = (href: string) => {
       user ? (
         <div class="flex flex-col items-center gap-8">
           <div class="flex flex-col items-center gap-3">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-cyan-500/20">
+            <div class="w-16 h-16 rounded-2xl bg-linear-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-cyan-500/20">
               {user.username.charAt(0).toUpperCase()}
             </div>
             <span class="text-white text-xl font-medium tracking-tight">{user.username}</span>
@@ -253,7 +255,7 @@ const getNavLinkClass = (href: string) => {
             {navItems.login.label}
           </a>
           <a href="/create-account" class="w-full btn-primary text-center py-5 rounded-2xl shadow-none">
-            Get Started
+            {t('auth.getStarted') || "Get Started"}
           </a>
         </div>
       )

@@ -2,71 +2,67 @@
 export const prerender = false;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getTranslator } from "@/infrastructure/i18n/astro";
+
+const { t } = getTranslator(Astro.request);
 ---
 
-<BaseLayout title="Privacy Policy" includeHeader={true}>
+<BaseLayout title={t('privacy.title')} includeHeader={true}>
   <article class="max-w-4xl mx-auto py-12">
-    <h1 class="text-4xl font-bold text-gradient mb-6">Privacy Policy</h1>
+    <h1 class="text-4xl font-bold text-gradient mb-6">{t('privacy.title')}</h1>
 
     <div class="card space-y-6 text-slate-300 prose-invert">
       <section>
-        <h2 class="text-2xl font-bold text-cyan-300 mb-3">Introduction</h2>
+        <h2 class="text-2xl font-bold text-cyan-300 mb-3">{t('privacy.introTitle')}</h2>
         <p class="text-slate-400">
-          Easy Flags is committed to protecting your privacy. This Privacy
-          Policy explains how we collect, use, disclose, and safeguard your
-          information.
+          {t('privacy.introDesc')}
         </p>
       </section>
 
       <section>
         <h2 class="text-2xl font-bold text-cyan-300 mb-3">
-          Information We Collect
+          {t('privacy.collectTitle')}
         </h2>
         <p class="text-slate-400 mb-4">
-          We may collect information about you in a variety of ways, including:
+          {t('privacy.collectDesc')}
         </p>
         <ul class="list-disc list-inside text-slate-400 space-y-2 ml-4">
           <li>
-            <strong>Personal Data:</strong> When you register an account, we collect
-            your name, email, and password.
+            {t('privacy.personalData')}
           </li>
           <li>
-            <strong>Feature Data:</strong> Information about your feature flags and
-            environments.
+            {t('privacy.featureData')}
           </li>
           <li>
-            <strong>Usage Data:</strong> How you interact with our platform.
+            {t('privacy.usageData')}
           </li>
         </ul>
       </section>
 
       <section>
         <h2 class="text-2xl font-bold text-cyan-300 mb-3">
-          How We Use Your Information
+          {t('privacy.useTitle')}
         </h2>
-        <p class="text-slate-400 mb-4">We use the information we collect to:</p>
+        <p class="text-slate-400 mb-4">{t('privacy.useDesc')}</p>
         <ul class="list-disc list-inside text-slate-400 space-y-2 ml-4">
-          <li>Provide and maintain our services</li>
-          <li>Improve and optimize our platform</li>
-          <li>Communicate with you about updates and features</li>
-          <li>Monitor and analyze usage patterns</li>
+          <li>{t('privacy.useItem1')}</li>
+          <li>{t('privacy.useItem2')}</li>
+          <li>{t('privacy.useItem3')}</li>
+          <li>{t('privacy.useItem4')}</li>
         </ul>
       </section>
 
       <section>
-        <h2 class="text-2xl font-bold text-cyan-300 mb-3">Data Security</h2>
+        <h2 class="text-2xl font-bold text-cyan-300 mb-3">{t('privacy.securityTitle')}</h2>
         <p class="text-slate-400">
-          We implement appropriate technical and organizational measures to
-          protect your personal data against unauthorized access, alteration,
-          disclosure, or destruction.
+          {t('privacy.securityDesc')}
         </p>
       </section>
 
       <section>
-        <h2 class="text-2xl font-bold text-cyan-300 mb-3">Contact Us</h2>
+        <h2 class="text-2xl font-bold text-cyan-300 mb-3">{t('privacy.contactTitle')}</h2>
         <p class="text-slate-400">
-          If you have any questions about this Privacy Policy, please contact us
-          at privacy@easyflags.com
+          {t('privacy.contactDesc')}
         </p>
       </section>
     </div>

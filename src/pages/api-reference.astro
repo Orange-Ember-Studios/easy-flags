@@ -2,18 +2,20 @@
 export const prerender = false;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getTranslator } from "@/infrastructure/i18n/astro";
+
+const { t } = getTranslator(Astro.request);
 ---
 
-<BaseLayout title="API Reference" includeHeader={true}>
+<BaseLayout title={t('apiReference.title')} includeHeader={true}>
   <article class="max-w-4xl mx-auto py-12">
-    <h1 class="text-4xl font-bold text-gradient mb-6">API Reference</h1>
+    <h1 class="text-4xl font-bold text-gradient mb-6">{t('apiReference.title')}</h1>
 
     <div class="card space-y-6">
       <section>
-        <h2 class="text-2xl font-bold text-cyan-300 mb-3">Authentication</h2>
+        <h2 class="text-2xl font-bold text-cyan-300 mb-3">{t('apiReference.authTitle')}</h2>
         <p class="text-slate-400 mb-4">
-          All API requests require a valid JWT token in the Authorization
-          header.
+          {t('apiReference.authDesc')}
         </p>
         <pre
           class="bg-slate-900 p-4 rounded-lg overflow-x-auto"><code>Authorization: Bearer YOUR_JWT_TOKEN</code></pre>
@@ -24,14 +26,14 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
           POST /api/auth/login
         </h3>
         <p class="text-slate-400 mb-4">
-          Authenticate a user and get a JWT token.
+          {t('apiReference.loginDesc')}
         </p>
       </section>
 
       <section>
         <h3 class="text-xl font-bold text-cyan-300 mb-3">GET /api/spaces</h3>
         <p class="text-slate-400 mb-4">
-          List all spaces for the authenticated user.
+          {t('apiReference.spacesDesc')}
         </p>
       </section>
 
@@ -40,7 +42,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
           POST /api/spaces/:spaceId/features
         </h3>
         <p class="text-slate-400 mb-4">
-          Create a new feature in the specified space.
+          {t('apiReference.createFeatureDesc')}
         </p>
       </section>
 
@@ -48,7 +50,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
         <h3 class="text-xl font-bold text-cyan-300 mb-3">
           GET /api/spaces/:spaceId/environments
         </h3>
-        <p class="text-slate-400 mb-4">Get all environments in a space.</p>
+        <p class="text-slate-400 mb-4">{t('apiReference.getEnvsDesc')}</p>
       </section>
     </div>
   </article>

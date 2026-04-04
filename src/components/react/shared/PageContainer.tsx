@@ -1,4 +1,5 @@
 import SpaceNavigation from "@/components/react/shared/SpaceNavigation";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface PageContainerProps {
   children: React.ReactNode;
@@ -9,6 +10,7 @@ interface PageContainerProps {
     name: string;
     path?: string;
   };
+  initialLocale?: AvailableLanguages;
 }
 
 export default function PageContainer({
@@ -17,6 +19,7 @@ export default function PageContainer({
   spaceName,
   currentTab,
   subPage,
+  initialLocale,
 }: PageContainerProps) {
   return (
     <div className="min-h-screen">
@@ -26,6 +29,7 @@ export default function PageContainer({
           spaceName={spaceName}
           currentTab={currentTab}
           subPage={subPage}
+          initialLocale={initialLocale}
         />
         {children}
       </div>

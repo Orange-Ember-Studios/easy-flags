@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface RolePermission {
   roleId: number;
@@ -9,11 +11,14 @@ interface RolePermission {
 
 interface FeaturesPermissionsViewProps {
   spaceId: string | undefined;
+  initialLocale?: AvailableLanguages;
 }
 
 export default function FeaturesPermissionsView({
   spaceId,
+  initialLocale,
 }: FeaturesPermissionsViewProps) {
+  const t = useTranslate(initialLocale);
   const [permissions, setPermissions] = useState<RolePermission[]>([]);
   const [availableFeatures, setAvailableFeatures] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,7 +52,7 @@ export default function FeaturesPermissionsView({
         const data = await response.json();
         setMessage({
           type: "error",
-          text: data.error || "Failed to load permissions",
+          text: data.error || t('globalPermissions.fetchError'),
         });
         return;
       }
@@ -75,7 +80,7 @@ export default function FeaturesPermissionsView({
       console.error("Failed to fetch permissions:", error);
       setMessage({
         type: "error",
-        text: "Failed to load feature permissions",
+        text: t('globalPermissions.featureFetchError'),
       });
     } finally {
       setIsLoading(false);
@@ -193,12 +198,12 @@ export default function FeaturesPermissionsView({
       if (!hasError) {
         setMessage({
           type: "success",
-          text: `Successfully updated feature permissions (${successCount} changes)`,
+          text: t('globalPermissions.updateSuccess', { count: successCount }),
         });
       } else {
         setMessage({
           type: "error",
-          text: "Some changes may not have been saved. Please check and try again.",
+          text: t('globalPermissions.saveWarning'),
         });
       }
 
@@ -207,7 +212,7 @@ export default function FeaturesPermissionsView({
       console.error("Failed to save permissions:", error);
       setMessage({
         type: "error",
-        text: "Failed to save feature permissions",
+        text: t('globalPermissions.saveError'),
       });
     } finally {
       setIsSaving(false);
@@ -215,13 +220,13 @@ export default function FeaturesPermissionsView({
   };
 
   const featureDescriptions: Record<string, string> = {
-    feature_flags: "Manage feature flags and rollouts",
-    spaces: "Create and manage spaces",
-    environments: "Manage deployment environments",
-    billing: "Access billing and subscription settings",
-    settings: "Access application settings",
-    database_inspector: "Access database inspector (super user only)",
-    api_reference: "View API reference and documentation",
+    feature_flags: t('globalPermissions.featureFlagsDesc'),
+    spaces: t('globalPermissions.spacesDesc'),
+    environments: t('globalPermissions.environmentsDesc'),
+    billing: t('globalPermissions.billingDesc'),
+    settings: t('globalPermissions.settingsDesc'),
+    database_inspector: t('globalPermissions.dbInspectorDesc'),
+    api_reference: t('globalPermissions.apiReferenceDesc'),
   };
 
   const featureIcons: Record<string, string> = {
@@ -242,7 +247,7 @@ export default function FeaturesPermissionsView({
       <div className="py-20 flex flex-col items-center justify-center gap-4">
         <div className="w-10 h-10 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
         <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-600">
-          Loading Permissions...
+          {t('globalPermissions.loadingPermissions')}
         </p>
       </div>
     );
@@ -255,8 +260,7 @@ export default function FeaturesPermissionsView({
           Role <span className="text-gradient">Permissions</span>
         </h1>
         <p className="text-slate-400 max-w-2xl text-lg leading-relaxed">
-          Global configuration for what each system role can access. This
-          affects all spaces and environments.
+          {t('globalPermissions.roleDesc')}
         </p>
       </header>
 
@@ -277,9 +281,9 @@ export default function FeaturesPermissionsView({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Roles List - Left Sidebar */}
         <div className="lg:col-span-3">
-          <div className="card !p-4 space-y-2 sticky top-8">
+          <div className="card p-4! space-y-2 sticky top-8">
             <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4 px-3">
-              System Roles
+              {t('globalPermissions.systemRoles')}
             </h2>
             <div className="space-y-1.5">
               {permissions.map((perm) => (
@@ -294,7 +298,7 @@ export default function FeaturesPermissionsView({
                 >
                   <div className="font-bold text-sm">{perm.roleName}</div>
                   <div className="text-[10px] font-medium opacity-60">
-                    {perm.features.length} active features
+                    {t('globalPermissions.activeFeatures', { count: perm.features.length })}
                   </div>
                 </button>
               ))}
@@ -319,11 +323,10 @@ export default function FeaturesPermissionsView({
                   </div>
                   <div className="px-4 py-2 bg-white/2 border border-white/5 rounded-2xl min-w-fit">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">
-                      Status
+                      {t('globalPermissions.statusLabel')}
                     </p>
                     <p className="text-sm font-bold text-cyan-400">
-                      {selectedFeatures.size} / {availableFeatures.length}{" "}
-                      Enabled
+                      {t('globalPermissions.enabledCount', { count: selectedFeatures.size, total: availableFeatures.length })}
                     </p>
                   </div>
                 </div>
@@ -332,7 +335,7 @@ export default function FeaturesPermissionsView({
               {/* Features Grid */}
               <div className="card">
                 <h3 className="text-lg font-bold text-white tracking-tight mb-6 flex items-center gap-2">
-                  <span className="text-cyan-400">✨</span> Available Features
+                  <span className="text-cyan-400">✨</span> {t('globalPermissions.availableFeatures')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {availableFeatures.map((feature) => (
@@ -341,7 +344,7 @@ export default function FeaturesPermissionsView({
                       className={`group flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
                         selectedFeatures.has(feature)
                           ? "bg-cyan-500/5 border-cyan-500/20 shadow-[0_4px_20px_rgba(6,182,212,0.05)]"
-                          : "bg-white/2 border-white/5 hover:bg-white/[0.04] hover:border-white/10"
+                          : "bg-white/2 border-white/5 hover:bg-white/4 hover:border-white/10"
                       }`}
                     >
                       <div className="relative flex items-center mt-1">
@@ -381,7 +384,7 @@ export default function FeaturesPermissionsView({
                         </div>
                         <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
                           {featureDescriptions[feature] ||
-                            "Access to this system module."}
+                            t('globalPermissions.defaultFeatureDesc')}
                         </p>
                       </div>
                     </label>
@@ -394,15 +397,15 @@ export default function FeaturesPermissionsView({
                 <button
                   onClick={handleSaveChanges}
                   disabled={!hasUnsavedChanges || isSaving}
-                  className="btn-primary !flex-1 !py-3.5 shadow-lg shadow-cyan-500/20 disabled:grayscale disabled:opacity-50"
+                  className="btn-primary flex-1! py-3.5! shadow-lg shadow-cyan-500/20 disabled:grayscale disabled:opacity-50"
                 >
                   {isSaving ? (
                     <span className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Saving Changes...
+                      {t('globalPermissions.savingChanges')}
                     </span>
                   ) : (
-                    "Save Permissions"
+                    t('globalPermissions.savePermissions')
                   )}
                 </button>
                 <button
@@ -415,9 +418,9 @@ export default function FeaturesPermissionsView({
                     setChanges(newChanges);
                   }}
                   disabled={!hasUnsavedChanges}
-                  className="btn-secondary !flex-1 !py-3.5"
+                  className="btn-secondary flex-1! py-3.5!"
                 >
-                  Discard Changes
+                  {t('globalPermissions.discardChanges')}
                 </button>
               </div>
 
@@ -425,14 +428,14 @@ export default function FeaturesPermissionsView({
               {hasUnsavedChanges && (
                 <div className="bg-amber-500/5 border border-amber-500/10 text-amber-400 p-4 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center gap-3 animate-pulse">
                   <span className="text-lg">💡</span>
-                  You have unsaved changes for this role
+                  {t('globalPermissions.unsavedChanges')}
                 </div>
               )}
             </div>
           ) : (
             <div className="card text-center py-20">
               <p className="text-slate-500">
-                Select a role on the left to manage permissions.
+                {t('globalPermissions.selectRolePrompt')}
               </p>
             </div>
           )}

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface User {
   id: number;
@@ -48,8 +50,8 @@ function Toggle({
       disabled={disabled || loading}
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
         checked
-          ? "bg-cyan-600 hover:bg-cyan-700"
-          : "bg-slate-700 hover:bg-slate-600"
+          ? "bg-cyan-500 hover:bg-cyan-600 shadow-lg shadow-cyan-500/25"
+          : "bg-white/10 hover:bg-white/20"
       } ${disabled || loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
       aria-pressed={checked}
     >
@@ -60,14 +62,19 @@ function Toggle({
       />
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="animate-spin h-4 w-4 border-2 border-transparent border-t-cyan-500 rounded-full"></div>
+          <div className="animate-spin h-3 w-3 border-2 border-transparent border-t-white rounded-full"></div>
         </div>
       )}
     </button>
   );
 }
 
-export default function SettingsView() {
+interface SettingsViewProps {
+  initialLocale?: AvailableLanguages;
+}
+
+export default function SettingsView({ initialLocale }: SettingsViewProps) {
+  const t = useTranslate(initialLocale);
   const [user, setUser] = useState<User | null>(null);
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
@@ -112,7 +119,7 @@ export default function SettingsView() {
       }
     } catch (error) {
       console.error("Failed to fetch user:", error);
-      setError("Failed to load user settings");
+      setError(t('common.noResults'));
     } finally {
       setIsLoading(false);
     }
@@ -162,16 +169,16 @@ export default function SettingsView() {
 
       const data = await response.json();
       if (response.ok) {
-        setSuccess("Email updated successfully");
+        setSuccess(t('common.updated'));
         if (user) {
           setUser({ ...user, email: emailForm.email });
         }
       } else {
-        setError(data.error || "Failed to update email");
+        setError(data.error || t('common.noResults'));
       }
     } catch (error) {
       console.error("Error updating email:", error);
-      setError("Failed to update email");
+      setError(t('common.noResults'));
     } finally {
       setIsUpdating(false);
     }
@@ -183,12 +190,12 @@ export default function SettingsView() {
     setSuccess("");
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setError("New password and confirmation do not match");
+      setError(t('auth.noMatchPass'));
       return;
     }
 
     if (passwordForm.newPassword.length < 6) {
-      setError("New password must be at least 6 characters");
+      setError(t('auth.shortPass'));
       return;
     }
 
@@ -207,18 +214,18 @@ export default function SettingsView() {
 
       const data = await response.json();
       if (response.ok) {
-        setSuccess("Password updated successfully");
+        setSuccess(t('common.updated'));
         setPasswordForm({
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
         });
       } else {
-        setError(data.error || "Failed to update password");
+        setError(data.error || t('common.noResults'));
       }
     } catch (error) {
       console.error("Error updating password:", error);
-      setError("Failed to update password");
+      setError(t('common.noResults'));
     } finally {
       setIsUpdating(false);
     }
@@ -239,22 +246,22 @@ export default function SettingsView() {
 
       const data = await response.json();
       if (response.ok) {
-        setSuccess("API key created successfully");
+        setSuccess(t('common.created'));
         setShowNewApiKeyForm(false);
         fetchApiKeys();
       } else {
-        setError(data.error || "Failed to create API key");
+        setError(data.error || t('common.noResults'));
       }
     } catch (error) {
       console.error("Error creating API key:", error);
-      setError("Failed to create API key");
+      setError(t('common.noResults'));
     } finally {
       setIsUpdating(false);
     }
   };
 
   const handleDeleteApiKey = async (keyId: number) => {
-    if (!confirm("Are you sure you want to delete this API key?")) {
+    if (!confirm(t('common.confirmDeletion'))) {
       return;
     }
 
@@ -268,15 +275,15 @@ export default function SettingsView() {
       });
 
       if (response.ok) {
-        setSuccess("API key deleted successfully");
+        setSuccess(t('common.deleted'));
         fetchApiKeys();
       } else {
         const data = await response.json();
-        setError(data.error || "Failed to delete API key");
+        setError(data.error || t('common.noResults'));
       }
     } catch (error) {
       console.error("Error deleting API key:", error);
-      setError("Failed to delete API key");
+      setError(t('common.noResults'));
     }
   };
 
@@ -301,14 +308,14 @@ export default function SettingsView() {
       const data = await response.json();
       if (response.ok) {
         setPreferences(data.data);
-        setSuccess("Preference updated");
+        setSuccess(t('common.updated'));
         setTimeout(() => setSuccess(""), 2000);
       } else {
-        setError(data.error || "Failed to update preference");
+        setError(data.error || t('common.noResults'));
       }
     } catch (error) {
       console.error("Error updating preference:", error);
-      setError("Failed to update preference");
+      setError(t('common.noResults'));
     } finally {
       setTogglingPreference(null);
     }
@@ -317,7 +324,7 @@ export default function SettingsView() {
   const handleRevokeMyTokens = async () => {
     if (
       !confirm(
-        "This will revoke all your tokens and log you out from all devices. Continue?",
+        t('settings.revokeDesc'),
       )
     ) {
       return;
@@ -336,16 +343,16 @@ export default function SettingsView() {
 
       const data = await response.json();
       if (response.ok) {
-        setSuccess("All tokens revoked successfully. Redirecting to login...");
+        setSuccess(t('common.updated'));
         setTimeout(() => {
           window.location.href = "/login";
         }, 2000);
       } else {
-        setError(data.message || "Failed to revoke tokens");
+        setError(data.message || t('common.noResults'));
       }
     } catch (error) {
       console.error("Error revoking tokens:", error);
-      setError("Failed to revoke tokens");
+      setError(t('common.noResults'));
     } finally {
       setIsRevokingTokens(false);
     }
@@ -392,15 +399,9 @@ export default function SettingsView() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="animate-pulse">
-          <div className="h-8 bg-slate-700 rounded w-32 mb-6"></div>
-          <div className="space-y-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-12 bg-slate-700 rounded"></div>
-            ))}
-          </div>
-        </div>
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">{t('common.fetching')}</p>
       </div>
     );
   }

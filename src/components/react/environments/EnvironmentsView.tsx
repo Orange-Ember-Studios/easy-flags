@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import SpaceNavigation from "@/components/react/shared/SpaceNavigation";
 import { Modal } from "@/components/react/shared/Modals";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 type EnvironmentType = "production" | "staging" | "development" | "other";
 
@@ -16,6 +18,7 @@ interface Environment {
 interface EnvironmentsViewProps {
   spaceId: string | undefined;
   spaceName?: string;
+  initialLocale?: AvailableLanguages;
 }
 
 const ENVIRONMENT_TYPES: EnvironmentType[] = [
@@ -189,7 +192,9 @@ const getEnvironmentColor = (type: EnvironmentType) => {
 export default function EnvironmentsView({
   spaceId,
   spaceName,
+  initialLocale,
 }: EnvironmentsViewProps) {
+  const t = useTranslate(initialLocale);
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -226,11 +231,11 @@ export default function EnvironmentsView({
         }));
         setEnvironments(envs);
       } else {
-        setError("Failed to fetch environments");
+        setError(t('environments.fetchError'));
       }
     } catch (err) {
       console.error("Error fetching environments:", err);
-      setError("An error occurred while fetching environments");
+      setError(t('environments.loadError'));
     } finally {
       setIsLoading(false);
     }
@@ -258,11 +263,11 @@ export default function EnvironmentsView({
         setEnvironments([...environments, newEnv]);
         resetForms();
       } else {
-        setError("Failed to create environment");
+        setError(t('environments.createError'));
       }
     } catch (err) {
       console.error("Error creating environment:", err);
-      setError("An error occurred while creating the environment");
+      setError(t('environments.createErrorDesc'));
     } finally {
       setIsSubmitting(false);
     }
@@ -297,11 +302,11 @@ export default function EnvironmentsView({
         );
         resetForms();
       } else {
-        setError("Failed to update environment");
+        setError(t('environments.updateError'));
       }
     } catch (err) {
       console.error("Error updating environment:", err);
-      setError("An error occurred while updating the environment");
+      setError(t('environments.updateErrorDesc'));
     } finally {
       setIsSubmitting(false);
     }
@@ -343,11 +348,11 @@ export default function EnvironmentsView({
         setEnvironments(environments.filter((e) => e.id !== envToDelete.id));
         resetForms();
       } else {
-        setError("Failed to delete environment");
+        setError(t('environments.deleteError'));
       }
     } catch (err) {
       console.error("Error deleting environment:", err);
-      setError("An error occurred while deleting the environment");
+      setError(t('environments.deleteErrorDesc'));
     } finally {
       setIsSubmitting(false);
     }
@@ -359,6 +364,7 @@ export default function EnvironmentsView({
         spaceId={spaceId}
         spaceName={spaceName}
         currentTab="environments"
+        initialLocale={initialLocale}
       />
 
       <div className="mt-16">
@@ -369,7 +375,7 @@ export default function EnvironmentsView({
               <Icons.Delete />
             </div>
             <div>
-              <p className="text-rose-400 font-bold text-sm">Critical Error</p>
+              <p className="text-rose-400 font-bold text-sm">{t('environments.criticalError')}</p>
               <p className="text-rose-500/80 text-xs">{error}</p>
             </div>
           </div>
@@ -380,11 +386,10 @@ export default function EnvironmentsView({
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
             <div className="max-w-2xl">
               <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
-                Manage your <span className="text-gradient">Environments</span>
+                {t('environments.title')}
               </h2>
               <p className="text-slate-400 text-lg leading-relaxed">
-                Control deployment stages. Flags exist in all environments but
-                can have different values independently.
+                {t('environments.description')}
               </p>
             </div>
             <button
@@ -396,34 +401,38 @@ export default function EnvironmentsView({
               className="btn-primary flex items-center gap-2 px-8! py-4! shadow-xl shadow-cyan-500/20"
             >
               <Icons.Other />
-              New Environment
+              {t('environments.newEnv')}
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <TypePill
               type="production"
-              label="Production Stage"
+              label={t('environments.prodStage')}
               color="text-rose-400"
               icon={<Icons.Production />}
+              initialLocale={initialLocale}
             />
             <TypePill
               type="staging"
-              label="Quality Control"
+              label={t('environments.qcStage')}
               color="text-amber-400"
               icon={<Icons.Staging />}
+              initialLocale={initialLocale}
             />
             <TypePill
               type="development"
-              label="Active Dev"
+              label={t('environments.devStage')}
               color="text-blue-400"
               icon={<Icons.Development />}
+              initialLocale={initialLocale}
             />
             <TypePill
               type="other"
-              label="Custom / Misc"
+              label={t('environments.customStage')}
               color="text-cyan-400"
               icon={<Icons.Other />}
+              initialLocale={initialLocale}
             />
           </div>
         </div>
@@ -433,7 +442,7 @@ export default function EnvironmentsView({
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-12 h-12 border-4 border-white/5 border-t-cyan-500 rounded-full animate-spin"></div>
             <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
-              Syincing Worlds
+              {t('environments.syncing')}
             </p>
           </div>
         ) : (
@@ -443,7 +452,7 @@ export default function EnvironmentsView({
               return (
                 <div
                   key={env.id}
-                  className={`group relative bg-linear-to-br ${styles.bg} border ${styles.border} rounded-[2.5rem] p-8 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full`}
+                  className={`group relative bg-linear-to-br ${styles.bg} border ${styles.border} rounded-3xl p-8 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full`}
                 >
                   <div
                     className={`absolute -top-12 -right-12 w-24 h-24 ${styles.glow} blur-[60px] rounded-full pointer-events-none opacity-50`}
@@ -464,7 +473,7 @@ export default function EnvironmentsView({
                             {env.name}
                           </h3>
                           <span className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-60">
-                            {env.type} level
+                            {t('environments.level', { type: env.type })}
                           </span>
                         </div>
                       </div>
@@ -479,7 +488,7 @@ export default function EnvironmentsView({
                       <button
                         onClick={() => startEditingEnvironment(env)}
                         className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-500 hover:text-white transition-all hover:bg-white/10"
-                        title="Edit environment"
+                        title={t('environments.editEnv')}
                       >
                         <Icons.Edit />
                       </button>
@@ -489,7 +498,7 @@ export default function EnvironmentsView({
                           setShowDeleteModal(true);
                         }}
                         className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-500 hover:text-rose-400 transition-all hover:bg-rose-500/10 hover:border-rose-500/20 border border-transparent"
-                        title="Delete environment"
+                        title={t('environments.deleteEnv')}
                       >
                         <Icons.Delete />
                       </button>
@@ -498,13 +507,13 @@ export default function EnvironmentsView({
 
                   <div className="mt-auto flex items-center justify-between pt-6 border-t border-white/5">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                      DEP. {new Date(env.created_at).toLocaleDateString()}
+                      {t('environments.depDate', { date: new Date(env.created_at).toLocaleDateString(t === undefined ? "en-US" : (initialLocale || "en-US")) })}
                     </span>
                     <a
                       href={`/spaces/${spaceId}/environments/${env.slug}`}
                       className={`inline-flex items-center gap-2 text-sm font-bold ${styles.accent} hover:underline underline-offset-4 tracking-tight`}
                     >
-                      Connect
+                      {t('environments.connect')}
                       <Icons.ArrowRight />
                     </a>
                   </div>
@@ -515,16 +524,15 @@ export default function EnvironmentsView({
             {environments.length === 0 && (
               <div className="col-span-full py-24 text-center card border-dashed border-2 bg-transparent flex flex-col items-center justify-center gap-6">
                 <div className="text-6xl grayscale opacity-40">🌍</div>
-                <h4 className="text-2xl font-bold text-white">Dimension Gap</h4>
+                <h4 className="text-2xl font-bold text-white">{t('environments.dimensionGap')}</h4>
                 <p className="text-slate-500 max-w-sm mx-auto">
-                  This space exists in a vacuum. Create a staging or production
-                  environment to bridge the gap.
+                  {t('environments.vacuumDesc')}
                 </p>
                 <button
                   onClick={() => setShowCreateModal(true)}
                   className="btn-primary px-10!"
                 >
-                  Bridge Dimension
+                  {t('environments.bridgeDimension')}
                 </button>
               </div>
             )}
@@ -537,7 +545,7 @@ export default function EnvironmentsView({
         id="env-modal"
         isOpen={showCreateModal || showEditModal}
         onClose={resetForms}
-        title={editingEnv ? "Edit Environment" : "New Environment"}
+        title={editingEnv ? t('environments.editModalTitle') : t('environments.newModalTitle')}
       >
         <form
           onSubmit={
@@ -547,13 +555,13 @@ export default function EnvironmentsView({
         >
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 px-1">
-              Environment Name
+              {t('environments.nameLabel')}
             </label>
             <input
               type="text"
               value={newEnvName}
               onChange={(e) => setNewEnvName(e.target.value)}
-              placeholder="e.g., Staging, Production"
+              placeholder={t('environments.namePlaceholder')}
               className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-5 py-4 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
               required
             />
@@ -561,19 +569,19 @@ export default function EnvironmentsView({
 
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 px-1">
-              Description
+              {t('environments.descLabel')}
             </label>
             <textarea
               value={newEnvDescription}
               onChange={(e) => setNewEnvDescription(e.target.value)}
-              placeholder="Optional: Briefly describe this environment stage"
+              placeholder={t('environments.descPlaceholder')}
               className="w-full bg-slate-950/40 border border-white/5 rounded-4xl px-5 py-4 text-white placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all h-28 resize-none text-sm font-medium"
             />
           </div>
 
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 px-1">
-              Environment Type
+              {t('environments.typeLabel')}
             </label>
             <div className="grid grid-cols-2 gap-3 pb-2">
               {ENVIRONMENT_TYPES.map((type) => {
@@ -610,7 +618,7 @@ export default function EnvironmentsView({
               onClick={resetForms}
               className="flex-1 py-4 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
@@ -618,10 +626,10 @@ export default function EnvironmentsView({
               className="flex-1 btn-primary py-4! shadow-xl shadow-cyan-500/20"
             >
               {isSubmitting
-                ? "Saving..."
+                ? t('environments.processing')
                 : editingEnv
-                  ? "Save Changes"
-                  : "Create"}
+                  ? t('common.save')
+                  : t('environments.create')}
             </button>
           </div>
         </form>
@@ -632,7 +640,7 @@ export default function EnvironmentsView({
         id="delete-confirm-modal"
         isOpen={showDeleteModal}
         onClose={resetForms}
-        title="Confirm Deletion"
+        title={t('environments.confirmDeleteTitle')}
       >
         <div className="space-y-8">
           <div className="bg-rose-500/5 border border-rose-500/20 rounded-4xl p-6 text-center space-y-4">
@@ -640,13 +648,9 @@ export default function EnvironmentsView({
               <Icons.Delete />
             </div>
             <div>
-              <p className="text-white font-bold text-xl mb-2">Delete Stage?</p>
+              <p className="text-white font-bold text-xl mb-2">{t('environments.deleteStageQ')}</p>
               <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                You are about to permanently remove the{" "}
-                <span className="text-rose-400 font-bold">
-                  "{envToDelete?.name}"
-                </span>{" "}
-                environment. This will affect all flags within this environment.
+                {t('environments.deleteConfirmDesc', { name: envToDelete?.name || "" })}
               </p>
             </div>
           </div>
@@ -657,14 +661,14 @@ export default function EnvironmentsView({
               disabled={isSubmitting}
               className="flex-1 py-4 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
             >
-              Back Out
+              {t('environments.backOut')}
             </button>
             <button
               onClick={handleDeleteEnvironment}
               disabled={isSubmitting}
               className="flex-1 btn-primary py-4! shadow-xl shadow-rose-500/20 bg-linear-to-r! from-rose-600! to-red-700!"
             >
-              {isSubmitting ? "Processing..." : "Confirm Delete"}
+              {isSubmitting ? t('environments.processing') : t('environments.confirmDelete')}
             </button>
           </div>
         </div>
@@ -678,12 +682,15 @@ function TypePill({
   label,
   color,
   icon,
+  initialLocale,
 }: {
   type: string;
   label: string;
   color: string;
   icon: React.ReactNode;
+  initialLocale?: AvailableLanguages;
 }) {
+  const t = useTranslate(initialLocale);
   return (
     <div className="flex items-center gap-4 bg-[#0b0e14]/50 border border-white/5 px-5 py-4 rounded-3xl hover:border-white/10 transition-all group">
       <div
@@ -693,7 +700,7 @@ function TypePill({
       </div>
       <div>
         <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-none mb-1">
-          {type} tier
+          {t('environments.tier', { type })}
         </p>
         <p className="text-xs font-bold text-white tracking-tight">{label}</p>
       </div>

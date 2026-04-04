@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import PageContainer from "@/components/react/shared/PageContainer";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface Space {
   id: number;
@@ -23,6 +25,7 @@ interface SpaceStats {
 
 interface SpaceDetailViewProps {
   spaceId: string | undefined;
+  initialLocale?: AvailableLanguages;
 }
 
 const Icons = {
@@ -55,7 +58,8 @@ const Icons = {
   )
 };
 
-export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
+export default function SpaceDetailView({ spaceId, initialLocale }: SpaceDetailViewProps) {
+  const t = useTranslate(initialLocale);
   const [space, setSpace] = useState<Space | null>(null);
   const [stats, setStats] = useState<SpaceStats>({
     environmentsCount: 0,
@@ -155,7 +159,7 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
     return (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
-            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Loading Details</p>
+            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">{t('spaces.loadingDetails')}</p>
         </div>
     );
   }
@@ -165,10 +169,10 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
       <div className="max-w-4xl mx-auto py-24 px-4 h-screen flex items-center justify-center">
         <div className="card text-center p-12 border-dashed border-2 border-white/10 bg-transparent max-w-md">
           <div className="text-6xl mb-6">🛰️</div>
-          <h2 className="text-2xl font-bold text-white mb-2">Space Lost in Orbit</h2>
-          <p className="text-slate-500 mb-8 font-medium">The workspace you're looking for doesn't exist or you don't have access.</p>
+          <h2 className="text-2xl font-bold text-white mb-2">{t('spaces.notFoundTitle')}</h2>
+          <p className="text-slate-500 mb-8 font-medium">{t('spaces.notFoundDesc')}</p>
           <a href="/spaces" className="btn-primary px-8!">
-            Return to Base
+            {t('spaces.returnToBase')}
           </a>
         </div>
       </div>
@@ -176,11 +180,11 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
   }
 
   return (
-    <PageContainer spaceId={spaceId} spaceName={space.name} currentTab="overview">
+    <PageContainer spaceId={spaceId} spaceName={space.name} currentTab="overview" initialLocale={initialLocale}>
       <div className="space-y-12 animate-in fade-in duration-1000">
         
         {/* Hero Section */}
-        <div className="relative group overflow-hidden bg-[#0b0e14]/40 border border-white/5 rounded-[2.5rem] p-8 md:p-12 transition-all hover:border-white/10">
+        <div className="relative group overflow-hidden bg-[#0b0e14]/40 border border-white/5 rounded-4xl p-8 md:p-12 transition-all hover:border-white/10">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none group-hover:bg-cyan-500/15 transition-colors duration-700"></div>
           <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none group-hover:bg-blue-500/10 transition-colors duration-700"></div>
           
@@ -190,7 +194,7 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
                 <span className="text-2xl text-white">📦</span>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-[0.3em] mb-1">Workspace Overview</p>
+                <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-[0.3em] mb-1">{t('spaces.overviewHeader')}</p>
                 <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
                   {space.name}
                 </h1>
@@ -207,12 +211,12 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
                 <div className="flex items-center gap-2 text-slate-500">
                     <Icons.Calendar />
                     <span className="text-[10px] font-bold uppercase tracking-widest">
-                        Created {new Date(space.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                        {t('spaces.createdDate', { date: new Date(space.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) })}
                     </span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-500">
                     <Icons.Hash />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">ID: {space.id}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{t('spaces.idLabel', { id: space.id })}</span>
                 </div>
             </div>
           </div>
@@ -221,28 +225,31 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <StatCard 
-            title="Environments" 
+            title={t('navigation.environments')} 
             count={stats.environmentsCount} 
             icon={<Icons.Globe />} 
             color="cyan" 
             link={`/spaces/${spaceId}/environments`}
-            label="Infrastructure"
+            label={t('spaces.infrastructure')}
+            t={t}
           />
           <StatCard 
-            title="Feature Flags" 
+            title={t('navigation.flags')} 
             count={stats.featuresCount} 
             icon={<Icons.Settings />} 
             color="purple" 
             link={`/spaces/${spaceId}/features`}
-            label="Controls"
+            label={t('spaces.controls')}
+            t={t}
           />
           <StatCard 
-            title="Team Members" 
+            title={t('navigation.members')} 
             count={stats.teamMembersCount} 
             icon={<Icons.Users />} 
             color="emerald" 
             link={`/spaces/${spaceId}/permissions`}
-            label="Collaboration"
+            label={t('spaces.collaboration')}
+            t={t}
           />
         </div>
 
@@ -256,32 +263,32 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
                 <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-400 border border-orange-500/20">
                   <span className="text-xs">⚡</span>
                 </div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Quick Actions</h3>
+                <h3 className="text-xl font-bold text-white tracking-tight">{t('spaces.quickActions')}</h3>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <ActionLink 
                     href={`/spaces/${spaceId}/environments`}
-                    title="Deploy Environment"
-                    description="Set up new environments for staging or production"
+                    title={t('spaces.deployEnv')}
+                    description={t('spaces.deployEnvDesc')}
                     icon="🌍"
                 />
                 <ActionLink 
                     href={`/spaces/${spaceId}/features`}
-                    title="New Feature Flag"
-                    description="Create and configure new feature toggles"
+                    title={t('spaces.newFlag')}
+                    description={t('spaces.newFlagDesc')}
                     icon="⚙️"
                 />
                 <ActionLink 
                     href={`/spaces/${spaceId}/permissions`}
-                    title="Invite Members"
-                    description="Manage team access and role assignments"
+                    title={t('spaces.inviteMembers')}
+                    description={t('spaces.inviteMembersDesc')}
                     icon="👥"
                 />
                 <ActionLink 
                     href={`/docs`}
-                    title="SDK Integration"
-                    description="View documentation for technical setup"
+                    title={t('spaces.sdkIntegration')}
+                    description={t('spaces.sdkIntegrationDesc')}
                     icon="📚"
                 />
               </div>
@@ -293,7 +300,7 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
                 <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
                   <Icons.Activity />
                 </div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Recent Activity</h3>
+                <h3 className="text-xl font-bold text-white tracking-tight">{t('spaces.recentActivity')}</h3>
               </div>
 
               {stats.recentActivity.length > 0 ? (
@@ -312,7 +319,7 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
                 </div>
               ) : (
                 <div className="bg-white/2 border border-dashed border-white/10 rounded-2xl py-12 text-center">
-                  <p className="text-slate-500 font-medium italic">No recent events recorded in this workspace</p>
+                  <p className="text-slate-500 font-medium italic">{t('spaces.noActivity')}</p>
                 </div>
               )}
             </section>
@@ -323,14 +330,14 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
             <div className="bg-linear-to-br from-cyan-500/10 to-blue-600/5 border border-white/5 rounded-3xl p-8 sticky top-12">
                <div className="flex items-center gap-3 mb-8">
                   <Icons.Info />
-                  <h4 className="font-bold text-white tracking-tight">Deployment Guide</h4>
+                  <h4 className="font-bold text-white tracking-tight">{t('spaces.deployGuide')}</h4>
                </div>
 
                <div className="space-y-8">
-                  <Step num="01" text="Define your infrastructure by creating environments." />
-                  <Step num="02" text="Create flags to decouple deployment from release." />
-                  <Step num="03" text="Integrate using our premium SDKs and APIs." />
-                  <Step num="04" text="Monitor metrics and iterate with confidence." />
+                  <Step num="01" text={t('spaces.step1')} />
+                  <Step num="02" text={t('spaces.step2')} />
+                  <Step num="03" text={t('spaces.step3')} />
+                  <Step num="04" text={t('spaces.step4')} />
                </div>
 
                <div className="mt-10 pt-8 border-t border-white/5">
@@ -338,7 +345,7 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
                     href="/docs" 
                     className="flex items-center justify-between group p-4 bg-white/5 rounded-2xl hover:bg-cyan-500/10 border border-white/5 hover:border-cyan-500/20 transition-all font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-cyan-400"
                   >
-                    View SDK Docs
+                    {t('spaces.viewSdkDocs')}
                     <Icons.ExternalLink />
                   </a>
                </div>
@@ -351,13 +358,14 @@ export default function SpaceDetailView({ spaceId }: SpaceDetailViewProps) {
   );
 }
 
-function StatCard({ title, count, icon, color, link, label }: { 
+function StatCard({ title, count, icon, color, link, label, t }: { 
     title: string; 
     count: number; 
     icon: React.ReactNode; 
     color: 'cyan' | 'purple' | 'emerald'; 
     link: string;
     label: string;
+    t: any;
 }) {
   const colors = {
     cyan: "text-cyan-400 bg-cyan-400/10 border-cyan-400/20 hover:border-cyan-400/40 shadow-cyan-400/5",
@@ -377,7 +385,7 @@ function StatCard({ title, count, icon, color, link, label }: {
           </div>
        </div>
        <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors mb-2 tracking-tight">{title}</h3>
-       <p className="text-slate-500 text-sm font-medium">Configure and manage your {title.toLowerCase()} configurations.</p>
+       <p className="text-slate-500 text-sm font-medium">{t('spaces.statCardDesc', { type: title.toLowerCase() })}</p>
     </a>
   );
 }

@@ -1,8 +1,13 @@
 import { useState } from "react";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
-interface ModalsProps {}
+interface ModalsProps {
+  initialLocale?: AvailableLanguages;
+}
 
-export default function Modals({}: ModalsProps) {
+export default function Modals({ initialLocale }: ModalsProps) {
+  const t = useTranslate(initialLocale);
   const [activeModal, setActiveModal] = useState<string | null>(null);
 
   const closeModal = () => setActiveModal(null);
@@ -14,17 +19,18 @@ export default function Modals({}: ModalsProps) {
         id="create-environment-modal"
         isOpen={activeModal === "environment"}
         onClose={closeModal}
-        title="Create Environment"
+        title={t('environments.createTitle')}
+        initialLocale={initialLocale}
       >
         <form className="space-y-6">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">
-              Environment Name
+              {t('environments.nameLabel')}
             </label>
             <input
               type="text"
               className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
-              placeholder="e.g., Development, Staging"
+              placeholder={t('environments.namePlaceholder')}
             />
           </div>
           <div className="flex gap-4 justify-end pt-2">
@@ -33,13 +39,13 @@ export default function Modals({}: ModalsProps) {
               onClick={closeModal}
               className="flex-1 py-3 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
-              className="flex-1 btn-primary !py-3 shadow-lg shadow-cyan-500/20"
+              className="flex-1 btn-primary py-3! shadow-lg shadow-cyan-500/20"
             >
-              Create
+              {t('common.create')}
             </button>
           </div>
         </form>
@@ -50,26 +56,27 @@ export default function Modals({}: ModalsProps) {
         id="create-feature-modal"
         isOpen={activeModal === "feature"}
         onClose={closeModal}
-        title="Create Feature Flag"
+        title={t('features.createTitle')}
+        initialLocale={initialLocale}
       >
         <form className="space-y-6">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">
-              Feature Key
+              {t('features.keyLabel')}
             </label>
             <input
               type="text"
               className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-mono text-sm"
-              placeholder="e.g., NEW_DASHBOARD"
+              placeholder={t('features.keyPlaceholder')}
             />
           </div>
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">
-              Description
+              {t('features.descLabel')}
             </label>
             <textarea
               className="w-full bg-slate-950/40 border border-white/5 rounded-2xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all h-32 resize-none text-sm leading-relaxed"
-              placeholder="What does this feature flag do?"
+              placeholder={t('features.descPlaceholder')}
             />
           </div>
           <div className="flex gap-4 justify-end pt-2">
@@ -78,13 +85,13 @@ export default function Modals({}: ModalsProps) {
               onClick={closeModal}
               className="flex-1 py-3 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
-              className="flex-1 btn-primary !py-3 shadow-lg shadow-cyan-500/20"
+              className="flex-1 btn-primary py-3! shadow-lg shadow-cyan-500/20"
             >
-              Create
+              {t('common.create')}
             </button>
           </div>
         </form>
@@ -99,17 +106,20 @@ export function Modal({
   onClose,
   title,
   children,
+  initialLocale,
 }: {
   id: string;
   isOpen: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  initialLocale?: AvailableLanguages;
 }) {
+  const t = useTranslate(initialLocale);
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-[#06080f]/70 backdrop-blur-md animate-in fade-in duration-300"
@@ -119,7 +129,7 @@ export function Modal({
       {/* Modal Container */}
       <div className="relative bg-[#0b0e14]/95 border border-white/10 rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden">
         {/* Fixed Top Gradient Line - now centered and faded at the edges to avoid corner issues */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-linear-to-r from-transparent via-cyan-500/50 to-transparent"></div>
         
         {/* Background Glow */}
         <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none"></div>
@@ -129,7 +139,7 @@ export function Modal({
           <button
             onClick={onClose}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all active:scale-90"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>

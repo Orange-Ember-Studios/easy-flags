@@ -4,6 +4,9 @@ export const prerender = false;
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import BillingPlans from "@/components/astro/BillingPlans.astro";
 import { getUserFromContext } from "@/utils/auth";
+import { getTranslator } from "@/infrastructure/i18n/astro";
+
+const { t } = getTranslator(Astro.request);
 
 // Redirect logged-in users to dashboard
 const user = getUserFromContext(Astro);
@@ -12,9 +15,9 @@ if (user) {
 }
 ---
 
-<BaseLayout title="Billing" includeHeader={true}>
+<BaseLayout title={t('billing.title')} includeHeader={true}>
   <article class="py-12">
-    <h1 class="text-4xl font-bold text-gradient mb-6">Billing & Plans</h1>
+    <h1 class="text-4xl font-bold text-gradient mb-6">{t('billing.title')}</h1>
 
     <BillingPlans />
   </article>

@@ -4,6 +4,9 @@ import DatabaseInspector from "@/components/react/DatabaseInspector";
 import { requireAuth, getLoginUrl } from "@/utils/auth-redirect";
 import { isSuperUser } from "@/utils/permissions";
 import { getUserFromContext } from "@/utils/auth";
+import { getTranslator } from "@/infrastructure/i18n/astro";
+
+const { t } = getTranslator(Astro.request);
 
 export const prerender = false;
 
@@ -23,8 +26,8 @@ if (!isDevelopment && (!user || !isSuperUser(user))) {
 ---
 
 <BaseLayout
-  title="Database Inspector - Management"
-  description="System database inspection and management tool"
+  title={t('admin.dbInspectorTitle')}
+  description={t('admin.dbInspectorDesc')}
   includeHeader={true}
 >
   <DatabaseInspector client:load />

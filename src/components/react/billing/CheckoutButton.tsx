@@ -1,11 +1,15 @@
 import { useState } from "react";
 import type { PricingPlan } from "@domain/entities";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface CheckoutButtonProps {
   plan: PricingPlan;
+  initialLocale?: AvailableLanguages;
 }
 
-export default function CheckoutButton({ plan }: CheckoutButtonProps) {
+export default function CheckoutButton({ plan, initialLocale }: CheckoutButtonProps) {
+  const t = useTranslate(initialLocale);
   const [loading, setLoading] = useState(false);
 
   const handleCheckout = async () => {
@@ -21,7 +25,7 @@ export default function CheckoutButton({ plan }: CheckoutButtonProps) {
       }
 
       // TODO: Implement payment processing
-      alert(`${plan.name} plan selected. Payment processing coming soon!`);
+      alert(t('billing.planSelected', { name: plan.name }));
     } finally {
       setLoading(false);
     }
@@ -35,7 +39,7 @@ export default function CheckoutButton({ plan }: CheckoutButtonProps) {
           href="/spaces"
           className="block w-full bg-linear-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition"
         >
-          Get Started
+          {t('auth.getStarted')}
         </a>
       </div>
     );
@@ -51,10 +55,10 @@ export default function CheckoutButton({ plan }: CheckoutButtonProps) {
           loading ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
-        {loading ? "Processing..." : "Get Started"}
+        {loading ? t('billing.processing') : t('auth.getStarted')}
       </button>
       <p className="text-sm text-slate-400 text-center">
-        Payment processing coming soon
+        {t('billing.paymentComingSoon')}
       </p>
     </div>
   );

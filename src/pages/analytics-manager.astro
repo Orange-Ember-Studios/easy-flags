@@ -3,9 +3,9 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import AnalyticsManagerComponent from "@/components/react/analytics/AnalyticsManager";
 
 import {
-    requireAuth,
-    getUserFromAstroContext,
-    getLoginUrl,
+  requireAuth,
+  getUserFromAstroContext,
+  getLoginUrl,
 } from "@/utils/auth-redirect";
 import { hasFeatureAccess, FEATURES, isGlobalAdmin } from "@/utils/permissions";
 
@@ -13,27 +13,27 @@ export const prerender = false;
 
 // Check authentication
 if (!requireAuth(Astro)) {
-    return Astro.redirect(getLoginUrl(Astro));
+  return Astro.redirect(getLoginUrl(Astro));
 }
 
 // Get user and check feature access
 const user = getUserFromAstroContext(Astro);
 const hasAccess = user && hasFeatureAccess(user, FEATURES.FEATURE_FLAGS);
 if (!hasAccess) {
-    return Astro.redirect("/forbidden");
+  return Astro.redirect("/forbidden");
 }
 
 const isAdmin = user && isGlobalAdmin(user);
 ---
 
 <BaseLayout title="Analytics Manager - Easy Flags" includeHeader={true}>
-    <div
-        class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
-    >
-        <AnalyticsManagerComponent
-            client:load
-            userId={String(user.id)}
-            isAdmin={isAdmin}
-        />
-    </div>
+  <div
+    class="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900"
+  >
+    <AnalyticsManagerComponent
+      client:load
+      userId={String(user.id)}
+      isAdmin={isAdmin}
+    />
+  </div>
 </BaseLayout>

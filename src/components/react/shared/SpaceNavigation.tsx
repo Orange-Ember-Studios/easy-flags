@@ -1,3 +1,6 @@
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
+
 interface SpaceNavigationProps {
   spaceId: string | undefined;
   spaceName?: string;
@@ -6,6 +9,7 @@ interface SpaceNavigationProps {
     name: string;
     path?: string;
   };
+  initialLocale?: AvailableLanguages;
 }
 
 export default function SpaceNavigation({
@@ -13,7 +17,10 @@ export default function SpaceNavigation({
   spaceName,
   currentTab = "overview",
   subPage,
+  initialLocale,
 }: SpaceNavigationProps) {
+  const t = useTranslate(initialLocale);
+  
   const isActive = (tab: string) =>
     currentTab === tab
       ? "text-cyan-400 after:w-full after:bg-cyan-500 after:shadow-[0_0_10px_rgba(6,182,212,0.5)]"
@@ -30,15 +37,15 @@ export default function SpaceNavigation({
             <span className="transition-transform group-hover:-translate-x-1">
               ←
             </span>{" "}
-            Back to Space
+            {t('spaces.backToSpace')}
           </a>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <a
               href={`/spaces/${spaceId}`}
               className="text-3xl md:text-4xl font-extrabold font-display text-white hover:text-cyan-400 transition-colors tracking-tight"
-              title="Go to space overview"
+              title={t('spaces.goOverview')}
             >
-              {spaceName || `Space ${spaceId}`}
+              {spaceName || t('spaces.spaceLabel', { id: spaceId || '' })}
             </a>
             {subPage && (
               <>
@@ -56,20 +63,20 @@ export default function SpaceNavigation({
       <div className="relative border-b border-white/5">
         <nav className="flex gap-4 md:gap-10 overflow-x-auto no-scrollbar">
           {[
-            { id: "overview", label: "Overview", path: `/spaces/${spaceId}` },
+            { id: "overview", label: t('common.overview'), path: `/spaces/${spaceId}` },
             {
               id: "environments",
-              label: "Environments",
+              label: t('navigation.environments'),
               path: `/spaces/${spaceId}/environments`,
             },
             {
               id: "features",
-              label: "Features",
+              label: t('navigation.flags'),
               path: `/spaces/${spaceId}/features`,
             },
             {
               id: "permissions",
-              label: "Access Control",
+              label: t('spaces.accessControl'),
               path: `/spaces/${spaceId}/permissions`,
             },
           ].map((tab) => (

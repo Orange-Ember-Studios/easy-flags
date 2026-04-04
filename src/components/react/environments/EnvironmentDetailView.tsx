@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import PageContainer from "@/components/react/shared/PageContainer";
 import { Modal } from "@/components/react/shared/Modals";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface EnvironmentDetailViewProps {
   spaceId: string | undefined;
@@ -9,6 +11,7 @@ interface EnvironmentDetailViewProps {
   envDescription?: string;
   apiKey: string;
   createdAt?: string;
+  initialLocale?: AvailableLanguages;
 }
 
 const Icons = {
@@ -42,7 +45,9 @@ export default function EnvironmentDetailView({
   envDescription,
   apiKey,
   createdAt,
+  initialLocale,
 }: EnvironmentDetailViewProps) {
+  const t = useTranslate(initialLocale);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [spaceName, setSpaceName] = useState("Space");
@@ -111,7 +116,7 @@ export default function EnvironmentDetailView({
       <div className="flex flex-col items-center justify-center py-24 gap-4">
         <div className="w-12 h-12 border-4 border-white/5 border-t-cyan-500 rounded-full animate-spin"></div>
         <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
-          Syncing Environment
+          {t('environmentDetail.syncing')}
         </p>
       </div>
     );
@@ -129,11 +134,11 @@ export default function EnvironmentDetailView({
         <div className="mb-16 mt-8 animate-in slide-in-from-top-4 duration-500 delay-100">
           <div className="max-w-2xl">
             <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-              Stage: <span className="text-gradient">{envName}</span>
+              {t('environmentDetail.stage', { name: envName })}
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed font-medium">
               {envDescription ||
-                "Configure and manage this environment's settings, API keys, and deployments."}
+                t('environmentDetail.description')}
             </p>
           </div>
         </div>
@@ -143,7 +148,7 @@ export default function EnvironmentDetailView({
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-10">
             {/* API Configuration */}
-            <div className="group relative bg-[#0b0e14]/50 border border-white/5 rounded-[2.5rem] p-10 transition-all duration-500 hover:border-white/10 shadow-2xl backdrop-blur-sm">
+            <div className="group relative bg-[#0b0e14]/50 border border-white/5 rounded-3xl p-10 transition-all duration-500 hover:border-white/10 shadow-2xl backdrop-blur-sm">
               <div
                 className="absolute -top-12 -right-12 w-24 h-24 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none opacity-50"
               ></div>
@@ -154,10 +159,10 @@ export default function EnvironmentDetailView({
                 </div>
                 <div>
                   <h3 className="text-2xl font-extrabold text-white tracking-tight">
-                    API Configuration
+                    {t('environmentDetail.apiConfig')}
                   </h3>
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 opacity-60">
-                    Authentication keys
+                    {t('environmentDetail.authKeys')}
                   </p>
                 </div>
               </div>
@@ -165,7 +170,7 @@ export default function EnvironmentDetailView({
               <div className="space-y-8">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 px-1">
-                    Environment Label
+                    {t('environmentDetail.envLabel')}
                   </label>
                   <div className="relative">
                     <input
@@ -179,7 +184,7 @@ export default function EnvironmentDetailView({
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 px-1">
-                    API Secret Key
+                    {t('environmentDetail.apiSecretKey')}
                   </label>
                   {currentApiKey ? (
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -200,7 +205,7 @@ export default function EnvironmentDetailView({
                           className="flex items-center gap-2 px-6 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all active:scale-95 border border-white/5"
                         >
                           <Icons.Eye />
-                          Reveal
+                          {t('environmentDetail.reveal')}
                         </button>
                         <button
                           onClick={handleRegenerateKey}
@@ -208,7 +213,7 @@ export default function EnvironmentDetailView({
                           className="flex items-center gap-2 px-6 py-4 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all active:scale-95 border border-orange-500/20 disabled:opacity-50"
                         >
                           <Icons.Refresh />
-                          {isRegenerating ? "Wait..." : "Refresh"}
+                          {isRegenerating ? t('environmentDetail.wait') : t('environmentDetail.refresh')}
                         </button>
                       </div>
                     </div>
@@ -216,19 +221,19 @@ export default function EnvironmentDetailView({
                     <button
                       onClick={handleRegenerateKey}
                       disabled={isRegenerating}
-                      className="w-full btn-primary !py-4 shadow-xl shadow-cyan-500/20"
+                      className="w-full btn-primary py-4! shadow-xl shadow-cyan-500/20"
                     >
-                      {isRegenerating ? "Generating..." : "Generate API Key"}
+                      {isRegenerating ? t('environmentDetail.generating') : t('environmentDetail.generateApiKey')}
                     </button>
                   )}
                   <p className="text-[10px] font-bold bg-slate-50/5 text-slate-500 rounded-lg px-3 py-2 mt-4 inline-block uppercase tracking-wider">
-                    ⚠️ Keep this secret. It grants full access to flags for this stage.
+                    ⚠️ {t('environmentDetail.securityWarning')}
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 px-1">
-                    System Access Point (API)
+                    {t('environmentDetail.systemAccessPoint')}
                   </label>
                   <div className="relative group/input">
                     <input
@@ -252,29 +257,29 @@ export default function EnvironmentDetailView({
             </div>
 
             {/* Deployed Features */}
-            <div className="group relative bg-[#0b0e14]/50 border border-white/5 rounded-[2.5rem] p-10 transition-all duration-500 hover:border-white/10 shadow-2xl backdrop-blur-sm">
+            <div className="group relative bg-[#0b0e14]/50 border border-white/5 rounded-3xl p-10 transition-all duration-500 hover:border-white/10 shadow-2xl backdrop-blur-sm">
               <div className="flex items-center gap-4 mb-10">
                 <div className="p-3.5 rounded-2xl bg-white/5 text-purple-400 border border-white/5">
                   <Icons.Rocket />
                 </div>
                 <div>
                   <h2 className="text-2xl font-extrabold text-white tracking-tight">
-                    Active Deployments
+                    {t('environmentDetail.activeDeployments')}
                   </h2>
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 opacity-60">
-                    Live features in this world
+                    {t('environmentDetail.liveFeatures')}
                   </p>
                 </div>
               </div>
 
-              <div className="text-center py-20 bg-slate-950/20 border border-dashed border-white/5 rounded-[2rem]">
+              <div className="text-center py-20 bg-slate-950/20 border border-dashed border-white/5 rounded-3xl">
                 <div className="text-4xl mb-4 grayscale opacity-20">🛰️</div>
                 <p className="text-slate-500 text-sm font-medium">
-                  No features are currently synchronized with this environment.
+                  {t('environmentDetail.noFeatures')}
                 </p>
                 <div className="mt-6">
                   <a href={`/spaces/${spaceId}/features`} className="text-xs font-bold uppercase tracking-widest text-cyan-400 hover:underline underline-offset-8 transition-all">
-                    Initialize Feature →
+                    {t('environmentDetail.initializeFeature')}
                   </a>
                 </div>
               </div>
@@ -284,29 +289,29 @@ export default function EnvironmentDetailView({
           {/* Sidebar */}
           <div className="space-y-8 lg:sticky lg:top-8 animate-in slide-in-from-right-4 duration-700 delay-300">
             {/* Environment Info */}
-            <div className="group relative bg-[#0b0e14]/50 border border-white/5 rounded-[2.5rem] p-8 transition-all duration-500 hover:border-white/10 shadow-xl backdrop-blur-sm">
+            <div className="group relative bg-[#0b0e14]/50 border border-white/5 rounded-3xl p-8 transition-all duration-500 hover:border-white/10 shadow-xl backdrop-blur-sm">
               <div className="flex items-center gap-4 mb-8">
                 <div className="p-3 rounded-xl bg-white/5 text-slate-400 border border-white/5">
                   <Icons.Info />
                 </div>
-                <h3 className="text-xl font-extrabold text-white tracking-tight">System Info</h3>
+                <h3 className="text-xl font-extrabold text-white tracking-tight">{t('environmentDetail.systemInfo')}</h3>
               </div>
 
               <div className="space-y-6">
                 <div className="p-4 bg-slate-950/40 border border-white/5 rounded-2xl">
                   <p className="text-[9px] font-extrabold text-slate-600 uppercase tracking-[0.2em] mb-2 leading-none">
-                    Digital Fingerprint (ID)
+                    {t('environmentDetail.digitalFingerprint')}
                   </p>
                   <p className="text-slate-300 font-mono text-xs break-all leading-relaxed whitespace-pre-wrap">{envId}</p>
                 </div>
 
                 <div className="p-4 bg-slate-950/40 border border-white/5 rounded-2xl">
                   <p className="text-[9px] font-extrabold text-slate-600 uppercase tracking-[0.2em] mb-2 leading-none">
-                    Origin Date
+                    {t('environmentDetail.originDate')}
                   </p>
                   <p className="text-slate-300 font-bold text-sm tracking-tight">
                     {createdAt
-                      ? new Date(createdAt).toLocaleDateString("en-US", {
+                      ? new Date(createdAt).toLocaleDateString(t === undefined ? "en-US" : (initialLocale || "en-US"), {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
@@ -318,23 +323,23 @@ export default function EnvironmentDetailView({
                 <div className="pt-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Stage Status: Active</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('environmentDetail.stageStatus')}</span>
                   </div>
                   <p className="text-[10px] text-slate-600 font-medium leading-relaxed">
-                    This environment is currently accepting traffic and processing evaluation requests.
+                    {t('environmentDetail.activeTrafficDesc')}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Quick Actions / Integration */}
-            <div className="p-8 bg-gradient-to-br from-cyan-500/10 to-blue-600/5 border border-cyan-500/10 rounded-[2.5rem] shadow-xl">
-              <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-widest">Connect SDK</h4>
+            <div className="p-8 bg-linear-to-br from-cyan-500/10 to-blue-600/5 border border-cyan-500/10 rounded-3xl shadow-xl">
+              <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-widest">{t('environmentDetail.connectSdk')}</h4>
               <p className="text-xs text-slate-400 leading-relaxed mb-6 font-medium">
-                Ready to integrate? Install our SDK and start managing flags in your application.
+                {t('environmentDetail.readyIntegrate')}
               </p>
               <a href="/docs" className="block text-center w-full bg-white text-black py-4 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95">
-                Read Integration Docs
+                {t('environmentDetail.readIntegrationDocs')}
               </a>
             </div>
           </div>
@@ -346,12 +351,12 @@ export default function EnvironmentDetailView({
         id="reveal-key-modal"
         isOpen={showApiKeyModal}
         onClose={() => setShowApiKeyModal(false)}
-        title="Access Point Secret"
+        title={t('environmentDetail.accessPointSecret')}
       >
         <div className="space-y-8">
-          <div className="text-center p-6 bg-slate-950/40 border border-white/5 rounded-[2rem] relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
-            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-4">Your Environment API Key</p>
+          <div className="text-center p-6 bg-slate-950/40 border border-white/5 rounded-3xl relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-4">{t('environmentDetail.yourApiKey')}</p>
             
             <div className="relative group/key">
               <div className="p-5 bg-black border border-white/5 rounded-2xl font-mono text-sm break-all text-cyan-400 pr-14 leading-relaxed">
@@ -372,18 +377,18 @@ export default function EnvironmentDetailView({
           <div className="bg-orange-500/5 border border-orange-500/10 rounded-2xl p-4 flex gap-4 items-start">
             <div className="mt-1 text-orange-500"><Icons.Info /></div>
             <div>
-              <p className="text-orange-400 font-bold text-xs uppercase tracking-widest mb-1">Security Notice</p>
+              <p className="text-orange-400 font-bold text-xs uppercase tracking-widest mb-1">{t('environmentDetail.securityNotice')}</p>
               <p className="text-[10px] text-orange-500/80 leading-relaxed font-medium">
-                This key acts as root access for this environment. Rotate it immediately if you suspect it has been compromised.
+                {t('environmentDetail.securityNoticeDesc')}
               </p>
             </div>
           </div>
 
           <button
             onClick={() => setShowApiKeyModal(false)}
-            className="w-full btn-primary !py-4 shadow-xl shadow-cyan-500/20"
+            className="w-full btn-primary py-4! shadow-xl shadow-cyan-500/20"
           >
-            I've copied it
+            {t('environmentDetail.copied')}
           </button>
         </div>
       </Modal>

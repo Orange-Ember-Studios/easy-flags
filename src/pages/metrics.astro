@@ -3,6 +3,10 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import MetricsMonitor from "@/components/react/analytics/MetricsMonitor";
 import { requireAuth, getLoginUrl } from "@/utils/auth-redirect";
 import { getUserFromContext } from "@/utils/auth";
+import { getTranslator, getLocale } from "@/infrastructure/i18n/astro";
+
+const { t } = getTranslator(Astro.request);
+const initialLocale = getLocale(Astro.request);
 
 export const prerender = false;
 
@@ -18,6 +22,6 @@ if (!user) {
 }
 ---
 
-<BaseLayout title="Metrics - Easy Flags" includeHeader={true}>
-    <MetricsMonitor client:load userId={String(user.id)} />
+<BaseLayout title={`${t('navigation.metrics')} - Easy Flags`} includeHeader={true}>
+    <MetricsMonitor client:load userId={String(user.id)} initialLocale={initialLocale} />
 </BaseLayout>

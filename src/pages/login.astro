@@ -2,6 +2,9 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { redirectIfAuthenticated } from "@/utils/auth-redirect";
 import LoginForm from "@/components/react/auth/LoginForm";
+import { getTranslator } from "@/infrastructure/i18n/astro";
+
+const { t } = getTranslator(Astro.request);
 
 export const prerender = false;
 
@@ -14,12 +17,12 @@ if (redirectIfAuthenticated(Astro)) {
 const redirectUrl = Astro.url.searchParams.get("redirect") || "/spaces";
 ---
 
-<BaseLayout title="Login - Easy Flags" includeHeader={false}>
+<BaseLayout title={`${t('auth.login')} - Easy Flags`} includeHeader={false}>
   <div class="min-h-screen flex items-center justify-center px-4">
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-gradient mb-2">Easy Flags</h1>
-        <p class="text-slate-400">Sign in to your account</p>
+        <p class="text-slate-400">{t('auth.signInToAccount')}</p>
       </div>
       <LoginForm client:load redirectUrl={redirectUrl} />
     </div>

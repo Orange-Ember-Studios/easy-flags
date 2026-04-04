@@ -8,6 +8,8 @@ import {
 import EnvironmentDetailView from "@/components/react/environments/EnvironmentDetailView";
 import { SpaceService, EnvironmentService } from "@application/services";
 
+import { getLocale } from "@/infrastructure/i18n/astro";
+
 export const prerender = false;
 
 // Require authentication (includes redirect parameter)
@@ -34,6 +36,7 @@ if (!env) {
   return Astro.redirect("/404");
 }
 
+const initialLocale = getLocale(Astro.request);
 const title = `${env.name} - Configuration`;
 ---
 
@@ -46,5 +49,6 @@ const title = `${env.name} - Configuration`;
     envDescription={env.description}
     apiKey={env.api_key}
     createdAt={env.created_at}
+    initialLocale={initialLocale}
   />
 </BaseLayout>

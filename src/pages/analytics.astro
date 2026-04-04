@@ -3,6 +3,9 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import AnalyticsDashboard from "@/components/react/analytics/AnalyticsDashboard";
 import { requireAuth, getUserFromAstroContext, getLoginUrl } from "@/utils/auth-redirect";
 import { hasFeatureAccess, FEATURES } from "@/utils/permissions";
+import { getTranslator } from "@/infrastructure/i18n/astro";
+
+const { t } = getTranslator(Astro.request);
 
 export const prerender = false;
 
@@ -19,9 +22,9 @@ if (!hasAccess) {
 }
 ---
 
-<BaseLayout title="Analytics - Easy Flags" includeHeader={true}>
+<BaseLayout title={`${t('analytics.title')} - Easy Flags`} includeHeader={true}>
     <div
-        class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
+        class="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900"
     >
         <AnalyticsDashboard client:load spaceId={undefined} />
     </div>

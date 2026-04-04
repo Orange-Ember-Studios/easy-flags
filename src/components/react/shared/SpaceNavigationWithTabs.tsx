@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface SpaceNavigationWithTabsProps {
   spaceId: string | undefined;
@@ -8,6 +9,7 @@ interface SpaceNavigationWithTabsProps {
   onPermissionSubTabChange?: (tab: "space" | "features") => void;
   canManageFeaturePermissions?: boolean;
   children?: React.ReactNode;
+  initialLocale?: AvailableLanguages;
 }
 
 export default function SpaceNavigationWithTabs({
@@ -18,7 +20,10 @@ export default function SpaceNavigationWithTabs({
   onPermissionSubTabChange,
   canManageFeaturePermissions = false,
   children,
+  initialLocale,
 }: SpaceNavigationWithTabsProps) {
+  const t = useTranslate(initialLocale);
+  
   const isActive = (tab: string) =>
     currentTab === tab
       ? "text-cyan-400 after:w-full after:bg-cyan-500 after:shadow-[0_0_10px_rgba(6,182,212,0.5)]"
@@ -41,15 +46,15 @@ export default function SpaceNavigationWithTabs({
             <span className="transition-transform group-hover:-translate-x-1">
               ←
             </span>{" "}
-            Back to space
+            {t('spaces.backToSpace')}
           </a>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <a
               href={`/spaces/${spaceId}`}
               className="text-3xl md:text-4xl font-extrabold font-display text-white hover:text-cyan-400 transition-colors tracking-tight"
-              title="Go to space overview"
+              title={t('spaces.goOverview')}
             >
-              {spaceName || `Space ${spaceId}`}
+              {spaceName || t('spaces.spaceLabel', { id: spaceId || '' })}
             </a>
           </div>
         </div>
@@ -59,20 +64,20 @@ export default function SpaceNavigationWithTabs({
       <div className="relative border-b border-white/5">
         <nav className="flex gap-4 md:gap-10 overflow-x-auto no-scrollbar">
           {[
-            { id: "overview", label: "Overview", path: `/spaces/${spaceId}` },
+            { id: "overview", label: t('common.overview'), path: `/spaces/${spaceId}` },
             {
               id: "environments",
-              label: "Environments",
+              label: t('navigation.environments'),
               path: `/spaces/${spaceId}/environments`,
             },
             {
               id: "features",
-              label: "Features",
+              label: t('navigation.flags'),
               path: `/spaces/${spaceId}/features`,
             },
             {
               id: "permissions",
-              label: "Access Control",
+              label: t('spaces.accessControl'),
               path: `/spaces/${spaceId}/permissions`,
             },
           ].map((tab) => (
@@ -94,13 +99,13 @@ export default function SpaceNavigationWithTabs({
             onClick={() => onPermissionSubTabChange?.("space")}
             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${isPermissionSubTabActive("space")}`}
           >
-            Team Membership
+            {t('spaces.teamMembership')}
           </button>
           <button
             onClick={() => onPermissionSubTabChange?.("features")}
             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${isPermissionSubTabActive("features")}`}
           >
-            <span className="text-sm">🔐</span> Role Permissions
+            <span className="text-sm">🔐</span> {t('spaces.rolePermissions')}
           </button>
         </div>
       )}

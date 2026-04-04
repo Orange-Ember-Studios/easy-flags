@@ -2,6 +2,8 @@
 import "@/styles/globals.css";
 import Header from "@/components/astro/Header.astro";
 import Modals from "@/components/react/shared/Modals";
+import { I18nProvider } from "@/infrastructure/i18n/context";
+import { getLocale } from "@/infrastructure/i18n/astro";
 
 interface Props {
   title?: string;
@@ -17,10 +19,12 @@ const {
   includeHeader = true,
   fullWidth = false,
 } = Astro.props;
+
+const locale = getLocale(Astro.request);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,19 +42,21 @@ const {
     />
   </head>
   <body class={`bg-[#06080f] text-slate-100 selection:bg-cyan-500/30 min-h-screen`}>
-    <div class="root flex flex-col min-h-screen">
-      {includeHeader && <Header />}
-      {
-        fullWidth ? (
-          <slot />
-        ) : (
-          <main class="flex-1 max-w-7xl mx-auto px-4 w-full">
+    <I18nProvider client:load initialLocale={locale}>
+      <div class="root flex flex-col min-h-screen">
+        {includeHeader && <Header />}
+        {
+          fullWidth ? (
             <slot />
-          </main>
-        )
-      }
-      <Modals client:load />
-    </div>
+          ) : (
+            <main class="flex-1 max-w-7xl mx-auto px-4 w-full">
+              <slot />
+            </main>
+          )
+        }
+        <Modals client:load />
+      </div>
+    </I18nProvider>
   </body>
 </html>
 

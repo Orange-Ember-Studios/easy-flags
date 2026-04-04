@@ -3,24 +3,28 @@ export const prerender = false;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import ContactForm from "@/components/react/contact/ContactForm";
+import { getTranslator, getLocale } from "@/infrastructure/i18n/astro";
+
+const { t } = getTranslator(Astro.request);
+const initialLocale = getLocale(Astro.request);
 ---
 
-<BaseLayout title="Contact Us" includeHeader={true}>
-  <article class="max-w-2xl mx-auto py-12">
-    <h1 class="text-4xl font-bold text-gradient mb-6">Contact Us</h1>
+<BaseLayout title={t('contact.title')} includeHeader={true}>
+  <article class="max-w-2xl mx-auto py-12 px-4">
+    <h1 class="text-4xl font-bold text-gradient mb-6">{t('contact.title')}</h1>
 
-    <div class="card mb-8">
-      <p class="text-slate-400 mb-6">
-        Have questions or feedback? We'd love to hear from you. Fill out the
-        form below and we'll get back to you as soon as possible.
+    <div class="card p-8 md:p-10 mb-8 relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/5 blur-[100px] rounded-full"></div>
+      <p class="text-slate-400 mb-8 leading-relaxed font-medium">
+        {t('contact.subtitle')}
       </p>
 
-      <ContactForm client:load />
+      <ContactForm client:load initialLocale={initialLocale} />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="card">
-        <h3 class="text-xl font-bold text-cyan-300 mb-2">Email</h3>
+        <h3 class="text-xl font-bold text-cyan-300 mb-2">{t('contact.email')}</h3>
         <a
           href="mailto:hello@orangeember.com"
           class="text-cyan-400 hover:text-cyan-300"
@@ -30,8 +34,8 @@ import ContactForm from "@/components/react/contact/ContactForm";
       </div>
 
       <div class="card">
-        <h3 class="text-xl font-bold text-cyan-300 mb-2">Response Time</h3>
-        <p class="text-slate-400">We typically respond within 24 hours</p>
+        <h3 class="text-xl font-bold text-cyan-300 mb-2">{t('contact.responseTime')}</h3>
+        <p class="text-slate-400">{t('contact.responseTimeDesc')}</p>
       </div>
     </div>
   </article>

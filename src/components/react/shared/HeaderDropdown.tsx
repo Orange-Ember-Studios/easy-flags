@@ -1,14 +1,19 @@
 import { useState } from "react";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
 interface HeaderDropdownProps {
   username: string;
   isSuperUser?: boolean;
+  initialLocale?: AvailableLanguages;
 }
 
 export default function HeaderDropdown({
   username,
   isSuperUser = false,
+  initialLocale,
 }: HeaderDropdownProps) {
+  const t = useTranslate(initialLocale);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -74,9 +79,9 @@ export default function HeaderDropdown({
                     d="M4 7v10c0 2.21 4.477 4 10 4s10-1.79 10-4V7M4 7c0 2.21 4.477 4 10 4s10-1.79 10-4M4 7c0-2.21 4.477-4 10-4s10 1.79 10 4m0 5c0 2.21-4.477 4-10 4s-10-1.79-10-4"
                   />
                 </svg>
-                <span>DB Inspector</span>
+                <span>{t('admin.dbInspector')}</span>
                 <span className="ml-auto text-[10px] font-bold uppercase tracking-widest text-cyan-500/50 bg-cyan-500/10 px-1.5 py-0.5 rounded">
-                  Admin
+                  {t('admin.adminBadge')}
                 </span>
               </a>
             )}
@@ -103,7 +108,7 @@ export default function HeaderDropdown({
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              <span>Account Settings</span>
+              <span>{t('auth.accountSettings')}</span>
             </a>
           </div>
           <div className="py-1">
@@ -124,7 +129,7 @@ export default function HeaderDropdown({
                   d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                 />
               </svg>
-              <span>Logout</span>
+              <span>{t('auth.logout')}</span>
             </button>
           </div>
         </div>

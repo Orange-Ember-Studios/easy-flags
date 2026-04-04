@@ -55,6 +55,28 @@ export function useI18n() {
 /**
  * Shorthand hook for translation only
  */
-export function useTranslate() {
-  return useI18n().t;
+export function useTranslate(overrideLocale?: AvailableLanguages) {
+  const context = useContext(I18nContext);
+  
+  // Determine locale to use
+  const localeToUse = overrideLocale || context?.locale || DEFAULT_LANGUAGE;
+
+  // Use memo to avoid recreative translator on every render if not using context
+  const t = useMemo(
+    () => {
+      // If we have context and no override, return the context's translator
+      if (context && !overrideLocale) {
+        return context.t;
+      }
+      // Otherwise create a new one
+      return createTranslator(
+        localeToUse as string,
+        translations,
+        DEFAULT_LANGUAGE as string,
+      );
+    },
+    [context, overrideLocale, localeToUse],
+  );
+
+  return t;
 }

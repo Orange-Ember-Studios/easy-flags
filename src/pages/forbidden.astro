@@ -2,17 +2,20 @@
 export const prerender = false;
 
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getTranslator } from "@/infrastructure/i18n/astro";
+
+const { t } = getTranslator(Astro.request);
 ---
 
-<BaseLayout title="Forbidden" includeHeader={true}>
+<BaseLayout title={t('errors.403.title')} includeHeader={true}>
   <div class="min-h-screen flex items-center justify-center px-4">
     <div class="text-center">
       <div class="text-9xl font-bold text-gradient mb-4">403</div>
-      <h1 class="text-4xl font-bold text-cyan-300 mb-4">Forbidden</h1>
+      <h1 class="text-4xl font-bold text-cyan-300 mb-4">{t('errors.403.title')}</h1>
       <p class="text-slate-400 mb-8">
-        You don't have permission to access this resource.
+        {t('errors.403.description')}
       </p>
-      <a href="/" class="btn-primary inline-block"> Return to Home </a>
+      <a href="/" class="btn-primary inline-block"> {t('errors.403.returnHome')} </a>
     </div>
   </div>
 </BaseLayout>

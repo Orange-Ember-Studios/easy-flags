@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useTranslate } from "@/infrastructure/i18n/context";
+import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
-interface Section {
-  id: string;
-  title: string;
-  icon: React.ReactNode;
-  subsections?: { id: string; title: string }[];
+interface DocsTableOfContentsProps {
+  initialLocale?: AvailableLanguages;
 }
 
 const Icons = {
@@ -18,27 +17,35 @@ const Icons = {
   Help: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
 };
 
-const sections: Section[] = [
-  {
-    id: "getting-started",
-    title: "Getting Started",
-    icon: <Icons.Rocket />,
-    subsections: [
-      { id: "understanding-hierarchy", title: "Understanding Hierarchy" },
-    ],
-  },
-  { id: "creating-spaces", title: "Managing Spaces", icon: <Icons.Box /> },
-  { id: "creating-features", title: "Managing Features", icon: <Icons.Settings /> },
-  { id: "environments", title: "Environments", icon: <Icons.Globe /> },
-  { id: "targeting-rollout", title: "Targeting & Rollout", icon: <Icons.Target /> },
-  { id: "api-integration", title: "API Integration", icon: <Icons.Zap /> },
-  { id: "team-management", title: "Team & Roles", icon: <Icons.Users /> },
-  { id: "troubleshooting", title: "FAQ", icon: <Icons.Help /> },
-];
+interface Section {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+  subsections?: { id: string; title: string }[];
+}
 
-export default function DocsTableOfContents() {
+export default function DocsTableOfContents({ initialLocale }: DocsTableOfContentsProps) {
+  const t = useTranslate(initialLocale);
   const [isOpen, setIsOpen] = useState(false);
   const [activeId, setActiveId] = useState("");
+
+  const sections: Section[] = useMemo(() => [
+    {
+      id: "getting-started",
+      title: t('docs.gettingStartedTitle'),
+      icon: <Icons.Rocket />,
+      subsections: [
+        { id: "understanding-hierarchy", title: t('docs.hierarchyTitle') },
+      ],
+    },
+    { id: "creating-spaces", title: t('docs.managingSpacesTitle'), icon: <Icons.Box /> },
+    { id: "creating-features", title: t('docs.managingFeaturesTitle'), icon: <Icons.Settings /> },
+    { id: "environments", title: t('docs.envsTitle'), icon: <Icons.Globe /> },
+    { id: "targeting-rollout", title: t('docs.targetingTitle'), icon: <Icons.Target /> },
+    { id: "api-integration", title: t('docs.apiTitle'), icon: <Icons.Zap /> },
+    { id: "team-management", title: t('docs.teamTitle'), icon: <Icons.Users /> },
+    { id: "troubleshooting", title: t('docs.faqTitle'), icon: <Icons.Help /> },
+  ], [t]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -62,7 +69,7 @@ export default function DocsTableOfContents() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [sections]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -87,7 +94,7 @@ export default function DocsTableOfContents() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-8 right-8 md:hidden z-[100] w-14 h-14 bg-cyan-500 text-white rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-95 shadow-cyan-500/20"
+        className="fixed bottom-8 right-8 md:hidden z-100 w-14 h-14 bg-cyan-500 text-white rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-95 shadow-cyan-500/20"
       >
         {isOpen ? (
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -97,13 +104,13 @@ export default function DocsTableOfContents() {
       </button>
 
       <nav
-        className={`fixed left-0 top-0 h-screen w-80 bg-[#06080f]/80 backdrop-blur-2xl border-r border-white/5 p-8 pt-24 pb-32 overflow-y-auto transition-all duration-500 ease-in-out z-[90] md:relative md:pt-10 md:pb-32 lg:w-80 md:translate-x-0 ${
+        className={`fixed left-0 top-0 h-screen w-80 bg-[#06080f]/80 backdrop-blur-2xl border-r border-white/5 p-8 pt-24 pb-32 overflow-y-auto transition-all duration-500 ease-in-out z-90 md:relative md:pt-10 md:pb-32 lg:w-80 md:translate-x-0 ${
           isOpen ? "translate-x-0 opacity-100" : "-translate-x-full md:opacity-100"
         }`}
       >
         <div className="mb-8 px-2">
           <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 mb-6 px-1">
-            Documentation
+            {t('docs.title')}
           </h2>
           
           <ul className="space-y-1">
@@ -150,26 +157,26 @@ export default function DocsTableOfContents() {
           </ul>
         </div>
 
-        <div className="mt-auto px-4 py-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-white/5">
+        <div className="mt-auto px-4 py-6 rounded-2xl bg-linear-to-br from-cyan-500/10 to-blue-500/10 border border-white/5">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></div>
-            <p className="text-white text-xs font-bold">Pro Support</p>
+            <p className="text-white text-xs font-bold">{t('docs.proSupport') || 'Pro Support'}</p>
           </div>
           <p className="text-slate-400 text-[10px] leading-relaxed mb-4">
-            Need custom architecture help? Contact our flags experts.
+            {t('docs.proSupportDesc') || 'Need custom architecture help? Contact our flags experts.'}
           </p>
           <a
             href="/contact"
             className="block w-full text-center py-2 rounded-lg bg-cyan-500 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-cyan-400 transition-colors shadow-lg shadow-cyan-500/20"
           >
-            Get Help
+            {t('common.getHelp') || 'Get Help'}
           </a>
         </div>
       </nav>
 
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm md:hidden z-[80] animate-in fade-in duration-300"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm md:hidden z-80 animate-in fade-in duration-300"
           onClick={() => setIsOpen(false)}
         />
       )}
