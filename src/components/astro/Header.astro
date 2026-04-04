@@ -2,15 +2,17 @@
 import { getUserFromContext } from "@/utils/auth";
 import { isSuperUser } from "@/utils/permissions";
 import HeaderDropdown from "@/components/react/shared/HeaderDropdown";
-import { getTranslator } from "@/infrastructure/i18n/astro";
+import LanguageSelector from "@/components/react/shared/LanguageSelector";
+import { getTranslator, getLocale } from "@/infrastructure/i18n/astro";
 
+const lang = getLocale(Astro.request);
 const { t } = getTranslator(Astro.request);
 const user = getUserFromContext(Astro);
 // Get current path safely - for prerendered pages, this will be undefined
 let currentPath = "";
 try {
   const url = new URL(Astro.request.url);
-  currentPath = url.pathname;
+  currentPath = url.pathname + url.search;
 } catch (e) {
   // In prerendered context, Astro.request.url won't be available
   currentPath = "";
@@ -144,23 +146,37 @@ const getNavLinkClass = (href: string) => {
       <div class="flex items-center gap-4">
         {
           user ? (
-            <HeaderDropdown
-              client:load
-              username={user.username}
-              isSuperUser={isSuperUser(user)}
-            />
+            <div class="flex items-center gap-6">
+              <LanguageSelector 
+                client:load 
+                currentLang={lang} 
+                currentPath={currentPath}
+              />
+              <div class="h-6 w-px bg-white/10"></div>
+              <HeaderDropdown
+                client:load
+                username={user.username}
+                isSuperUser={isSuperUser(user)}
+              />
+            </div>
           ) : (
-            <>
+            <div class="flex items-center gap-6">
+              <LanguageSelector 
+                client:load 
+                currentLang={lang} 
+                currentPath={currentPath}
+              />
+              <div class="h-6 w-px bg-white/10"></div>
               <a
                 href={navItems.login.href}
-                class="text-sm font-semibold text-white hover:text-cyan-400 transition-colors px-4"
+                class="text-sm font-semibold text-white hover:text-cyan-400 transition-colors px-2"
               >
                 {navItems.login.label}
               </a>
               <a href="/create-account" class="btn-primary text-sm px-6! py-2.5!">
                 {t('auth.getStarted') || "Get Started"}
               </a>
-            </>
+            </div>
           )
         }
       </div>
@@ -243,7 +259,7 @@ const getNavLinkClass = (href: string) => {
     
     {
       user ? (
-        <div class="flex flex-col items-center gap-8">
+        <div class="flex flex-col items-center gap-8 w-full">
           <div class="flex flex-col items-center gap-3">
             <div class="w-16 h-16 rounded-2xl bg-linear-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-cyan-500/20">
               {user.username.charAt(0).toUpperCase()}
@@ -251,7 +267,30 @@ const getNavLinkClass = (href: string) => {
             <span class="text-white text-xl font-medium tracking-tight">{user.username}</span>
           </div>
           
-          <div class="flex flex-col items-center gap-4">
+          <!-- Mobile Language Selector -->
+          <div class="flex gap-4 p-1.5 bg-white/5 rounded-2xl border border-white/5 w-full max-w-[280px] mt-2">
+            {
+              [
+                { code: "en", flag: "🇺🇸", name: "EN" },
+                { code: "es", flag: "🇪🇸", name: "ES" },
+                { code: "fr", flag: "🇫🇷", name: "FR" }
+              ].map((l) => (
+                <a 
+                  href={`/api/i18n/set-language?lang=${l.code}&redirect=${encodeURIComponent(currentPath)}`}
+                  class={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl transition-all duration-300 font-bold text-xs tracking-widest ${
+                    lang === l.code 
+                      ? "bg-white/10 text-cyan-400 border border-white/10" 
+                      : "text-slate-500 border border-transparent hover:text-white"
+                  }`}
+                >
+                  <span class="text-sm">{l.flag}</span>
+                  {l.name}
+                </a>
+              ))
+            }
+          </div>
+
+          <div class="flex flex-col items-center gap-4 mt-2">
             {isSuperUser(user) && (
               <a href="/admin/db-inspector" class="px-8 py-3 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 font-bold uppercase tracking-widest text-sm hover:bg-cyan-500 hover:text-white transition-all">
                 Inspector
@@ -269,6 +308,29 @@ const getNavLinkClass = (href: string) => {
         </div>
       ) : (
         <div class="flex flex-col items-center gap-6 w-full max-w-xs">
+          <!-- Mobile Language Selector for Guests -->
+          <div class="flex gap-4 p-1.5 bg-white/5 rounded-2xl border border-white/5 w-full mb-4">
+            {
+              [
+                { code: "en", flag: "🇺🇸", name: "EN" },
+                { code: "es", flag: "🇪🇸", name: "ES" },
+                { code: "fr", flag: "🇫🇷", name: "FR" }
+              ].map((l) => (
+                <a 
+                  href={`/api/i18n/set-language?lang=${l.code}&redirect=${encodeURIComponent(currentPath)}`}
+                  class={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl transition-all duration-300 font-bold text-xs tracking-widest ${
+                    lang === l.code 
+                      ? "bg-white/10 text-cyan-400 border border-white/10" 
+                      : "text-slate-500 border border-transparent hover:text-white"
+                  }`}
+                >
+                  <span class="text-sm">{l.flag}</span>
+                  {l.name}
+                </a>
+              ))
+            }
+          </div>
+
           <a href={navItems.login.href} class="text-xl font-bold text-white uppercase tracking-widest hover:text-cyan-400 transition-colors">
             {navItems.login.label}
           </a>

@@ -427,11 +427,11 @@ export default function SettingsView({ initialLocale }: SettingsViewProps) {
         <div className="flex gap-4 mb-8 border-b border-slate-700">
           {(
             [
-              { id: "profile", label: "Profile" },
-              { id: "security", label: "Security" },
-              { id: "api-keys", label: "API Keys" },
-              { id: "preferences", label: "Preferences" },
-              { id: "sessions", label: "Sessions" },
+              { id: "profile", label: t('settings.profile') },
+              { id: "security", label: t('settings.security') },
+              { id: "api-keys", label: t('settings.apiKeys') },
+              { id: "preferences", label: t('settings.preferences') },
+              { id: "sessions", label: t('settings.sessions') },
             ] as const
           ).map((tab) => (
             <button
@@ -724,61 +724,91 @@ export default function SettingsView({ initialLocale }: SettingsViewProps) {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-cyan-300">
-                    Preferences
+                    {t('settings.preferences')}
                   </h2>
                   <p className="text-sm text-slate-400 mt-1">
-                    Manage your notification and security settings
+                    {t('settings.preferencesDesc')}
                   </p>
                 </div>
               </div>
 
-              {preferences && (
-                <div className="space-y-6">
-                  {/* Email Notifications */}
-                  <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-lg border border-slate-700/50 hover:border-slate-700 transition">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-slate-100 text-base">
-                        📧 Email Notifications
-                      </h3>
-                      <p className="text-sm text-slate-400 mt-1">
-                        Receive email notifications for important account events
-                        and feature flag changes
-                      </p>
-                    </div>
-                    <div className="ml-4 shrink-0">
-                      <Toggle
-                        checked={preferences.email_notifications}
-                        onChange={(value) =>
-                          handleTogglePreference("email_notifications", value)
-                        }
-                        loading={togglingPreference === "email_notifications"}
-                      />
-                    </div>
+              <div className="space-y-6">
+                {/* Language Selection */}
+                <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-lg border border-slate-700/50 hover:border-slate-700 transition">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-100 text-base">
+                      🌐 {t('settings.language')}
+                    </h3>
+                    <p className="text-sm text-slate-400 mt-1">
+                      {t('settings.languageDesc')}
+                    </p>
                   </div>
-
-                  {/* Security Alerts */}
-                  <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-lg border border-slate-700/50 hover:border-slate-700 transition">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-slate-100 text-base">
-                        🔒 Security Alerts
-                      </h3>
-                      <p className="text-sm text-slate-400 mt-1">
-                        Get notified of unusual account activity and login
-                        attempts
-                      </p>
-                    </div>
-                    <div className="ml-4 shrink-0">
-                      <Toggle
-                        checked={preferences.security_alerts}
-                        onChange={(value) =>
-                          handleTogglePreference("security_alerts", value)
-                        }
-                        loading={togglingPreference === "security_alerts"}
-                      />
-                    </div>
+                  <div className="ml-4 shrink-0 flex gap-2">
+                    {(['en', 'es', 'fr'] as const).map((lang) => (
+                      <button
+                        key={lang}
+                        onClick={() => {
+                          document.cookie = `lang=${lang}; path=/; max-age=31536000`;
+                          window.location.reload();
+                        }}
+                        className={`px-3 py-1 rounded-md text-sm font-medium transition ${
+                          (initialLocale || 'en') === lang
+                            ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
+                            : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-cyan-300"
+                        }`}
+                      >
+                        {lang.toUpperCase()}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              )}
+
+                {preferences && (
+                  <div className="space-y-6">
+                    {/* Email Notifications */}
+                    <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-lg border border-slate-700/50 hover:border-slate-700 transition">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-slate-100 text-base">
+                          📧 {t('settings.emailNotifications')}
+                        </h3>
+                        <p className="text-sm text-slate-400 mt-1">
+                          {t('settings.emailNotificationsDesc')}
+                        </p>
+                      </div>
+                      <div className="ml-4 shrink-0">
+                        <Toggle
+                          checked={preferences.email_notifications}
+                          onChange={(value) =>
+                            handleTogglePreference("email_notifications", value)
+                          }
+                          loading={togglingPreference === "email_notifications"}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Security Alerts */}
+                    <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-lg border border-slate-700/50 hover:border-slate-700 transition">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-slate-100 text-base">
+                          🔒 {t('settings.securityAlerts')}
+                        </h3>
+                        <p className="text-sm text-slate-400 mt-1">
+                          {t('settings.securityAlertsDesc')}
+                        </p>
+                      </div>
+                      <div className="ml-4 shrink-0">
+                        <Toggle
+                          checked={preferences.security_alerts}
+                          onChange={(value) =>
+                            handleTogglePreference("security_alerts", value)
+                          }
+                          loading={togglingPreference === "security_alerts"}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Coming Soon Features */}

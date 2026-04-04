@@ -4,7 +4,7 @@ import SettingsView from "@/components/react/SettingsView";
 import { requireAuth, getLoginUrl } from "@/utils/auth-redirect";
 import { getTranslator } from "@/infrastructure/i18n/astro";
 
-const { t } = getTranslator(Astro.request);
+const { t, lang } = getTranslator(Astro.request);
 
 export const prerender = false;
 
@@ -15,5 +15,5 @@ if (!requireAuth(Astro)) {
 ---
 
 <BaseLayout title={`${t('settings.title')} - Easy Flags`} includeHeader={true}>
-  <SettingsView client:load />
+  <SettingsView initialLocale={lang} client:load />
 </BaseLayout>

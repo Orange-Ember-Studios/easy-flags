@@ -11,7 +11,18 @@ import {
  * In the future, this can be more sophisticated (detect from URL or Header)
  */
 export function getLocale(request: Request): AvailableLanguages {
-  // Simple check for a 'lang' cookie
+  // 1. Check URL query params first
+  try {
+    const url = new URL(request.url);
+    const langParam = url.searchParams.get("lang");
+    if (langParam && translations[langParam]) {
+      return langParam as AvailableLanguages;
+    }
+  } catch (e) {
+    // URL might be invalid in some contexts
+  }
+
+  // 2. Check for a 'lang' cookie
   const cookieHeader = request.headers.get("cookie");
   if (cookieHeader) {
     const cookies = Object.fromEntries(
