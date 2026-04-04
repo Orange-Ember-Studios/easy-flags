@@ -1,12 +1,6 @@
 import { useState } from "react";
 import PageContainer from "@/components/react/shared/PageContainer";
 
-interface RolloutConfig {
-  percentage: number;
-  startDate: string;
-  endDate: string;
-}
-
 interface TargetingRule {
   id: string;
   type: "email_domain" | "user_id" | "user_segment" | "percentage";
@@ -22,6 +16,126 @@ interface AdvancedConfigViewProps {
   featureKey: string;
   featureType: "boolean" | "string" | "json";
 }
+
+const Icons = {
+  Settings: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ),
+  Target: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  ),
+  Chart: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="12" x2="12" y1="20" y2="10" />
+      <line x1="18" x2="18" y1="20" y2="4" />
+      <line x1="6" x2="6" y1="20" y2="16" />
+    </svg>
+  ),
+  Clock: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  ),
+  ChevronRight: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  ),
+  Trash: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      <line x1="10" x2="10" y1="11" y2="17" />
+      <line x1="14" x2="14" y1="11" y2="17" />
+    </svg>
+  ),
+  Save: () => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+      <polyline points="17 21 17 13 7 13 7 21" />
+      <polyline points="7 3 7 8 15 8" />
+    </svg>
+  ),
+};
 
 export default function AdvancedConfigurationView({
   spaceId,
@@ -131,414 +245,470 @@ export default function AdvancedConfigurationView({
       currentTab="features"
       subPage={{ name: featureName, path: `/spaces/${spaceId}/features` }}
     >
-      {/* Header */}
-      <div className="mb-12 mt-12">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2">
-              Advanced Configuration
-            </h1>
-            <p className="text-slate-400">
-              Fine-tune your feature rollout with precision targeting and
-              scheduling
+      <div className="animate-in fade-in duration-1000 space-y-12">
+        {/* Header Hero */}
+        <div className="relative group overflow-hidden bg-[#0b0e14]/40 border border-white/5 rounded-[2.5rem] p-8 md:p-12 transition-all hover:border-white/10">
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none group-hover:bg-cyan-500/15 transition-colors duration-700"></div>
+
+          <div className="relative z-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-cyan-400/20 to-blue-600/20 flex items-center justify-center text-cyan-400 border border-cyan-500/20 shadow-2xl">
+                  <Icons.Settings />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-[0.3em] mb-1">
+                    Configuration Engine
+                  </p>
+                  <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+                    Advanced Rules
+                  </h1>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="bg-white/3 border border-white/5 rounded-2xl p-4 min-w-[140px] hover:bg-white/5 transition-colors">
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+                    Feature
+                  </p>
+                  <p className="text-sm font-bold text-cyan-400 truncate max-w-[150px]">
+                    {featureName}
+                  </p>
+                  <p className="text-[10px] text-slate-600 font-mono mt-0.5">
+                    {featureKey}
+                  </p>
+                </div>
+                <div className="bg-white/3 border border-white/5 rounded-2xl p-4 min-w-[100px] hover:bg-white/5 transition-colors">
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+                    Type
+                  </p>
+                  <p className="text-sm font-bold text-purple-400 capitalize">
+                    {featureType}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Status Messages */}
+        {showSaveNotification && (
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 text-emerald-400 flex items-center gap-3 animate-in slide-in-from-top-4">
+            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <span className="text-sm">✓</span>
+            </div>
+            <p className="text-sm font-bold uppercase tracking-widest">
+              Configuration synced to edge successfully
             </p>
           </div>
+        )}
 
-          <div className="flex gap-3">
-            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
-              <p className="text-xs text-slate-400 uppercase tracking-wide font-bold">
-                Feature
-              </p>
-              <p className="text-lg font-bold text-cyan-300 mt-1">
-                {featureName}
-              </p>
-              <p className="text-xs text-slate-500 font-mono mt-1">
-                {featureKey}
-              </p>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Main Controls */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Rollout Configuration */}
+            <section className="bg-white/3 border border-white/5 rounded-4xl p-8 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[80px] rounded-full -mr-32 -mt-32"></div>
 
-            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
-              <p className="text-xs text-slate-400 uppercase tracking-wide font-bold">
-                Type
-              </p>
-              <p className="text-lg font-bold text-purple-300 mt-1 capitalize">
-                {featureType}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Save Notification */}
-      {showSaveNotification && (
-        <div className="mb-6 bg-green-950/50 border border-green-700/50 rounded-lg p-4 text-green-300 flex items-center gap-3">
-          <span className="text-xl">✓</span>
-          <span className="font-semibold">Advanced configuration saved</span>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="space-y-6">
-        {/* Rollout Configuration Card */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-2xl">📊</span>
-            <div>
-              <h2 className="text-xl font-bold text-white">
-                Rollout Configuration
-              </h2>
-              <p className="text-xs text-slate-400">
-                Gradually roll out this feature to a percentage of users
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-semibold text-slate-200">
-                  Rollout Percentage
-                </label>
-                <span className="text-3xl font-bold text-cyan-400">
-                  {rolloutPercentage}%
-                </span>
-              </div>
-
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={rolloutPercentage}
-                onChange={(e) =>
-                  setRolloutPercentage(parseInt(e.target.value, 10))
-                }
-                className="w-full h-2 bg-slate-700 rounded-full appearance-none cursor-pointer accent-cyan-500"
-              />
-
-              <div className="flex justify-between text-xs text-slate-500 mt-2">
-                <span>0% — Nobody</span>
-                <span>50% — Early Access</span>
-                <span>100% — Everyone</span>
-              </div>
-
-              {/* Status row */}
-              <div className="grid grid-cols-3 gap-3 mt-4">
-                <div className="bg-slate-900/50 rounded p-3 text-center border border-slate-700">
-                  <p className="text-xs text-slate-400">Status</p>
-                  <p className="text-sm font-semibold text-cyan-300 mt-1">
-                    {rolloutPercentage === 100
-                      ? "Full"
-                      : rolloutPercentage > 0
-                        ? "Partial"
-                        : "Offline"}
-                  </p>
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20">
+                    <Icons.Chart />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white tracking-tight">
+                      Rollout Strategy
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Control exposure across your user base
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-slate-900/50 rounded p-3 text-center border border-slate-700">
-                  <p className="text-xs text-slate-400">Users</p>
-                  <p className="text-sm font-semibold text-purple-300 mt-1">
-                    {rolloutPercentage}%
-                  </p>
-                </div>
-                <div className="bg-slate-900/50 rounded p-3 text-center border border-slate-700">
-                  <p className="text-xs text-slate-400">Mode</p>
-                  <p className="text-sm font-semibold text-green-300 mt-1">
-                    {rolloutPercentage > 0 ? "Active" : "Paused"}
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            <div className="border-t border-slate-700 pt-6">
-              <p className="text-sm font-semibold text-slate-300 mb-3">
-                Rollout Timeline
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-2">
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    value={rolloutStartDate}
-                    onChange={(e) => setRolloutStartDate(e.target.value)}
-                    className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-2">
-                    End Date
-                  </label>
-                  <input
-                    type="date"
-                    value={rolloutEndDate}
-                    onChange={(e) => setRolloutEndDate(e.target.value)}
-                    className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Targeting Rules Card */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-          <div className="flex items-center justify-between gap-3 mb-6">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🎯</span>
-              <div>
-                <h2 className="text-xl font-bold text-white">
-                  Targeting Rules
-                </h2>
-                <p className="text-xs text-slate-400">
-                  Define which users this feature applies to
-                </p>
-              </div>
-            </div>
-            <span className="inline-flex items-center justify-center w-7 h-7 bg-slate-700 rounded-full text-slate-300 text-xs font-bold">
-              {targetingRules.length}
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            {/* Active Rules */}
-            {targetingRules.length === 0 ? (
-              <p className="text-sm text-slate-500 py-4">
-                No targeting rules defined yet
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {targetingRules.map((rule, idx) => (
-                  <div
-                    key={rule.id}
-                    className="bg-slate-900/50 border border-slate-700 rounded p-3 flex items-center justify-between group/rule"
-                  >
-                    <div className="flex items-center gap-3 flex-1">
-                      <span className="text-xs font-semibold text-slate-400">
-                        {idx + 1}.
+                <div className="space-y-12">
+                  <div className="space-y-6">
+                    <div className="flex items-end justify-between">
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                        Traffic Percentage
+                      </p>
+                      <span className="text-5xl font-black text-white tracking-tighter">
+                        {rolloutPercentage}
+                        <span className="text-cyan-500 text-2xl">%</span>
                       </span>
-                      <p className="text-sm text-slate-300 flex-1">
-                        <span className="text-purple-300 font-semibold">
-                          {getRuleTypeLabel(rule.type)}
-                        </span>{" "}
-                        <span className="text-slate-500">
-                          {getOperatorLabel(rule.operator)}
-                        </span>{" "}
-                        <span className="text-cyan-300">"{rule.value}"</span>
+                    </div>
+
+                    <div className="relative h-4 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                      <div
+                        className="absolute top-0 left-0 h-full bg-linear-to-r from-cyan-600 to-blue-500 shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all duration-500"
+                        style={{ width: `${rolloutPercentage}%` }}
+                      ></div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="5"
+                        value={rolloutPercentage}
+                        onChange={(e) =>
+                          setRolloutPercentage(parseInt(e.target.value, 10))
+                        }
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-black/20 rounded-xl p-4 border border-white/5 text-center">
+                        <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-1">
+                          Status
+                        </p>
+                        <p
+                          className={`text-xs font-black uppercase ${rolloutPercentage === 100 ? "text-cyan-400" : rolloutPercentage > 0 ? "text-amber-400" : "text-slate-500"}`}
+                        >
+                          {rolloutPercentage === 100
+                            ? "Global"
+                            : rolloutPercentage > 0
+                              ? "Gradual"
+                              : "Off"}
+                        </p>
+                      </div>
+                      <div className="bg-black/20 rounded-xl p-4 border border-white/5 text-center">
+                        <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-1">
+                          Exposure
+                        </p>
+                        <p className="text-xs font-black text-purple-400 uppercase">
+                          {rolloutPercentage}% Population
+                        </p>
+                      </div>
+                      <div className="bg-black/20 rounded-xl p-4 border border-white/5 text-center">
+                        <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-1">
+                          Engine
+                        </p>
+                        <p className="text-xs font-black text-emerald-400 uppercase">
+                          Sticky-Hash
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-8 border-t border-white/5">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">
+                      Transition Timeline
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-slate-500 ml-1">
+                          START DATE
+                        </label>
+                        <input
+                          type="date"
+                          value={rolloutStartDate}
+                          onChange={(e) => setRolloutStartDate(e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-cyan-500/50 outline-hidden transition-all focus:border-cyan-500/50"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-slate-500 ml-1">
+                          END DATE
+                        </label>
+                        <input
+                          type="date"
+                          value={rolloutEndDate}
+                          onChange={(e) => setRolloutEndDate(e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-cyan-500/50 outline-hidden transition-all focus:border-cyan-500/50"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Targeting Rules */}
+            <section className="bg-white/3 border border-white/5 rounded-4xl p-8 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-[80px] rounded-full -mr-32 -mt-32"></div>
+
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20">
+                      <Icons.Target />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white tracking-tight">
+                        Targeting Logic
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium">
+                        Define precise segments for exclusion or inclusion
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleRemoveRule(rule.id)}
-                      className="text-slate-500 hover:text-red-400 p-1 transition opacity-0 group-hover/rule:opacity-100"
-                      title="Remove rule"
-                    >
-                      ✕
-                    </button>
                   </div>
-                ))}
+                  <div className="bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                    <span className="text-[10px] font-black text-purple-400">
+                      RULES: {targetingRules.length}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-4 mb-10">
+                  {targetingRules.length === 0 ? (
+                    <div className="bg-black/20 border border-dashed border-white/10 rounded-2xl py-12 text-center">
+                      <p className="text-slate-600 text-sm italic font-medium">
+                        No targeting rules defined. Feature matches all users by
+                        default.
+                      </p>
+                    </div>
+                  ) : (
+                    targetingRules.map((rule, idx) => (
+                      <div
+                        key={rule.id}
+                        className="group/rule flex items-center gap-4 bg-white/5 border border-white/5 rounded-2xl p-4 hover:border-purple-500/30 transition-all"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-black/40 flex items-center justify-center text-[10px] font-black text-slate-500">
+                          {idx + 1}
+                        </div>
+                        <div className="flex-1 flex flex-wrap items-center gap-2">
+                          <span className="text-xs font-bold text-purple-400 bg-purple-400/10 px-2 py-1 rounded-md">
+                            {getRuleTypeLabel(rule.type)}
+                          </span>
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                            {getOperatorLabel(rule.operator)}
+                          </span>
+                          <span className="text-xs font-mono font-bold text-white bg-black/40 px-3 py-1 rounded-md border border-white/5">
+                            "{rule.value}"
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveRule(rule.id)}
+                          className="opacity-0 group-hover/rule:opacity-100 w-8 h-8 rounded-lg hover:bg-red-500/20 text-slate-500 hover:text-red-400 transition-all flex items-center justify-center"
+                        >
+                          <Icons.Trash />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="bg-black/30 border border-white/5 rounded-2xl p-6 space-y-6">
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                    Craft New Segment Rule
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-bold text-slate-600 ml-1 uppercase">
+                        Attribute
+                      </label>
+                      <select
+                        value={newRuleType}
+                        onChange={(e) =>
+                          setNewRuleType(
+                            e.target.value as TargetingRule["type"],
+                          )
+                        }
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-hidden focus:ring-2 focus:ring-purple-500/50 transition-all"
+                      >
+                        <option value="email_domain">Email Domain</option>
+                        <option value="user_id">User ID</option>
+                        <option value="user_segment">User Segment</option>
+                        <option value="percentage">Percentage</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-bold text-slate-600 ml-1 uppercase">
+                        Operator
+                      </label>
+                      <select
+                        value={newRuleOperator}
+                        onChange={(e) =>
+                          setNewRuleOperator(
+                            e.target.value as TargetingRule["operator"],
+                          )
+                        }
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-hidden focus:ring-2 focus:ring-purple-500/50 transition-all"
+                      >
+                        <option value="equals">Equals</option>
+                        <option value="contains">Contains</option>
+                        <option value="greater_than">Greater than</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-bold text-slate-600 ml-1 uppercase">
+                        Value
+                      </label>
+                      <input
+                        type="text"
+                        value={newRuleValue}
+                        onChange={(e) => setNewRuleValue(e.target.value)}
+                        placeholder="e.g. enterprise.com"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs placeholder-slate-600 outline-hidden focus:ring-2 focus:ring-purple-500/50 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleAddRule}
+                    className="w-full py-3 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-400 rounded-xl text-xs font-bold uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    + Append Targeting Rule
+                  </button>
+                </div>
               </div>
-            )}
+            </section>
+          </div>
 
-            {/* Add New Rule */}
-            <div className="border-t border-slate-700 pt-4 space-y-3">
-              <p className="text-sm font-semibold text-slate-300">
-                Add New Rule
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <select
-                  value={newRuleType}
-                  onChange={(e) =>
-                    setNewRuleType(e.target.value as TargetingRule["type"])
-                  }
-                  className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                >
-                  <option value="email_domain">Email Domain</option>
-                  <option value="user_id">User ID</option>
-                  <option value="user_segment">User Segment</option>
-                  <option value="percentage">Percentage</option>
-                </select>
-
-                <select
-                  value={newRuleOperator}
-                  onChange={(e) =>
-                    setNewRuleOperator(
-                      e.target.value as TargetingRule["operator"],
-                    )
-                  }
-                  className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                >
-                  <option value="equals">Equals</option>
-                  <option value="contains">Contains</option>
-                  <option value="greater_than">Greater than</option>
-                </select>
-
-                <input
-                  type="text"
-                  value={newRuleValue}
-                  onChange={(e) => setNewRuleValue(e.target.value)}
-                  placeholder="e.g., @company.com"
-                  className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-500 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                />
+          {/* Sidebar Config */}
+          <div className="lg:col-span-4 space-y-8">
+            {/* Default Value */}
+            <section className="bg-linear-to-br from-[#0b0e14] to-black border border-white/5 rounded-4xl p-8">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20">
+                  <span className="text-lg">⚙️</span>
+                </div>
+                <h4 className="font-bold text-white tracking-tight">
+                  Fallback State
+                </h4>
               </div>
-              <button
-                onClick={handleAddRule}
-                className="w-full px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded text-sm font-semibold transition"
-              >
-                + Add Rule
-              </button>
-            </div>
-          </div>
-        </div>
 
-        {/* Default Value Card */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">⚙️</span>
-            <div>
-              <h2 className="text-xl font-bold text-white">Default Value</h2>
-              <p className="text-xs text-slate-400">
-                Fallback when feature is not explicitly set
-              </p>
-            </div>
-          </div>
+              {featureType === "boolean" ? (
+                <div className="grid grid-cols-2 gap-3 p-1 bg-white/5 rounded-2xl border border-white/5">
+                  <button
+                    onClick={() => setDefaultValue("false")}
+                    className={`py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${
+                      defaultValue === "false"
+                        ? "bg-red-500/20 border border-red-500/30 text-red-400 shadow-2xl"
+                        : "text-slate-600 hover:text-slate-400"
+                    }`}
+                  >
+                    OFF
+                  </button>
+                  <button
+                    onClick={() => setDefaultValue("true")}
+                    className={`py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${
+                      defaultValue === "true"
+                        ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 shadow-2xl"
+                        : "text-slate-600 hover:text-slate-400"
+                    }`}
+                  >
+                    ON
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    Static Constant
+                  </p>
+                  {featureType === "string" ? (
+                    <input
+                      type="text"
+                      value={defaultValue}
+                      onChange={(e) => setDefaultValue(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-hidden focus:ring-2 focus:ring-cyan-500/50"
+                    />
+                  ) : (
+                    <textarea
+                      value={defaultValue}
+                      onChange={(e) => setDefaultValue(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-mono h-32 resize-none outline-hidden focus:ring-2 focus:ring-cyan-500/50"
+                    />
+                  )}
+                </div>
+              )}
+            </section>
 
-          {featureType === "boolean" ? (
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setDefaultValue("false")}
-                className={`px-4 py-3 rounded font-semibold transition ${
-                  defaultValue === "false"
-                    ? "bg-red-600/30 border border-red-500/50 text-red-200"
-                    : "bg-slate-700 border border-slate-600 text-slate-400 hover:border-slate-500"
-                }`}
-              >
-                <span className="text-lg mr-2">
-                  {defaultValue === "false" ? "🔴" : "⭕"}
-                </span>
-                OFF
-              </button>
-              <button
-                onClick={() => setDefaultValue("true")}
-                className={`px-4 py-3 rounded font-semibold transition ${
-                  defaultValue === "true"
-                    ? "bg-green-600/30 border border-green-500/50 text-green-200"
-                    : "bg-slate-700 border border-slate-600 text-slate-400 hover:border-slate-500"
-                }`}
-              >
-                <span className="text-lg mr-2">
-                  {defaultValue === "true" ? "🟢" : "⭕"}
-                </span>
-                ON
-              </button>
-            </div>
-          ) : featureType === "string" ? (
-            <input
-              type="text"
-              value={defaultValue}
-              onChange={(e) => setDefaultValue(e.target.value)}
-              placeholder="Enter default value"
-              className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-500 text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-            />
-          ) : (
-            <textarea
-              value={defaultValue}
-              onChange={(e) => setDefaultValue(e.target.value)}
-              placeholder='{"key": "value"}'
-              className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-500 text-sm font-mono h-24 resize-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-            />
-          )}
-        </div>
+            {/* Scheduling */}
+            <section className="bg-linear-to-br from-[#0b0e14] to-black border border-white/5 rounded-4xl p-8 group">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20">
+                    <Icons.Clock />
+                  </div>
+                  <h4 className="font-bold text-white tracking-tight">
+                    Timeline
+                  </h4>
+                </div>
+                <div
+                  onClick={() => setSchedulingEnabled(!schedulingEnabled)}
+                  className={`w-12 h-6 rounded-full border border-white/10 relative cursor-pointer transition-all ${schedulingEnabled ? "bg-amber-500/40" : "bg-white/5"}`}
+                >
+                  <div
+                    className={`absolute top-1 w-4 h-4 rounded-full transition-all ${schedulingEnabled ? "right-1 bg-white shadow-2xl" : "left-1 bg-slate-700"}`}
+                  ></div>
+                </div>
+              </div>
 
-        {/* Scheduling Card */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🕐</span>
-              <div>
-                <h2 className="text-xl font-bold text-white">Scheduling</h2>
-                <p className="text-xs text-slate-400">
-                  Set dates and times for automatic activation
+              {schedulingEnabled ? (
+                <div className="space-y-6 pt-2 animate-in fade-in slide-in-from-top-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-bold text-slate-600 uppercase">
+                        START
+                      </p>
+                      <input
+                        type="date"
+                        value={scheduleStartDate}
+                        onChange={(e) => setScheduleStartDate(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-[10px] text-white outline-hidden"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-bold text-slate-600 uppercase">
+                        TIME
+                      </p>
+                      <input
+                        type="time"
+                        value={scheduleStartTime}
+                        onChange={(e) => setScheduleStartTime(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-[10px] text-white outline-hidden"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-bold text-slate-600 uppercase">
+                        END
+                      </p>
+                      <input
+                        type="date"
+                        value={scheduleEndDate}
+                        onChange={(e) => setScheduleEndDate(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-[10px] text-white outline-hidden"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-bold text-slate-600 uppercase">
+                        TIME
+                      </p>
+                      <input
+                        type="time"
+                        value={scheduleEndTime}
+                        onChange={(e) => setScheduleEndTime(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-[10px] text-white outline-hidden"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                  System ignore scheduling. Configuration will be deployed
+                  immediately upon sync.
                 </p>
-              </div>
+              )}
+            </section>
+
+            {/* Actions */}
+            <div className="space-y-4 pt-4">
+              <button
+                onClick={handleSaveConfiguration}
+                className="w-full py-5 bg-cyan-500 hover:bg-cyan-400 text-black rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3"
+              >
+                <Icons.Save />
+                Deploy changes
+              </button>
+              <a
+                href={`/spaces/${spaceId}/features`}
+                className="block w-full py-4 text-center text-slate-500 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors"
+              >
+                Discard session
+              </a>
             </div>
           </div>
-
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={schedulingEnabled}
-              onChange={(e) => setSchedulingEnabled(e.target.checked)}
-              className="w-4 h-4 rounded accent-cyan-500"
-            />
-            <span className="text-sm text-slate-300">
-              Enable scheduled rollout
-            </span>
-          </label>
-
-          {schedulingEnabled && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-700">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-2">
-                  Start Date
-                </label>
-                <input
-                  type="date"
-                  value={scheduleStartDate}
-                  onChange={(e) => setScheduleStartDate(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-2">
-                  Start Time
-                </label>
-                <input
-                  type="time"
-                  value={scheduleStartTime}
-                  onChange={(e) => setScheduleStartTime(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-2">
-                  End Date
-                </label>
-                <input
-                  type="date"
-                  value={scheduleEndDate}
-                  onChange={(e) => setScheduleEndDate(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-2">
-                  End Time
-                </label>
-                <input
-                  type="time"
-                  value={scheduleEndTime}
-                  onChange={(e) => setScheduleEndTime(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-3 pt-6 border-t border-slate-700">
-          <a
-            href={`/spaces/${spaceId}/features`}
-            className="flex-1 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded text-center text-sm font-semibold transition"
-          >
-            Cancel
-          </a>
-          <button
-            onClick={handleSaveConfiguration}
-            className="flex-1 px-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-sm font-semibold transition"
-          >
-            💾 Save Configuration
-          </button>
         </div>
       </div>
     </PageContainer>

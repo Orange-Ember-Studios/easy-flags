@@ -35,7 +35,7 @@ if (!validateNestedResource(feature, "space_id", space.id, Astro, "Feature")) {
 const title = `${feature.name} - Advanced Configuration`;
 ---
 
-<BaseLayout title={title} includeHeader={true}>
+<BaseLayout title={title} includeHeader={true} fullWidth={true}>
   <AdvancedConfigurationView
     client:load
     spaceId={spaceSlug}
