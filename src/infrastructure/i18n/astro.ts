@@ -26,8 +26,8 @@ export function getLocale(request: Request): AvailableLanguages {
   const cookieHeader = request.headers.get("cookie");
   if (cookieHeader) {
     const cookies = Object.fromEntries(
-      cookieHeader.split("; ").map((c) => {
-        const [key, ...v] = c.split("=");
+      cookieHeader.split(";").map((c) => {
+        const [key, ...v] = c.trim().split("=");
         return [key, v.join("=")];
       }),
     );

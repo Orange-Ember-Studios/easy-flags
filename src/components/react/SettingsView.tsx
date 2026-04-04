@@ -734,8 +734,8 @@ export default function SettingsView({ initialLocale }: SettingsViewProps) {
                       <button
                         key={lang}
                         onClick={() => {
-                          document.cookie = `lang=${lang}; path=/; max-age=31536000`;
-                          window.location.reload();
+                          const currentPath = window.location.pathname + window.location.search + window.location.hash;
+                          window.location.href = `/api/i18n/set-language?lang=${lang}&redirect=${encodeURIComponent(currentPath)}`;
                         }}
                         className={`px-3 py-1 rounded-md text-sm font-medium transition ${
                           (initialLocale || 'en') === lang
