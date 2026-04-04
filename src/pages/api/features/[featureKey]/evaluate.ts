@@ -9,23 +9,11 @@ export const prerender = false;
 import type { APIRoute } from "astro";
 import { getUserFromContext } from "@/utils/auth";
 import { unauthorizedResponse, badRequestResponse } from "@/utils/api";
-import { FeatureFlagService, FeatureService } from "@application/services";
-import {
-  getAnalyticsMiddleware,
-  type EvaluationContext,
-  type EvaluationResult,
-} from "@/lib/analytics-middleware";
+import { getAnalyticsMiddleware, type EvaluationContext } from "@/lib/analytics-middleware";
+import { FlagEvaluationService } from "@application/services";
 
-const featureFlagService = new FeatureFlagService();
-const featureService = new FeatureService();
 const analyticsMiddleware = getAnalyticsMiddleware();
-
-interface EvaluationQuery {
-  environment_id: string;
-  user_id?: string;
-  api_key: string;
-  context?: Record<string, any>;
-}
+const evaluationService = new FlagEvaluationService();
 
 /**
  * GET /api/features/[featureKey]/evaluate
@@ -91,124 +79,49 @@ export const GET: APIRoute = async (context) => {
       );
     }
 
-    // Get the feature
-    const feature = await featureService.getFeatureByKey(
-      parseInt(spaceId),
-      featureKey,
-    );
-    if (!feature) {
-      return new Response(
-        JSON.stringify({ error: "Feature not found", feature_key: featureKey }),
-        {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    // Get the feature flag for this environment
-    const flag = await featureFlagService.getFeatureFlagByFeatureAndEnvironment(
-      feature.id,
-      parseInt(environmentId),
-    );
-
-    if (!flag) {
-      return new Response(
-        JSON.stringify({
-          error: "Feature flag configuration not found",
-          feature_key: featureKey,
-          environment_id: environmentId,
-        }),
-        {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    // Prepare evaluation context
-    const evaluationContext: EvaluationContext = {
+    // Evaluate using our core service
+    const result = await evaluationService.evaluateFlag(featureKey, {
       spaceId: parseInt(spaceId),
       environmentId: parseInt(environmentId),
-      featureId: feature.id,
       apiKey,
       userId: userId || undefined,
       customContext: contextData ? JSON.parse(contextData) : {},
-    };
+    });
 
-    // Evaluate the flag
-    const startTime = performance.now();
-    let error: string | undefined;
-    let value: boolean | string | Record<string, any> = false;
-
-    try {
-      // Determine flag value based on configuration
-      if (!flag.is_enabled) {
-        value = false;
-      } else {
-        // Check rollout percentage
-        if (
-          flag.rollout_percentage !== undefined &&
-          flag.rollout_percentage < 100
-        ) {
-          // Use deterministic hash of user_id for consistent rollout
-          if (userId) {
-            const hash =
-              parseInt(
-                userId
-                  .split("")
-                  .reduce((acc, char) => acc + char.charCodeAt(0), 0)
-                  .toString(16),
-                16,
-              ) % 100;
-            value = hash < flag.rollout_percentage;
-          } else {
-            // No user ID, use random
-            value = Math.random() * 100 < flag.rollout_percentage;
-          }
-        } else {
-          value = true;
-        }
-
-        // If flag has a specific value, use it
-        if (flag.value !== undefined && flag.value !== null) {
-          try {
-            value = JSON.parse(flag.value);
-          } catch {
-            value = flag.value;
-          }
-        }
-      }
-    } catch (err) {
-      error = err instanceof Error ? err.message : "Evaluation failed";
-      value = false;
+    if (result.error && result.error.includes("not found")) {
+      return new Response(JSON.stringify({ error: result.error, feature_key: featureKey }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    const evaluationTimeMs = performance.now() - startTime;
+    // Track the evaluation asynchronously if we got a featureId
+    if (result.featureId) {
+      const trackContext: EvaluationContext = {
+        spaceId: parseInt(spaceId),
+        environmentId: parseInt(environmentId),
+        featureId: result.featureId,
+        apiKey,
+        userId: userId || undefined,
+        customContext: contextData ? JSON.parse(contextData) : {},
+      };
 
-    // Prepare evaluation result
-    const result: EvaluationResult = {
-      value,
-      evaluationTimeMs,
-      error,
-    };
-
-    // Track the evaluation asynchronously
-    analyticsMiddleware.trackEvaluation(evaluationContext, result).catch((err) => {
-      console.error("Failed to track evaluation:", err);
-    });
+      analyticsMiddleware.trackEvaluation(trackContext, result).catch((err) => {
+        console.error("Failed to track evaluation:", err);
+      });
+    }
 
     return new Response(
       JSON.stringify({
         feature_key: featureKey,
-        value,
-        evaluation_time_ms: evaluationTimeMs,
+        value: result.value,
+        evaluation_time_ms: result.evaluationTimeMs,
         environment: parseInt(environmentId),
-        tracked: true,
-        error,
+        tracked: !!result.featureId,
+        error: result.error,
       }),
       {
-        status: error ? 200 : 200,
+        status: 200,
         headers: { "Content-Type": "application/json" },
       },
     );
@@ -272,116 +185,47 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    // Get the feature
-    const feature = await featureService.getFeatureByKey(space_id, featureKey);
-    if (!feature) {
-      return new Response(
-        JSON.stringify({ error: "Feature not found", feature_key: featureKey }),
-        {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    // Get the feature flag
-    const flag = await featureFlagService.getFeatureFlagByFeatureAndEnvironment(
-      feature.id,
-      environment_id,
-    );
-
-    if (!flag) {
-      return new Response(
-        JSON.stringify({
-          error: "Feature flag configuration not found",
-          feature_key: featureKey,
-          environment_id,
-        }),
-        {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    // Prepare evaluation context
-    const evaluationContext: EvaluationContext = {
+    // Evaluate using our core service
+    const result = await evaluationService.evaluateFlag(featureKey, {
       spaceId: space_id,
       environmentId: environment_id,
-      featureId: feature.id,
       apiKey: api_key,
       userId: user_id,
       customContext: customContext || {},
-    };
+    });
 
-    // Evaluate the flag
-    const startTime = performance.now();
-    let error: string | undefined;
-    let value: boolean | string | Record<string, any> = false;
-
-    try {
-      if (!flag.is_enabled) {
-        value = false;
-      } else {
-        if (
-          flag.rollout_percentage !== undefined &&
-          flag.rollout_percentage < 100
-        ) {
-          if (user_id) {
-            const hash =
-              parseInt(
-                user_id
-                  .split("")
-                  .reduce(
-                    (acc: number, char: string) => acc + char.charCodeAt(0),
-                    0,
-                  )
-                  .toString(16),
-                16,
-              ) % 100;
-            value = hash < flag.rollout_percentage;
-          } else {
-            value = Math.random() * 100 < flag.rollout_percentage;
-          }
-        } else {
-          value = true;
-        }
-
-        if (flag.value !== undefined && flag.value !== null) {
-          try {
-            value = JSON.parse(flag.value);
-          } catch {
-            value = flag.value;
-          }
-        }
-      }
-    } catch (err) {
-      error = err instanceof Error ? err.message : "Evaluation failed";
-      value = false;
+    if (result.error && result.error.includes("not found")) {
+      return new Response(JSON.stringify({ error: result.error, feature_key: featureKey }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    const evaluationTimeMs = performance.now() - startTime;
+    // Prepare evaluation context for tracking
+    if (result.featureId) {
+      const trackContext: EvaluationContext = {
+        spaceId: space_id,
+        environmentId: environment_id,
+        featureId: result.featureId,
+        apiKey: api_key,
+        userId: user_id,
+        customContext: customContext || {},
+      };
 
-    // Prepare evaluation result
-    const result: EvaluationResult = {
-      value,
-      evaluationTimeMs,
-      error,
-    };
-
-    // Track the evaluation
-    analyticsMiddleware.trackEvaluation(evaluationContext, result).catch((err) => {
-      console.error("Failed to track evaluation:", err);
-    });
+      // Track the evaluation
+      analyticsMiddleware.trackEvaluation(trackContext, result).catch((err) => {
+        console.error("Failed to track evaluation:", err);
+      });
+    }
 
     return new Response(
       JSON.stringify({
         feature_key: featureKey,
-        value,
-        evaluation_time_ms: evaluationTimeMs,
+        value: result.value,
+        evaluation_time_ms: result.evaluationTimeMs,
         environment: environment_id,
-        tracked: true,
-        error,
+        tracked: !!result.featureId,
+        error: result.error,
       }),
       {
         status: 200,

@@ -4,6 +4,8 @@
  */
 
 import { getRepositoryRegistry } from "@infrastructure/registry";
+import { FlagEvaluationService } from "./evaluation.service";
+export { FlagEvaluationService };
 import type {
   Space,
   Feature,
@@ -716,6 +718,7 @@ export class AuditService {
     };
 
     return this.createComplianceReport(spaceId, {
+      space_id: spaceId,
       report_type: reportType,
       period_start: dateFrom,
       period_end: dateTo,
@@ -723,7 +726,7 @@ export class AuditService {
       critical_actions: criticalActions,
       failed_actions: failedActions,
       unique_users: uniqueUsers,
-      data: reportData,
+      data: JSON.stringify(reportData),
     });
   }
 
