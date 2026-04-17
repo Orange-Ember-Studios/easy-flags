@@ -84,6 +84,7 @@ export const fr = {
     docs: "Documentation",
     metrics: "Métriques",
     pricing: "Tarification",
+    billing: "Facturation",
     spaces: "Espaces",
     apiReference: "Référence API",
     members: "Membres",

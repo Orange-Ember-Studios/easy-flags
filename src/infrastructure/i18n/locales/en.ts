@@ -79,6 +79,7 @@ export const en = {
     docs: 'Documentation',
     metrics: 'Metrics',
     pricing: 'Pricing',
+    billing: 'Billing',
     spaces: 'Spaces',
     apiReference: 'API Reference',
     members: 'Members',

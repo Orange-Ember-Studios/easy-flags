@@ -67,6 +67,13 @@ export default function HeaderDropdown({
               </a>
             )}
             <a
+              href="/billing"
+              className="flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-cyan-400 transition"
+            >
+              <Icon name="CreditCard" size={16} />
+              <span>{t('navigation.billing')}</span>
+            </a>
+            <a
               href="/settings"
               className="flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-cyan-400 transition"
             >
