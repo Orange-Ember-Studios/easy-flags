@@ -55,7 +55,7 @@ export async function getUserByUsername(
   try {
     const db = await getDatabase();
     const result = await db.execute({
-      sql: "SELECT id, username, email, role_id, is_active, token_version, created_at, updated_at FROM users WHERE username = ?",
+      sql: "SELECT id, username, email, role_id, is_active, token_version, created_at, updated_at FROM users WHERE LOWER(username) = LOWER(?)",
       args: [username],
     });
 
@@ -119,7 +119,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   try {
     const db = await getDatabase();
     const result = await db.execute({
-      sql: "SELECT id, username, email, role_id, is_active, token_version, created_at, updated_at FROM users WHERE email = ?",
+      sql: "SELECT id, username, email, role_id, is_active, token_version, created_at, updated_at FROM users WHERE LOWER(email) = LOWER(?)",
       args: [email],
     });
 
@@ -159,7 +159,7 @@ export async function verifyCredentials(
 
     // Get user with password hash
     const result = await db.execute({
-      sql: "SELECT id, username, email, password_hash, role_id, is_active, token_version, created_at, updated_at FROM users WHERE username = ? AND is_active = 1",
+      sql: "SELECT id, username, email, password_hash, role_id, is_active, token_version, created_at, updated_at FROM users WHERE LOWER(username) = LOWER(?) AND is_active = 1",
       args: [username],
     });
 

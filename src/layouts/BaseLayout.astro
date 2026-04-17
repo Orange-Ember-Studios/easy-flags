@@ -148,7 +148,7 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
   <body
     class={`bg-[#06080f] text-slate-100 selection:bg-cyan-500/30 min-h-screen`}
   >
-    <I18nProvider client:load initialLocale={locale}>
+    <I18nProvider initialLocale={locale}>
       <div class="root flex flex-col min-h-screen">
         {includeHeader && <Header />}
         {
@@ -160,7 +160,7 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
             </main>
           )
         }
-        <Modals client:load />
+        <Modals client:load initialLocale={locale} />
       </div>
     </I18nProvider>
   </body>

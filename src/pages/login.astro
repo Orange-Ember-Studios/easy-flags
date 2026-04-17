@@ -8,9 +8,10 @@ const { t } = getTranslator(Astro.request);
 
 export const prerender = false;
 
-// Redirect authenticated users to spaces
+// Redirect authenticated users to spaces (or where they were going)
 if (redirectIfAuthenticated(Astro)) {
-  return Astro.redirect("/spaces");
+  const redirectUrl = Astro.url.searchParams.get("redirect") || "/spaces";
+  return Astro.redirect(redirectUrl);
 }
 
 // Get redirect URL from query params (where user was trying to go)

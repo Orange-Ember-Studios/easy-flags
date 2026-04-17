@@ -61,6 +61,8 @@ export function redirectIfAuthenticated(
   const user = getUserFromContext(astroContext);
 
   if (user) {
+    const urlRedirect = astroContext.url.searchParams.get("redirect");
+    if (urlRedirect) return true; // Parent should handle the redirect to urlRedirect
     return true;
   }
   return false;
