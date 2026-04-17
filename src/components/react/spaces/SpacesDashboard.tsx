@@ -131,8 +131,11 @@ export default function SpacesDashboard({ initialLocale }: SpacesDashboardProps)
             />
           </div>
           <button
-            onClick={() => setShowCreateModal(true)}
-            className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2 py-3.5! px-8! shadow-xl shadow-cyan-500/20"
+            onClick={() => {
+              console.log("Opening create space modal...");
+              setShowCreateModal(true);
+            }}
+            className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2 py-3.5 px-8 shadow-xl shadow-cyan-500/20 relative z-20"
           >
             <Icon name="Plus" size={18} />
             {t('spaces.createButton')}
@@ -243,12 +246,12 @@ export default function SpacesDashboard({ initialLocale }: SpacesDashboardProps)
 
       {/* Simplified Create Modal for this component - re-using the premium style */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
           <div 
-            className="absolute inset-0 bg-[#06080f]/60 backdrop-blur-md animate-in fade-in duration-300"
+            className="fixed inset-0 bg-[#06080f]/80 backdrop-blur-md transition-opacity duration-300"
             onClick={() => setShowCreateModal(false)}
           />
-          <div className="relative bg-[#0b0e14]/95 border border-white/10 rounded-4xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden">
+          <div className="relative bg-[#0b0e14] border border-white/10 rounded-4xl p-8 max-w-md w-full shadow-2xl transition-all duration-300 overflow-hidden my-auto">
             {/* Header Highlight - centered and faded at edges */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-linear-to-r from-transparent via-cyan-500/50 to-transparent"></div>
 

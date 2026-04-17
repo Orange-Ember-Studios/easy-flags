@@ -81,6 +81,7 @@ export const en = {
     pricing: 'Pricing',
     spaces: 'Spaces',
     apiReference: 'API Reference',
+    members: 'Members',
   },
   auth: {
     login: 'Login',

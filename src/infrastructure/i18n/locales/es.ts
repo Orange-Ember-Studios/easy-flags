@@ -81,6 +81,7 @@ export const es = {
     pricing: "Precios",
     spaces: "Espacios",
     apiReference: "Referencia API",
+    members: "Miembros",
   },
   auth: {
     login: "Iniciar sesión",

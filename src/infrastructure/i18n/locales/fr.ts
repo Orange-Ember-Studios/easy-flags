@@ -86,6 +86,7 @@ export const fr = {
     pricing: "Tarification",
     spaces: "Espaces",
     apiReference: "Référence API",
+    members: "Membres",
   },
   auth: {
     login: "Connexion",
