@@ -123,6 +123,13 @@ export const en = {
     scriptLoadError: 'Failed to load payment gateway. Please check your internet connection.',
     paymentDeclined: 'The payment was declined. Please try with another payment method.',
     paymentError: 'An error occurred during the payment process. Please try again later.',
+    customerDataTitle: 'Complete your information',
+    customerDataSubtitle: 'Please provide your details to proceed with the payment.',
+    phoneNumber: 'Phone Number',
+    legalIdType: 'ID Type',
+    legalId: 'ID Number',
+    continueToPayment: 'Continue to Payment',
+    close: 'Close',
   },
   contact: {
     title: 'Contact Us',

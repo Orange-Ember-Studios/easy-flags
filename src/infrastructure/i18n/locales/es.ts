@@ -125,6 +125,13 @@ export const es = {
     scriptLoadError: "Error al cargar la pasarela de pago. Por favor revise su conexión a internet.",
     paymentDeclined: "El pago fue declinado. Por favor intente con otro medio de pago.",
     paymentError: "Ocurrió un error durante el proceso de pago. Por favor intente más tarde.",
+    customerDataTitle: "Complete su información",
+    customerDataSubtitle: "Por favor, proporcione sus datos para proceder con el pago.",
+    phoneNumber: "Número de Teléfono",
+    legalIdType: "Tipo de Identificación",
+    legalId: "Número de Identificación",
+    continueToPayment: "Continuar al Pago",
+    close: "Cerrar",
   },
   contact: {
     title: "Contáctanos",

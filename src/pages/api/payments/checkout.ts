@@ -22,7 +22,16 @@ export const POST: APIRoute = async (context) => {
 
   try {
     const body = await context.request.json();
-    let { spaceId, planSlug } = body;
+    const { 
+      planSlug, 
+      phoneNumber, 
+      phoneNumberPrefix, 
+      legalId, 
+      legalIdType,
+      addressLine1,
+      city,
+      region
+    } = body;
 
     if (!planSlug) {
       return new Response(JSON.stringify(badRequestResponse("planSlug is required")), {
@@ -30,22 +39,31 @@ export const POST: APIRoute = async (context) => {
       });
     }
 
-    // If spaceId is not provided, pick the user's first space
-    if (!spaceId) {
-      const spaceService = new SpaceService();
-      const spaces = await spaceService.getUserSpaces(user.id);
-      
-      if (spaces.length === 0) {
-        return new Response(JSON.stringify(badRequestResponse("User has no spaces to upgrade")), {
-          status: HTTP_STATUS.BAD_REQUEST,
-        });
-      }
-      
-      spaceId = spaces[0].id;
+    const paymentService = PaymentService.getInstance();
+    
+    let ip = "";
+    try {
+      ip = context.clientAddress;
+    } catch (e) {
+      ip = context.request.headers.get("x-forwarded-for") || 
+           context.request.headers.get("x-real-ip") || 
+           "";
     }
 
-    const paymentService = PaymentService.getInstance();
-    const paymentData = await paymentService.initializePayment(spaceId, planSlug);
+    const paymentData = await paymentService.initializePayment(
+      user.id, 
+      planSlug, 
+      ip,
+      { 
+        phoneNumber, 
+        phoneNumberPrefix, 
+        legalId, 
+        legalIdType,
+        addressLine1,
+        city,
+        region
+      }
+    );
 
     return new Response(JSON.stringify(successResponse(paymentData)), {
       status: HTTP_STATUS.OK,

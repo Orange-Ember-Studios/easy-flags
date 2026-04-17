@@ -9,19 +9,20 @@ import type {
   PricingPlan,
   PricingPlanFeature,
   PricingPlanLimit,
-  SpaceSubscription,
+  UserSubscription,
   CreatePricingPlanDTO,
   UpdatePricingPlanDTO,
   CreatePricingPlanFeatureDTO,
   CreatePricingPlanLimitDTO,
-  CreateSpaceSubscriptionDTO,
-  UpdateSpaceSubscriptionDTO,
+  CreateUserSubscriptionDTO,
+  UpdateUserSubscriptionDTO,
+  SubscriptionStatus,
 } from "@domain/entities";
 import type {
   PricingPlanRepository,
   PricingPlanFeatureRepository,
   PricingPlanLimitRepository,
-  SpaceSubscriptionRepository,
+  UserSubscriptionRepository,
 } from "@application/ports/repositories";
 
 // ====================
@@ -41,13 +42,14 @@ export class LibSqlPricingPlanRepository implements PricingPlanRepository {
   async create(dto: CreatePricingPlanDTO): Promise<PricingPlan> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `INSERT INTO pricing_plans (slug, name, description, price, billing_period, is_active, is_recommended, sort_order, stripe_price_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      sql: `INSERT INTO pricing_plans (slug, name, description, price_usd, price_cop, billing_period, is_active, is_recommended, sort_order, stripe_price_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         dto.slug,
         dto.name,
         dto.description || null,
-        dto.price,
+        dto.price_usd,
+        dto.price_cop,
         dto.billing_period,
         dto.is_active !== false ? 1 : 0,
         dto.is_recommended ? 1 : 0,
@@ -64,7 +66,7 @@ export class LibSqlPricingPlanRepository implements PricingPlanRepository {
   async findById(id: number): Promise<PricingPlan | null> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `SELECT id, slug, name, description, price, billing_period, is_active, is_recommended, sort_order, stripe_price_id, created_at, updated_at
+      sql: `SELECT id, slug, name, description, price_usd, price_cop, billing_period, is_active, is_recommended, sort_order, stripe_price_id, created_at, updated_at
             FROM pricing_plans WHERE id = ?`,
       args: [id],
     });
@@ -77,7 +79,8 @@ export class LibSqlPricingPlanRepository implements PricingPlanRepository {
       slug: row.slug as string,
       name: row.name as string,
       description: row.description as string | undefined,
-      price: Number(row.price),
+      price_usd: Number(row.price_usd),
+      price_cop: Number(row.price_cop),
       billing_period: row.billing_period as "monthly" | "yearly" | "one-time",
       is_active: (row.is_active as number) === 1,
       is_recommended: (row.is_recommended as number) === 1,
@@ -91,7 +94,7 @@ export class LibSqlPricingPlanRepository implements PricingPlanRepository {
   async findBySlug(slug: string): Promise<PricingPlan | null> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `SELECT id, slug, name, description, price, billing_period, is_active, is_recommended, sort_order, stripe_price_id, created_at, updated_at
+      sql: `SELECT id, slug, name, description, price_usd, price_cop, billing_period, is_active, is_recommended, sort_order, stripe_price_id, created_at, updated_at
             FROM pricing_plans WHERE slug = ?`,
       args: [slug],
     });
@@ -104,7 +107,8 @@ export class LibSqlPricingPlanRepository implements PricingPlanRepository {
       slug: row.slug as string,
       name: row.name as string,
       description: row.description as string | undefined,
-      price: Number(row.price),
+      price_usd: Number(row.price_usd),
+      price_cop: Number(row.price_cop),
       billing_period: row.billing_period as "monthly" | "yearly" | "one-time",
       is_active: (row.is_active as number) === 1,
       is_recommended: (row.is_recommended as number) === 1,
@@ -118,9 +122,9 @@ export class LibSqlPricingPlanRepository implements PricingPlanRepository {
   async findAll(includeInactive: boolean = false): Promise<PricingPlan[]> {
     const db = await this.getDb();
     const query = includeInactive
-      ? `SELECT id, slug, name, description, price, billing_period, is_active, is_recommended, sort_order, stripe_price_id, created_at, updated_at
+      ? `SELECT id, slug, name, description, price_usd, price_cop, billing_period, is_active, is_recommended, sort_order, stripe_price_id, created_at, updated_at
          FROM pricing_plans ORDER BY sort_order ASC`
-      : `SELECT id, slug, name, description, price, billing_period, is_active, is_recommended, sort_order, stripe_price_id, created_at, updated_at
+      : `SELECT id, slug, name, description, price_usd, price_cop, billing_period, is_active, is_recommended, sort_order, stripe_price_id, created_at, updated_at
          FROM pricing_plans WHERE is_active = 1 ORDER BY sort_order ASC`;
 
     const result = await db.execute(query);
@@ -131,7 +135,8 @@ export class LibSqlPricingPlanRepository implements PricingPlanRepository {
         slug: r.slug as string,
         name: r.name as string,
         description: r.description as string | undefined,
-        price: Number(r.price),
+        price_usd: Number(r.price_usd),
+        price_cop: Number(r.price_cop),
         billing_period: r.billing_period as "monthly" | "yearly" | "one-time",
         is_active: (r.is_active as number) === 1,
         is_recommended: (r.is_recommended as number) === 1,
@@ -160,9 +165,13 @@ export class LibSqlPricingPlanRepository implements PricingPlanRepository {
       fields.push("description = ?");
       args.push(dto.description || null);
     }
-    if (dto.price !== undefined) {
-      fields.push("price = ?");
-      args.push(dto.price);
+    if (dto.price_usd !== undefined) {
+      fields.push("price_usd = ?");
+      args.push(dto.price_usd);
+    }
+    if (dto.price_cop !== undefined) {
+      fields.push("price_cop = ?");
+      args.push(dto.price_cop);
     }
     if (dto.is_active !== undefined) {
       fields.push("is_active = ?");
@@ -540,10 +549,10 @@ export class LibSqlPricingPlanLimitRepository implements PricingPlanLimitReposit
 }
 
 // ====================
-// Space Subscription Repository Adapter
+// User Subscription Repository Adapter
 // ====================
 
-export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepository {
+export class LibSqlUserSubscriptionRepository implements UserSubscriptionRepository {
   private db: Client | null = null;
 
   private async getDb(): Promise<Client> {
@@ -553,34 +562,31 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
     return this.db;
   }
 
-  async create(dto: CreateSpaceSubscriptionDTO): Promise<SpaceSubscription> {
+  async create(dto: CreateUserSubscriptionDTO): Promise<UserSubscription> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `INSERT INTO space_subscriptions (space_id, pricing_plan_id, status, stripe_subscription_id, trial_start_date, trial_end_date, current_period_start, current_period_end)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      sql: `INSERT INTO user_subscriptions (user_id, pricing_plan_id, status, trial_start_date, trial_end_date)
+            VALUES (?, ?, ?, ?, ?)`,
       args: [
-        dto.space_id,
+        dto.user_id,
         dto.pricing_plan_id,
         dto.status || "active",
-        dto.stripe_subscription_id || null,
         dto.trial_start_date || null,
         dto.trial_end_date || null,
-        null,
-        null,
       ],
     });
 
     const newSubscription = await this.findById(Number(result.lastInsertRowid));
     if (!newSubscription)
-      throw new Error("Failed to create space subscription");
+      throw new Error("Failed to create user subscription");
     return newSubscription;
   }
 
-  async findById(id: number): Promise<SpaceSubscription | null> {
+  async findById(id: number): Promise<UserSubscription | null> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `SELECT id, space_id, pricing_plan_id, status, stripe_subscription_id, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
-            FROM space_subscriptions WHERE id = ?`,
+      sql: `SELECT id, user_id, pricing_plan_id, status, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
+            FROM user_subscriptions WHERE id = ?`,
       args: [id],
     });
 
@@ -589,10 +595,9 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
     const row = result.rows[0] as Record<string, unknown>;
     return {
       id: Number(row.id),
-      space_id: Number(row.space_id),
+      user_id: Number(row.user_id),
       pricing_plan_id: Number(row.pricing_plan_id),
-      status: row.status as "active" | "canceled" | "past_due" | "trial",
-      stripe_subscription_id: row.stripe_subscription_id as string | undefined,
+      status: row.status as SubscriptionStatus,
       trial_start_date: row.trial_start_date as string | undefined,
       trial_end_date: row.trial_end_date as string | undefined,
       current_period_start: row.current_period_start as string | undefined,
@@ -604,12 +609,12 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
     };
   }
 
-  async findBySpaceId(spaceId: number): Promise<SpaceSubscription | null> {
+  async findByUserId(userId: number): Promise<UserSubscription | null> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `SELECT id, space_id, pricing_plan_id, status, stripe_subscription_id, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
-            FROM space_subscriptions WHERE space_id = ?`,
-      args: [spaceId],
+      sql: `SELECT id, user_id, pricing_plan_id, status, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
+            FROM user_subscriptions WHERE user_id = ?`,
+      args: [userId],
     });
 
     if (result.rows.length === 0) return null;
@@ -617,10 +622,9 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
     const row = result.rows[0] as Record<string, unknown>;
     return {
       id: Number(row.id),
-      space_id: Number(row.space_id),
+      user_id: Number(row.user_id),
       pricing_plan_id: Number(row.pricing_plan_id),
-      status: row.status as "active" | "canceled" | "past_due" | "trial",
-      stripe_subscription_id: row.stripe_subscription_id as string | undefined,
+      status: row.status as SubscriptionStatus,
       trial_start_date: row.trial_start_date as string | undefined,
       trial_end_date: row.trial_end_date as string | undefined,
       current_period_start: row.current_period_start as string | undefined,
@@ -634,11 +638,11 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
 
   async findByPricingPlanId(
     pricingPlanId: number,
-  ): Promise<SpaceSubscription[]> {
+  ): Promise<UserSubscription[]> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `SELECT id, space_id, pricing_plan_id, status, stripe_subscription_id, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
-            FROM space_subscriptions WHERE pricing_plan_id = ?`,
+      sql: `SELECT id, user_id, pricing_plan_id, status, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
+            FROM user_subscriptions WHERE pricing_plan_id = ?`,
       args: [pricingPlanId],
     });
 
@@ -646,10 +650,9 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
       const r = row as Record<string, unknown>;
       return {
         id: Number(r.id),
-        space_id: Number(r.space_id),
+        user_id: Number(r.user_id),
         pricing_plan_id: Number(r.pricing_plan_id),
-        status: r.status as "active" | "canceled" | "past_due" | "trial",
-        stripe_subscription_id: r.stripe_subscription_id as string | undefined,
+        status: r.status as SubscriptionStatus,
         trial_start_date: r.trial_start_date as string | undefined,
         trial_end_date: r.trial_end_date as string | undefined,
         current_period_start: r.current_period_start as string | undefined,
@@ -662,11 +665,11 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
     });
   }
 
-  async findByStatus(status: string): Promise<SpaceSubscription[]> {
+  async findByStatus(status: string): Promise<UserSubscription[]> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `SELECT id, space_id, pricing_plan_id, status, stripe_subscription_id, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
-            FROM space_subscriptions WHERE status = ?`,
+      sql: `SELECT id, user_id, pricing_plan_id, status, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
+            FROM user_subscriptions WHERE status = ?`,
       args: [status],
     });
 
@@ -674,10 +677,9 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
       const r = row as Record<string, unknown>;
       return {
         id: Number(r.id),
-        space_id: Number(r.space_id),
+        user_id: Number(r.user_id),
         pricing_plan_id: Number(r.pricing_plan_id),
-        status: r.status as "active" | "canceled" | "past_due" | "trial",
-        stripe_subscription_id: r.stripe_subscription_id as string | undefined,
+        status: r.status as SubscriptionStatus,
         trial_start_date: r.trial_start_date as string | undefined,
         trial_end_date: r.trial_end_date as string | undefined,
         current_period_start: r.current_period_start as string | undefined,
@@ -692,8 +694,8 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
 
   async update(
     id: number,
-    dto: UpdateSpaceSubscriptionDTO,
-  ): Promise<SpaceSubscription> {
+    dto: UpdateUserSubscriptionDTO,
+  ): Promise<UserSubscription> {
     const db = await this.getDb();
     const fields: string[] = [];
     const args: unknown[] = [];
@@ -731,27 +733,27 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
     args.push(id);
 
     await db.execute({
-      sql: `UPDATE space_subscriptions SET ${fields.join(", ")} WHERE id = ?`,
+      sql: `UPDATE user_subscriptions SET ${fields.join(", ")} WHERE id = ?`,
       args: args as InArgs,
     });
 
     const updated = await this.findById(id);
-    if (!updated) throw new Error("Failed to update space subscription");
+    if (!updated) throw new Error("Failed to update user subscription");
     return updated;
   }
 
   async delete(id: number): Promise<void> {
     const db = await this.getDb();
     await db.execute({
-      sql: "DELETE FROM space_subscriptions WHERE id = ?",
+      sql: "DELETE FROM user_subscriptions WHERE id = ?",
       args: [id],
     });
   }
 
-  async findBySpaceIdWithDetails(
-    spaceId: number,
-  ): Promise<SpaceSubscription | null> {
-    const subscription = await this.findBySpaceId(spaceId);
+  async findByUserIdWithDetails(
+    userId: number,
+  ): Promise<UserSubscription | null> {
+    const subscription = await this.findByUserId(userId);
     if (!subscription) return null;
 
     // Fetch the pricing plan details
@@ -763,21 +765,20 @@ export class LibSqlSpaceSubscriptionRepository implements SpaceSubscriptionRepos
     return subscription;
   }
 
-  async findAll(): Promise<SpaceSubscription[]> {
+  async findAll(): Promise<UserSubscription[]> {
     const db = await this.getDb();
     const result = await db.execute(
-      `SELECT id, space_id, pricing_plan_id, status, stripe_subscription_id, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
-       FROM space_subscriptions ORDER BY created_at DESC`,
+      `SELECT id, user_id, pricing_plan_id, status, trial_start_date, trial_end_date, current_period_start, current_period_end, cancellation_date, canceled_at, created_at, updated_at
+       FROM user_subscriptions ORDER BY created_at DESC`,
     );
 
     return result.rows.map((row) => {
       const r = row as Record<string, unknown>;
       return {
         id: Number(r.id),
-        space_id: Number(r.space_id),
+        user_id: Number(r.user_id),
         pricing_plan_id: Number(r.pricing_plan_id),
-        status: r.status as "active" | "canceled" | "past_due" | "trial",
-        stripe_subscription_id: r.stripe_subscription_id as string | undefined,
+        status: r.status as SubscriptionStatus,
         trial_start_date: r.trial_start_date as string | undefined,
         trial_end_date: r.trial_end_date as string | undefined,
         current_period_start: r.current_period_start as string | undefined,

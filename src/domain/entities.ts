@@ -428,7 +428,8 @@ export interface PricingPlan {
   slug: string;
   name: string;
   description?: string;
-  price: number;
+  price_usd: number;
+  price_cop: number;
   billing_period: BillingPeriod;
   is_active: boolean;
   is_recommended: boolean;
@@ -460,12 +461,11 @@ export interface PricingPlanLimit {
   updated_at: string;
 }
 
-export interface SpaceSubscription {
+export interface UserSubscription {
   id: number;
-  space_id: number;
+  user_id: number;
   pricing_plan_id: number;
   status: SubscriptionStatus;
-  stripe_subscription_id?: string;
   trial_start_date?: string;
   trial_end_date?: string;
   current_period_start?: string;
@@ -485,7 +485,8 @@ export interface CreatePricingPlanDTO {
   slug: string;
   name: string;
   description?: string;
-  price: number;
+  price_usd: number;
+  price_cop: number;
   billing_period: BillingPeriod;
   is_active?: boolean;
   is_recommended?: boolean;
@@ -496,7 +497,8 @@ export interface CreatePricingPlanDTO {
 export interface UpdatePricingPlanDTO {
   name?: string;
   description?: string;
-  price?: number;
+  price_usd?: number;
+  price_cop?: number;
   is_active?: boolean;
   is_recommended?: boolean;
   sort_order?: number;
@@ -518,16 +520,15 @@ export interface CreatePricingPlanLimitDTO {
   limit_description?: string;
 }
 
-export interface CreateSpaceSubscriptionDTO {
-  space_id: number;
+export interface CreateUserSubscriptionDTO {
+  user_id: number;
   pricing_plan_id: number;
   status?: SubscriptionStatus;
-  stripe_subscription_id?: string;
   trial_start_date?: string;
   trial_end_date?: string;
 }
 
-export interface UpdateSpaceSubscriptionDTO {
+export interface UpdateUserSubscriptionDTO {
   pricing_plan_id?: number;
   status?: SubscriptionStatus;
   current_period_start?: string;
@@ -549,7 +550,7 @@ export type PaymentStatus =
 
 export interface PaymentTransaction {
   id: number;
-  space_id: number;
+  user_id: number;
   pricing_plan_id: number;
   amount: number;
   currency: string;

@@ -6,7 +6,7 @@ describe("WhyLoveSection", () => {
     render(<WhyLoveSection />);
 
     expect(
-      screen.getByRole("heading", { name: /why love easy flags/i }),
+      screen.getByRole("heading", { name: /why choose easy flags/i }),
     ).toBeInTheDocument();
 
     expect(screen.getByText("Instant Rollback")).toBeInTheDocument();

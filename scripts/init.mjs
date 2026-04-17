@@ -307,6 +307,64 @@ async function initializeSchema(client) {
       FOREIGN KEY (environment_id) REFERENCES environments(id)
     );
 
+    CREATE TABLE IF NOT EXISTS pricing_plans (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT,
+      price REAL NOT NULL DEFAULT 0,
+      price_usd REAL NOT NULL DEFAULT 0,
+      price_cop REAL NOT NULL DEFAULT 0,
+      billing_period TEXT NOT NULL CHECK(billing_period IN ('monthly', 'yearly', 'one-time')),
+      is_active BOOLEAN DEFAULT 1,
+      is_recommended BOOLEAN DEFAULT 0,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      stripe_price_id TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS pricing_plan_features (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pricing_plan_id INTEGER NOT NULL,
+      feature_name TEXT NOT NULL,
+      feature_description TEXT,
+      feature_value TEXT,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (pricing_plan_id) REFERENCES pricing_plans(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS pricing_plan_limits (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pricing_plan_id INTEGER NOT NULL,
+      limit_name TEXT NOT NULL,
+      limit_value INTEGER NOT NULL,
+      limit_description TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (pricing_plan_id) REFERENCES pricing_plans(id) ON DELETE CASCADE,
+      UNIQUE(pricing_plan_id, limit_name)
+    );
+
+    CREATE TABLE IF NOT EXISTS space_subscriptions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      space_id INTEGER NOT NULL UNIQUE,
+      pricing_plan_id INTEGER NOT NULL,
+      status TEXT NOT NULL CHECK(status IN ('active', 'canceled', 'past_due', 'trial')) DEFAULT 'active',
+      stripe_subscription_id TEXT,
+      trial_start_date DATETIME,
+      trial_end_date DATETIME,
+      current_period_start DATETIME,
+      current_period_end DATETIME,
+      cancellation_date DATETIME,
+      canceled_at DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE,
+      FOREIGN KEY (pricing_plan_id) REFERENCES pricing_plans(id)
+    );
+
     CREATE TABLE IF NOT EXISTS migrations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
@@ -315,6 +373,8 @@ async function initializeSchema(client) {
   `;
 
   const statements = schema
+    .replace(/--.*$/gm, "") // Remove single-line comments
+    .replace(/\/\*[\s\S]*?\*\//g, "") // Remove multi-line comments
     .split(";")
     .map((stmt) => stmt.trim())
     .filter((stmt) => stmt.length > 0);
@@ -323,6 +383,9 @@ async function initializeSchema(client) {
     try {
       await client.execute(statement);
     } catch (error) {
+      if (error.code === "SQLITE_OK" || error.message?.includes("not an error")) {
+        continue;
+      }
       if (error.message.includes("already exists")) {
         // Table already exists, skip
       } else {
@@ -535,14 +598,34 @@ async function runMigrations(client) {
       const filePath = path.join(migrationsDir, file);
       const sqlContent = fs.readFileSync(filePath, "utf-8");
 
-      // Split by semicolon and execute statements
+      // Strip SQL comments and split by semicolon
       const statements = sqlContent
+        .replace(/--.*$/gm, "") // Remove single-line comments
+        .replace(/\/\*[\s\S]*?\*\//g, "") // Remove multi-line comments
         .split(";")
         .map((stmt) => stmt.trim())
         .filter((stmt) => stmt.length > 0);
 
       for (const statement of statements) {
-        await client.execute(statement);
+        try {
+          await client.execute(statement);
+        } catch (error) {
+          // If the error is "not an error" or OK, ignore it
+          if (error.code === "SQLITE_OK" || error.message?.includes("not an error")) {
+            continue;
+          }
+          // If the error is "duplicate column name", we can ignore it as the migration is partially applied
+          if (error.message?.includes("duplicate column name")) {
+            console.log(`⏭️  Column already exists, skipping statement`);
+            continue;
+          }
+          // If the error is "already exists" for a table or index, we can ignore it
+          if (error.message?.includes("already exists")) {
+            console.log(`⏭️  Object already exists, skipping statement`);
+            continue;
+          }
+          throw error;
+        }
       }
 
       // Record migration

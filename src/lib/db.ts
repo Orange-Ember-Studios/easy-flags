@@ -258,6 +258,64 @@ export async function initializeDatabase(): Promise<void> {
       FOREIGN KEY (environment_id) REFERENCES environments(id)
     );
 
+    CREATE TABLE IF NOT EXISTS pricing_plans (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT,
+      price REAL NOT NULL DEFAULT 0,
+      price_usd REAL NOT NULL DEFAULT 0,
+      price_cop REAL NOT NULL DEFAULT 0,
+      billing_period TEXT NOT NULL CHECK(billing_period IN ('monthly', 'yearly', 'one-time')),
+      is_active BOOLEAN DEFAULT 1,
+      is_recommended BOOLEAN DEFAULT 0,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      stripe_price_id TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS pricing_plan_features (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pricing_plan_id INTEGER NOT NULL,
+      feature_name TEXT NOT NULL,
+      feature_description TEXT,
+      feature_value TEXT,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (pricing_plan_id) REFERENCES pricing_plans(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS pricing_plan_limits (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      pricing_plan_id INTEGER NOT NULL,
+      limit_name TEXT NOT NULL,
+      limit_value INTEGER NOT NULL,
+      limit_description TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (pricing_plan_id) REFERENCES pricing_plans(id) ON DELETE CASCADE,
+      UNIQUE(pricing_plan_id, limit_name)
+    );
+
+    CREATE TABLE IF NOT EXISTS space_subscriptions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      space_id INTEGER NOT NULL UNIQUE,
+      pricing_plan_id INTEGER NOT NULL,
+      status TEXT NOT NULL CHECK(status IN ('active', 'canceled', 'past_due', 'trial')) DEFAULT 'active',
+      stripe_subscription_id TEXT,
+      trial_start_date DATETIME,
+      trial_end_date DATETIME,
+      current_period_start DATETIME,
+      current_period_end DATETIME,
+      cancellation_date DATETIME,
+      canceled_at DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE,
+      FOREIGN KEY (pricing_plan_id) REFERENCES pricing_plans(id)
+    );
+
     CREATE TABLE IF NOT EXISTS migrations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
@@ -383,9 +441,9 @@ export async function seedDatabase(): Promise<void> {
 
     // Insert default super user (role_id: 1)
     const adminUser = {
-      username: process.env.ADMIN_USER || "admin",
+      username: import.meta.env.ADMIN_USER || "admin",
       email: "admin@example.com",
-      password_hash: process.env.ADMIN_PASS || "password",
+      password_hash: import.meta.env.ADMIN_PASS || "password",
       role_id: 1,
     };
 

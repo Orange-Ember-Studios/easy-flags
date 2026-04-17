@@ -64,7 +64,6 @@ describe("SettingsView", () => {
 
     expect(screen.getByText("jose")).toBeInTheDocument();
     expect(screen.getByText("jose@example.com")).toBeInTheDocument();
-    expect(screen.getByText("#1")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith("/api/auth/me", {

@@ -22,10 +22,10 @@ export class LibSqlPaymentRepository implements PaymentRepository {
   ): Promise<PaymentTransaction> {
     const db = await this.getDb();
     const result = await db.execute({
-      sql: `INSERT INTO payments (space_id, pricing_plan_id, amount, currency, reference, status, external_id) 
+      sql: `INSERT INTO payments (user_id, pricing_plan_id, amount, currency, reference, status, external_id) 
             VALUES (?, ?, ?, ?, ?, ?, ?)`,
       args: [
-        payment.space_id,
+        payment.user_id,
         payment.pricing_plan_id,
         payment.amount,
         payment.currency,

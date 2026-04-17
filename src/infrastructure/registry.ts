@@ -25,7 +25,7 @@ import type {
   PricingPlanRepository,
   PricingPlanFeatureRepository,
   PricingPlanLimitRepository,
-  SpaceSubscriptionRepository,
+  UserSubscriptionRepository,
 } from "@application/ports/repositories";
 import { LibSqlUserRepository } from "./adapters/libsql.adapter";
 import { LibSqlRoleRepository } from "./adapters/libsql.adapter";
@@ -229,12 +229,12 @@ class LibSqlRepositoryRegistry implements RepositoryRegistry {
     return this.pricingPlanLimitRepository;
   }
 
-  getSpaceSubscriptionRepository(): SpaceSubscriptionRepository {
-    if (!this.spaceSubscriptionRepository) {
-      this.spaceSubscriptionRepository =
-        new LibSqlSpaceSubscriptionRepository();
+  getUserSubscriptionRepository(): UserSubscriptionRepository {
+    if (!this.userSubscriptionRepository) {
+      this.userSubscriptionRepository =
+        new LibSqlUserSubscriptionRepository();
     }
-    return this.spaceSubscriptionRepository;
+    return this.userSubscriptionRepository;
   }
 
   getPaymentRepository(): PaymentRepository {

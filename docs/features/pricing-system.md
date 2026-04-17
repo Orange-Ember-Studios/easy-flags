@@ -178,42 +178,6 @@ Creates default plans: Lab (free), Basic ($9.99), and Pro ($29.99).
 }
 ```
 
-### 4. Get Space Subscription
-
-```
-GET /api/pricing/subscriptions/[spaceId]
-```
-
-Get the current subscription for a space.
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "space_id": 123,
-    "pricing_plan_id": 2,
-    "status": "active",
-    "stripe_subscription_id": null,
-    "trial_start_date": null,
-    "trial_end_date": null,
-    "current_period_start": null,
-    "current_period_end": null,
-    "created_at": "2026-03-21T...",
-    "updated_at": "2026-03-21T...",
-    "pricing_plan": {
-      "id": 2,
-      "slug": "basic",
-      "name": "Basic",
-      "price": 9.99,
-      ...
-    }
-  }
-}
-```
-
 ### 5. Assign Plan to Space
 
 ```

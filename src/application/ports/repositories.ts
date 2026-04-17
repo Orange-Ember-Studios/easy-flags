@@ -38,13 +38,13 @@ import type {
   PricingPlan,
   PricingPlanFeature,
   PricingPlanLimit,
-  SpaceSubscription,
+  UserSubscription,
   CreatePricingPlanDTO,
   UpdatePricingPlanDTO,
   CreatePricingPlanFeatureDTO,
   CreatePricingPlanLimitDTO,
-  CreateSpaceSubscriptionDTO,
-  UpdateSpaceSubscriptionDTO,
+  CreateUserSubscriptionDTO,
+  UpdateUserSubscriptionDTO,
   PaymentStatus,
   PaymentTransaction,
 } from "@domain/entities";
@@ -383,22 +383,22 @@ export interface PricingPlanLimitRepository {
 }
 
 // ====================
-// Space Subscription Repository Port
+// User Subscription Repository Port
 // ====================
 
-export interface SpaceSubscriptionRepository {
-  create(dto: CreateSpaceSubscriptionDTO): Promise<SpaceSubscription>;
-  findById(id: number): Promise<SpaceSubscription | null>;
-  findBySpaceId(spaceId: number): Promise<SpaceSubscription | null>;
-  findByPricingPlanId(pricingPlanId: number): Promise<SpaceSubscription[]>;
-  findByStatus(status: string): Promise<SpaceSubscription[]>;
+export interface UserSubscriptionRepository {
+  create(dto: CreateUserSubscriptionDTO): Promise<UserSubscription>;
+  findById(id: number): Promise<UserSubscription | null>;
+  findByUserId(userId: number): Promise<UserSubscription | null>;
+  findByPricingPlanId(pricingPlanId: number): Promise<UserSubscription[]>;
+  findByStatus(status: string): Promise<UserSubscription[]>;
   update(
     id: number,
-    dto: UpdateSpaceSubscriptionDTO,
-  ): Promise<SpaceSubscription>;
+    dto: UpdateUserSubscriptionDTO,
+  ): Promise<UserSubscription>;
   delete(id: number): Promise<void>;
-  findBySpaceIdWithDetails(spaceId: number): Promise<SpaceSubscription | null>;
-  findAll(): Promise<SpaceSubscription[]>;
+  findByUserIdWithDetails(userId: number): Promise<UserSubscription | null>;
+  findAll(): Promise<UserSubscription[]>;
 }
 
 // ====================
@@ -422,9 +422,12 @@ export interface PaymentRepository {
 // ====================
 
 export interface PaymentGateway {
+  getPublicKey(): string;
+  getMerchantInfo(): Promise<any>;
+  createTransaction(payload: any): Promise<any>;
   generateIntegritySignature(
     reference: string,
-    amount: number,
+    amountInCents: number,
     currency: string,
   ): string;
   verifyWebhookSignature(payload: any, signature: string): boolean;
@@ -455,6 +458,5 @@ export interface RepositoryRegistry {
   getPricingPlanRepository(): PricingPlanRepository;
   getPricingPlanFeatureRepository(): PricingPlanFeatureRepository;
   getPricingPlanLimitRepository(): PricingPlanLimitRepository;
-  getSpaceSubscriptionRepository(): SpaceSubscriptionRepository;
   getPaymentRepository(): PaymentRepository;
 }

@@ -8,10 +8,16 @@ describe("WompiPaymentGateway", () => {
   const EVENT_SECRET = "test_event_456";
 
   beforeEach(() => {
-    vi.stubEnv("WOMPI_PUBLIC_KEY", "pub_test_123");
+    vi.stubEnv("PUBLIC_WOMPI_PUBLIC_KEY", "pub_test_123");
     vi.stubEnv("WOMPI_INTEGRITY_SECRET", INTEGRITY_SECRET);
     vi.stubEnv("WOMPI_EVENT_SECRET", EVENT_SECRET);
     gateway = new WompiPaymentGateway();
+  });
+
+  describe("getPublicKey", () => {
+    it("should return the configured public key", () => {
+      expect(gateway.getPublicKey()).toBe("pub_test_123");
+    });
   });
 
   describe("generateIntegritySignature", () => {

@@ -8,6 +8,24 @@ import { Icon } from "@/components/react/shared/Icon";
 const { t } = getTranslator(Astro.request);
 const locale = getLocale(Astro.request);
 
+// Detect user country (simplified)
+let ip = "";
+try {
+  ip = Astro.clientAddress;
+} catch (e) {
+  ip = Astro.request.headers.get("x-forwarded-for") || 
+       Astro.request.headers.get("x-real-ip") || 
+       "";
+}
+
+const isColombia = ip === "::1" || ip === "127.0.0.1" || (await (async () => {
+  try {
+    const res = await fetch(`https://ipapi.co/${ip}/country/`);
+    if (res.ok) return (await res.text()).trim() === "CO";
+  } catch (e) {}
+  return true; // Default to true (CO) for this example/demo
+})());
+
 // Fetch pricing plans from database
 const pricingService = PricingService.getInstance();
 let plans: PricingPlan[] = [];
@@ -79,9 +97,11 @@ try {
 
           <div class="flex items-baseline gap-1 mb-8">
             <span class="text-5xl font-extrabold text-white tracking-tighter">
-              {plan.price === null || plan.price === 0
+              {plan.price_usd === 0
                 ? t('billing.free')
-                : `$${plan.price}`}
+                : isColombia 
+                  ? `${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(plan.price_cop)}`
+                  : `$${plan.price_usd}`}
             </span>
             <span class="text-slate-500 font-medium">{t('billing.perMonth')}</span>
           </div>

@@ -46,7 +46,8 @@ export class PricingService {
       slug: "lab",
       name: "Lab",
       description: "Perfect for testing and learning",
-      price: 0,
+      price_usd: 0,
+      price_cop: 0,
       billing_period: "monthly",
       is_active: true,
       is_recommended: false,
@@ -100,7 +101,8 @@ export class PricingService {
       slug: "basic",
       name: "Basic",
       description: "Essential features for your project",
-      price: 9.99,
+      price_usd: 9.99,
+      price_cop: 40000,
       billing_period: "monthly",
       is_active: true,
       is_recommended: true,
@@ -159,7 +161,8 @@ export class PricingService {
       slug: "pro",
       name: "Pro",
       description: "Advanced features for growing teams",
-      price: 29.99,
+      price_usd: 29.99,
+      price_cop: 120000,
       billing_period: "monthly",
       is_active: true,
       is_recommended: false,
@@ -311,18 +314,18 @@ export class PricingService {
   }
 
   /**
-   * Assign a pricing plan to a space (create subscription)
+   * Assign a pricing plan to a user (create subscription)
    */
-  async assignPlanToSpace(spaceId: number, planSlug: string): Promise<void> {
+  async assignPlanToUser(userId: number, planSlug: string): Promise<void> {
     const registry = getRepositoryRegistry();
     const planRepo = registry.getPricingPlanRepository();
-    const subRepo = registry.getSpaceSubscriptionRepository();
+    const subRepo = registry.getUserSubscriptionRepository();
 
     const plan = await planRepo.findBySlug(planSlug);
     if (!plan) throw new Error(`Pricing plan '${planSlug}' not found`);
 
-    // Check if space already has a subscription
-    const existing = await subRepo.findBySpaceId(spaceId);
+    // Check if user already has a subscription
+    const existing = await subRepo.findByUserId(userId);
     if (existing) {
       // Update existing subscription
       await subRepo.update(existing.id, {
@@ -332,7 +335,7 @@ export class PricingService {
     } else {
       // Create new subscription
       await subRepo.create({
-        space_id: spaceId,
+        user_id: userId,
         pricing_plan_id: plan.id,
         status: "active",
       });
@@ -340,27 +343,35 @@ export class PricingService {
   }
 
   /**
-   * Get space subscription with plan details
+   * Get user subscription with plan details
    */
-  async getSpaceSubscription(spaceId: number) {
+  async getUserSubscription(userId: number) {
     const registry = getRepositoryRegistry();
-    const subRepo = registry.getSpaceSubscriptionRepository();
-    return subRepo.findBySpaceIdWithDetails(spaceId);
+    const subRepo = registry.getUserSubscriptionRepository();
+    return subRepo.findByUserIdWithDetails(userId);
   }
 
   /**
-   * Get the pricing limit for a space
+   * Get the pricing limit for a space (based on the space owner's subscription)
    */
   async getSpaceLimit(
     spaceId: number,
     limitName: string,
   ): Promise<number | null> {
     const registry = getRepositoryRegistry();
-    const subRepo = registry.getSpaceSubscriptionRepository();
+    const spaceRepo = registry.getSpaceRepository();
+    const subRepo = registry.getUserSubscriptionRepository();
     const limitRepo = registry.getPricingPlanLimitRepository();
 
-    const subscription = await subRepo.findBySpaceId(spaceId);
-    if (!subscription) return null;
+    const space = await spaceRepo.findById(spaceId);
+    if (!space) return null;
+
+    const subscription = await subRepo.findByUserId(space.owner_id);
+    if (!subscription) {
+      // If no subscription, check if they have a 'lab' (free) plan by default
+      // Or return null which usually means falling back to a free tier in the caller
+      return null;
+    }
 
     const limit = await limitRepo.findLimitByPlanAndName(
       subscription.pricing_plan_id,

@@ -1,15 +1,16 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CheckoutButton from "@components/react/billing/CheckoutButton";
 import type { PricingPlan } from "@domain/entities";
-import { vi } from "vitest";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 
 const basePlan: PricingPlan = {
   id: 1,
   slug: "pro",
   name: "Pro",
   description: "Pro plan",
-  price: 2000,
+  price_usd: 20,
+  price_cop: 80000,
   billing_period: "monthly",
   is_active: true,
   is_recommended: false,
@@ -20,21 +21,43 @@ const basePlan: PricingPlan = {
 };
 
 describe("CheckoutButton", () => {
-  it("renders direct navigation for free plans", () => {
-    render(<CheckoutButton plan={{ ...basePlan, name: "Free", price: 0 }} />);
-
-    expect(screen.getByRole("link", { name: /get started/i })).toHaveAttribute(
-      "href",
-      "/spaces",
-    );
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal("fetch", vi.fn());
+    // Mock window.location
+    const location = new URL("http://localhost");
+    vi.stubGlobal("location", location);
   });
 
-  it("checks auth and shows payment-coming-soon alert for paid plans", async () => {
-    const user = userEvent.setup();
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
-    vi.stubGlobal("fetch", fetchMock);
+  it("renders a button for free plans", () => {
+    render(<CheckoutButton plan={{ ...basePlan, name: "Free", price_usd: 0 }} />);
 
-    const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+    expect(screen.getByRole("button", { name: /get started/i })).toBeInTheDocument();
+  });
+
+  it("checks auth and initializes checkout for paid plans", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn()
+        .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 1 }) }) // /api/auth/me
+        .mockResolvedValueOnce({ 
+            ok: true, 
+            json: () => Promise.resolve({ 
+                data: { 
+                    currency: "COP", 
+                    amountInCents: 200000, 
+                    publicKey: "pub_test",
+                    transaction: { reference: "EF-123" },
+                    acceptance: {
+                        acceptanceToken: "token1",
+                        acceptanceText: "text1",
+                        dataPrivacyToken: "token2",
+                        dataPrivacyText: "text2"
+                    }
+                } 
+            }) 
+        }); // /api/payments/checkout
+    
+    vi.stubGlobal("fetch", fetchMock);
 
     render(<CheckoutButton plan={basePlan} />);
 
@@ -44,8 +67,11 @@ describe("CheckoutButton", () => {
       credentials: "include",
     });
 
-    expect(alertSpy).toHaveBeenCalledWith(
-      "Pro plan selected. Payment processing coming soon!",
-    );
+    await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledWith("/api/payments/checkout", expect.any(Object));
+    });
+
+    // Check if modal title is present (meaning it opened)
+    expect(await screen.findByText("Información del Cliente")).toBeInTheDocument();
   });
 });
