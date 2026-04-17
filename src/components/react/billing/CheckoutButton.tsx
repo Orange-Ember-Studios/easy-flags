@@ -4,6 +4,10 @@ import type { PricingPlan } from "@domain/entities";
 import { useTranslate } from "@/infrastructure/i18n/context";
 import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 import { Icon } from "../shared/Icon";
+import { BillingInput } from "./BillingInput";
+import { BillingSelector } from "./BillingSelector";
+import { BillingStepper } from "./BillingStepper";
+import { PhonePrefixSelector } from "./PhonePrefixSelector";
 
 interface CheckoutButtonProps {
   plan: PricingPlan;
@@ -37,11 +41,14 @@ function CustomerDataModal({
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     phoneNumber: "",
+    phoneNumberPrefix: "+57",
     legalId: "",
     legalIdType: "CC",
     addressLine1: "",
+    country: "CO",
     city: "",
     region: "",
+    regionCode: "",
     cardHolder: "",
     cardNumber: "",
     cvv: "",
@@ -51,11 +58,17 @@ function CustomerDataModal({
     acceptPrivacy: false,
   });
 
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+  const [loadingGeo, setLoadingGeo] = useState(false);
+
   useEffect(() => {
     setMounted(true);
     if (isOpen) {
       document.body.style.overflow = "hidden";
       setStep(1);
+      loadCountries();
     } else {
       document.body.style.overflow = "unset";
     }
@@ -63,6 +76,71 @@ function CustomerDataModal({
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
+
+  const loadCountries = async () => {
+    try {
+      const res = await fetch("/api/system/geo?type=countries");
+      const result = await res.json();
+      if (result.success) {
+        setCountries(result.data);
+        // Default country CO
+        loadStates("CO");
+      }
+    } catch (e) {
+      console.error("Error loading countries", e);
+    }
+  };
+
+  const loadStates = async (countryCode: string) => {
+    setLoadingGeo(true);
+    try {
+      const res = await fetch(`/api/system/geo?type=states&countryCode=${countryCode}`);
+      const result = await res.json();
+      if (result.success) {
+        setStates(result.data);
+        setCities([]);
+      }
+    } catch (e) {
+      console.error("Error loading states", e);
+    } finally {
+      setLoadingGeo(false);
+    }
+  };
+
+  const loadCities = async (countryCode: string, stateCode: string) => {
+    setLoadingGeo(true);
+    try {
+      const res = await fetch(`/api/system/geo?type=cities&countryCode=${countryCode}&stateCode=${stateCode}`);
+      const result = await res.json();
+      if (result.success) {
+        setCities(result.data);
+      }
+    } catch (e) {
+      console.error("Error loading cities", e);
+    } finally {
+      setLoadingGeo(false);
+    }
+  };
+
+  const handleCountryChange = (code: string) => {
+    const country = countries.find(c => c.code === code);
+    const phonePrefix = country ? `+${country.phoneCode.replace("+", "")}` : "+57";
+    
+    setFormData({ 
+      ...formData, 
+      country: code, 
+      phoneNumberPrefix: phonePrefix,
+      region: "", 
+      regionCode: "", 
+      city: "" 
+    });
+    loadStates(code);
+  };
+
+  const handleStateChange = (code: string, name: string) => {
+    setFormData({ ...formData, region: name, regionCode: code, city: "" });
+    loadCities(formData.country, code);
+  };
 
   if (!isOpen || !mounted) return null;
 
@@ -87,18 +165,29 @@ function CustomerDataModal({
         className="absolute inset-0 bg-[#06080f]/80 backdrop-blur-xl animate-in fade-in duration-300"
         onClick={onClose}
       />
-      <div className="relative bg-[#0b0e14]/95 border border-white/10 rounded-[2.5rem] shadow-2xl max-w-md w-full flex flex-col animate-in zoom-in-95 duration-300 overflow-hidden">
+      <div className="relative bg-[#0b0e14]/95 border border-white/10 rounded-[2.5rem] shadow-2xl max-w-md w-full flex flex-col animate-in zoom-in-95 duration-300">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-linear-to-r from-transparent via-cyan-500/50 to-transparent"></div>
 
         <div className="shrink-0 p-8 flex justify-between items-start">
           <div>
-            <h2 className="text-2xl font-bold text-white tracking-tight mb-1">
-              {step === 1
-                ? t("billing.customerDataTitle")
-                : step === 2 
-                  ? "Dirección de Facturación"
-                  : "Método de Pago"}
-            </h2>
+            <div className="flex items-center gap-3 mb-1">
+              <h2 className="text-2xl font-bold text-white tracking-tight">
+                {step === 1
+                  ? t("billing.customerDataTitle")
+                  : step === 2 
+                    ? "Dirección de Facturación"
+                    : "Método de Pago"}
+              </h2>
+              {step === 3 && (
+                <div className="px-2 py-1 bg-white/10 rounded-lg border border-white/10 flex items-center">
+                  <img 
+                    src="https://wompi.com/assets/downloadble/logos_wompi/Wompi_ContraccionPrincipal.svg" 
+                    alt="Wompi" 
+                    className="h-5 brightness-0 invert opacity-90"
+                  />
+                </div>
+              )}
+            </div>
             <p className="text-slate-400 text-sm">
               {step === 1
                 ? t("billing.customerDataSubtitle")
@@ -115,277 +204,186 @@ function CustomerDataModal({
           </button>
         </div>
 
-        {/* Step Indicator */}
-        <div className="px-8 flex gap-2 mb-2">
-          <div
-            className={`h-1 flex-1 rounded-full transition-all duration-300 ${step >= 1 ? "bg-cyan-500" : "bg-white/5"}`}
-          />
-          <div
-            className={`h-1 flex-1 rounded-full transition-all duration-300 ${step >= 2 ? "bg-cyan-500" : "bg-white/5"}`}
-          />
-          <div
-            className={`h-1 flex-1 rounded-full transition-all duration-300 ${step >= 3 ? "bg-cyan-500" : "bg-white/5"}`}
-          />
-        </div>
+        <BillingStepper currentStep={step} totalSteps={3} />
 
-        <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-4">
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-6">
+          <div className="space-y-6">
             {step === 1 ? (
               <>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">
-                    {t("billing.phoneNumber")}
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
-                      <Icon name="MessageSquare" size={16} />
-                    </div>
-                    <input
-                      type="tel"
-                      required
-                      value={formData.phoneNumber}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          phoneNumber: e.target.value,
-                        })
-                      }
-                      placeholder="3001234567"
-                      className="w-full pl-12 pr-5 py-3.5 bg-slate-950/40 border border-white/5 rounded-2xl text-white placeholder-slate-700 focus:outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all shadow-inner"
+                <BillingInput
+                  label={t("billing.phoneNumber")}
+                  type="tel"
+                  required
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  placeholder="3001234567"
+                  prefix={
+                    <PhonePrefixSelector
+                      countries={countries}
+                      selectedCountry={formData.country}
+                      phonePrefix={formData.phoneNumberPrefix}
+                      onCountryChange={handleCountryChange}
+                    />
+                  }
+                />
+
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="col-span-1">
+                    <BillingSelector
+                      label={t("billing.legalIdType")}
+                      value={formData.legalIdType}
+                      onChange={(val) => setFormData({ ...formData, legalIdType: val })}
+                      options={[
+                        { value: "CC", label: "CC" },
+                        { value: "CE", label: "CE" },
+                        { value: "NIT", label: "NIT" },
+                        { value: "PP", label: "PP" },
+                        { value: "TI", label: "TI" },
+                        { value: "DNI", label: "DNI" },
+                        { value: "RG", label: "RG" },
+                        { value: "CPF", label: "CPF" },
+                      ]}
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">
-                      {t("billing.legalIdType")}
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={formData.legalIdType}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            legalIdType: e.target.value as any,
-                          })
-                        }
-                        className="w-full px-3 py-3.5 bg-slate-950/40 border border-white/5 rounded-2xl text-white focus:outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all shadow-inner appearance-none cursor-pointer"
-                      >
-                        {[
-                          "CC",
-                          "CE",
-                          "NIT",
-                          "PP",
-                          "TI",
-                          "DNI",
-                          "RG",
-                          "CPF",
-                        ].map((type) => (
-                          <option
-                            key={type}
-                            value={type}
-                            className="bg-[#0b0e14]"
-                          >
-                            {type}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                        <Icon name="ChevronDown" size={12} />
-                      </div>
-                    </div>
-                  </div>
                   <div className="col-span-2">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">
-                      {t("billing.legalId")}
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
-                        <Icon name="CreditCard" size={16} />
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        value={formData.legalId}
-                        onChange={(e) =>
-                          setFormData({ ...formData, legalId: e.target.value })
-                        }
-                        placeholder="123456789"
-                        className="w-full pl-12 pr-5 py-3.5 bg-slate-950/40 border border-white/5 rounded-2xl text-white placeholder-slate-700 focus:outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all shadow-inner"
-                      />
-                    </div>
+                    <BillingInput
+                      label={t("billing.legalId")}
+                      icon="CreditCard"
+                      required
+                      value={formData.legalId}
+                      onChange={(e) => setFormData({ ...formData, legalId: e.target.value })}
+                      placeholder="123456789"
+                    />
                   </div>
                 </div>
               </>
             ) : step === 2 ? (
               <>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">
-                    Dirección
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
-                      <Icon name="MapPin" size={16} />
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      value={formData.addressLine1}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          addressLine1: e.target.value,
-                        })
-                      }
-                      placeholder="Calle 123 # 45-67"
-                      className="w-full pl-12 pr-5 py-3.5 bg-slate-950/40 border border-white/5 rounded-2xl text-white placeholder-slate-700 focus:outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all shadow-inner"
-                    />
-                  </div>
-                </div>
+                <BillingSelector
+                  label="País"
+                  searchable
+                  value={formData.country}
+                  onChange={(val) => handleCountryChange(val)}
+                  options={countries.map(c => ({ value: c.code, label: c.name, flag: c.flag }))}
+                />
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">
-                      Ciudad
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        value={formData.city}
-                        onChange={(e) =>
-                          setFormData({ ...formData, city: e.target.value })
-                        }
-                        placeholder="Bogotá"
-                        className="w-full px-5 py-3.5 bg-slate-950/40 border border-white/5 rounded-2xl text-white placeholder-slate-700 focus:outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all shadow-inner"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">
-                      Departamento
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        value={formData.region}
-                        onChange={(e) =>
-                          setFormData({ ...formData, region: e.target.value })
-                        }
-                        placeholder="Cundinamarca"
-                        className="w-full px-5 py-3.5 bg-slate-950/40 border border-white/5 rounded-2xl text-white placeholder-slate-700 focus:outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all shadow-inner"
-                      />
-                    </div>
-                  </div>
+                <BillingInput
+                  label="Dirección"
+                  icon="MapPin"
+                  required
+                  value={formData.addressLine1}
+                  onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
+                  placeholder="Calle 123 # 45-67"
+                />
+
+                <div className="grid grid-cols-2 gap-6">
+                  <BillingSelector
+                    label={formData.country === "CO" ? "Departamento" : "Estado / Provincia"}
+                    searchable
+                    loading={loadingGeo}
+                    disabled={loadingGeo || states.length === 0}
+                    value={formData.regionCode}
+                    placeholder="Seleccionar..."
+                    onChange={(val, label) => handleStateChange(val, label)}
+                    options={states.map(s => ({ value: s.code, label: s.name }))}
+                  />
+                  <BillingSelector
+                    label="Ciudad"
+                    searchable
+                    loading={loadingGeo}
+                    disabled={loadingGeo || cities.length === 0}
+                    value={formData.city}
+                    placeholder="Seleccionar..."
+                    onChange={(val) => setFormData({ ...formData, city: val })}
+                    options={cities.map(c => ({ value: c.name, label: c.name }))}
+                  />
                 </div>
               </>
             ) : (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-1">
-                    Titular de la Tarjeta
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.cardHolder}
-                    onChange={(e) => setFormData({ ...formData, cardHolder: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-white text-sm focus:border-cyan-500/50 transition-all shadow-inner"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-1">
-                    Número de Tarjeta
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={19}
-                    placeholder="4242 4242 4242 4242"
-                    value={formData.cardNumber}
-                    onChange={(e) => {
-                      // Allow digits and spaces
-                      const val = e.target.value.replace(/[^\d\s]/g, "");
-                      // Auto-format with spaces every 4 digits
-                      const formatted = val.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim();
-                      setFormData({ ...formData, cardNumber: formatted });
-                    }}
-                    className="w-full px-4 py-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-white text-sm focus:border-cyan-500/50 transition-all shadow-inner"
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-5">
+                <BillingInput
+                  label="Titular de la Tarjeta"
+                  required
+                  value={formData.cardHolder}
+                  onChange={(e) => setFormData({ ...formData, cardHolder: e.target.value })}
+                />
+                
+                <BillingInput
+                  label="Número de Tarjeta"
+                  required
+                  maxLength={19}
+                  placeholder="4242 4242 4242 4242"
+                  value={formData.cardNumber}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^\d\s]/g, "");
+                    const formatted = val.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim();
+                    setFormData({ ...formData, cardNumber: formatted });
+                  }}
+                  prefix={
+                    <div className="flex gap-2 opacity-80 h-full items-center pl-2 pr-4 border-r border-white/5 mr-4">
+                      <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@master/flat/visa.svg" alt="Visa" className="h-4" />
+                      <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@master/flat/mastercard.svg" alt="Mastercard" className="h-4" />
+                      <img src="https://cdn.jsdelivr.net/gh/aaronfagan/svg-credit-card-payment-icons@master/flat/amex.svg" alt="Amex" className="h-4" />
+                    </div>
+                  }
+                  className="pl-36!"
+                />
+
+                <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-1">
-                      CVV
-                    </label>
-                    <input
-                      type="text"
+                    <BillingInput
+                      label="CVV"
                       required
                       maxLength={4}
                       value={formData.cvv}
                       onChange={(e) => setFormData({ ...formData, cvv: e.target.value.replace(/\D/g, "") })}
-                      className="w-full px-4 py-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-white text-sm focus:border-cyan-500/50 transition-all shadow-inner"
                     />
                   </div>
-                  <div className="col-span-2 grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-1">
-                        Mes
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={2}
-                        placeholder="MM"
-                        value={formData.expiryMonth}
-                        onChange={(e) => setFormData({ ...formData, expiryMonth: e.target.value.replace(/\D/g, "") })}
-                        className="w-full px-4 py-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-white text-sm focus:border-cyan-500/50 transition-all shadow-inner"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 px-1">
-                        Año
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={4}
-                        placeholder="YY"
-                        value={formData.expiryYear}
-                        onChange={(e) => setFormData({ ...formData, expiryYear: e.target.value.replace(/\D/g, "") })}
-                        className="w-full px-4 py-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-white text-sm focus:border-cyan-500/50 transition-all shadow-inner"
-                      />
-                    </div>
+                  <div className="col-span-2 grid grid-cols-2 gap-3">
+                    <BillingInput
+                      label="Mes"
+                      required
+                      maxLength={2}
+                      placeholder="MM"
+                      value={formData.expiryMonth}
+                      onChange={(e) => setFormData({ ...formData, expiryMonth: e.target.value.replace(/\D/g, "") })}
+                    />
+                    <BillingInput
+                      label="Año"
+                      required
+                      maxLength={4}
+                      placeholder="YY"
+                      value={formData.expiryYear}
+                      onChange={(e) => setFormData({ ...formData, expiryYear: e.target.value.replace(/\D/g, "") })}
+                    />
                   </div>
                 </div>
 
                 {acceptanceData && (
-                  <div className="space-y-2 pt-2">
-                    <div className="flex items-start gap-2">
+                  <div className="space-y-3 pt-3">
+                    <div className="flex items-start gap-3">
                       <input 
                         type="checkbox" 
                         id="acceptTerms" 
                         required
                         checked={formData.acceptTerms}
                         onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
-                        className="mt-1 accent-cyan-500"
+                        className="mt-1 accent-cyan-500 w-4 h-4"
                       />
-                      <label htmlFor="acceptTerms" className="text-[10px] text-slate-400">
+                      <label htmlFor="acceptTerms" className="text-[10px] text-slate-400 leading-relaxed">
                         Acepto los <a href={acceptanceData.acceptanceText} target="_blank" rel="noopener noreferrer" className="text-cyan-500 hover:underline">Términos y Condiciones</a> del servicio.
                       </label>
                     </div>
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-3">
                       <input 
                         type="checkbox" 
                         id="acceptPrivacy" 
                         required
                         checked={formData.acceptPrivacy}
                         onChange={(e) => setFormData({ ...formData, acceptPrivacy: e.target.checked })}
-                        className="mt-1 accent-cyan-500"
+                        className="mt-1 accent-cyan-500 w-4 h-4"
                       />
-                      <label htmlFor="acceptPrivacy" className="text-[10px] text-slate-400">
+                      <label htmlFor="acceptPrivacy" className="text-[10px] text-slate-400 leading-relaxed">
                         Acepto el <a href={acceptanceData.dataPrivacyText} target="_blank" rel="noopener noreferrer" className="text-cyan-500 hover:underline">Tratamiento de Datos Personales</a>.
                       </label>
                     </div>
@@ -395,7 +393,7 @@ function CustomerDataModal({
             )}
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-4 pt-4">
             {step > 1 && (
               <button
                 type="button"
@@ -426,20 +424,26 @@ function CustomerDataModal({
                 </button>
               </>
             ) : (
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-2 bg-linear-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-bold uppercase tracking-widest text-[10px] py-3.5 rounded-2xl transition shadow-lg shadow-cyan-500/20 disabled:opacity-50"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                    {t("billing.processing")}
-                  </span>
-                ) : (
-                  "Pagar Ahora"
-                )}
-              </button>
+              <div className="flex-2 space-y-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-linear-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-bold uppercase tracking-widest text-[10px] py-3.5 rounded-2xl transition shadow-lg shadow-cyan-500/20 disabled:opacity-50"
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                      {t("billing.processing")}
+                    </span>
+                  ) : (
+                    "Pagar Ahora"
+                  )}
+                </button>
+                <div className="flex items-center justify-center gap-2 text-[8px] text-slate-500 uppercase tracking-tighter">
+                  <Icon name="Lock" size={8} />
+                  <span>Pago Seguro via Wompi</span>
+                </div>
+              </div>
             )}
           </div>
         </form>
@@ -637,7 +641,7 @@ export default function CheckoutButton({
           customerData: {
             ...data.customer,
             phoneNumber: formData.phoneNumber,
-            phoneNumberPrefix: data.customer.phoneNumberPrefix || "+57",
+            phoneNumberPrefix: formData.phoneNumberPrefix,
             legalId: formData.legalId,
             legalIdType: formData.legalIdType,
           },
@@ -646,7 +650,7 @@ export default function CheckoutButton({
             city: formData.city,
             phoneNumber: formData.phoneNumber,
             region: formData.region,
-            country: "CO",
+            country: formData.country,
           },
         }),
       });
