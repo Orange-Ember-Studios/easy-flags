@@ -6,7 +6,8 @@
 import { getRepositoryRegistry } from "@infrastructure/registry";
 import { FlagEvaluationService } from "./evaluation.service";
 import { PaymentService } from "./payment.service";
-export { FlagEvaluationService, PaymentService };
+import { PricingService } from "./pricing.service";
+export { FlagEvaluationService, PaymentService, PricingService };
 import type {
   Space,
   Feature,
@@ -127,6 +128,16 @@ export class EnvironmentService {
     spaceId: number,
     dto: CreateEnvironmentDTO,
   ): Promise<Environment> {
+    const pricingService = PricingService.getInstance();
+    const limit = await pricingService.getSpaceLimit(spaceId, "max_environments");
+    
+    if (limit !== null && limit !== -1) {
+      const currentEnvs = await this.getSpaceEnvironments(spaceId);
+      if (currentEnvs.length >= limit) {
+        throw new Error(`Environment limit reached for this space (${limit}). Please upgrade your plan.`);
+      }
+    }
+
     return this.registry.getEnvironmentRepository().create(spaceId, dto);
   }
 
@@ -172,6 +183,16 @@ export class FeatureService {
     spaceId: number,
     dto: CreateFeatureDTO,
   ): Promise<Feature> {
+    const pricingService = PricingService.getInstance();
+    const limit = await pricingService.getSpaceLimit(spaceId, "max_flags");
+    
+    if (limit !== null && limit !== -1) {
+      const currentFeatures = await this.getSpaceFeatures(spaceId);
+      if (currentFeatures.length >= limit) {
+        throw new Error(`Feature flag limit reached for this space (${limit}). Please upgrade your plan.`);
+      }
+    }
+
     return this.registry.getFeatureRepository().create(spaceId, dto);
   }
 
@@ -260,6 +281,33 @@ export class AdvancedConfigService {
   async createAdvancedConfig(
     dto: CreateAdvancedConfigDTO,
   ): Promise<AdvancedConfiguration> {
+    const pricingService = PricingService.getInstance();
+    
+    // Get space ID
+    const flag = await this.registry.getFeatureFlagRepository().findById(dto.feature_flag_id);
+    if (!flag) throw new Error("Feature flag not found");
+    const feature = await this.registry.getFeatureRepository().findById(flag.feature_id);
+    if (!feature) throw new Error("Feature not found");
+    const spaceId = feature.space_id;
+
+    // Check scheduling feature
+    if (dto.scheduling_enabled) {
+      const hasScheduling = await pricingService.hasSpaceFeature(spaceId, "scheduling");
+      if (!hasScheduling) {
+        throw new Error("Scheduling is a premium feature. Please upgrade your plan.");
+      }
+    }
+
+    // Check targeting rules feature
+    if (dto.targeting_rules && dto.targeting_rules.length > 0) {
+      const hasTargeting = await pricingService.hasSpaceFeature(spaceId, "targeting");
+      if (!hasTargeting) {
+        throw new Error("Targeting rules are a premium feature. Please upgrade your plan.");
+      }
+    }
+
+    // Check gradual rollout (if percentage > 0 and < 100, might want to limit it to premium too, but for now let's just do these)
+
     const config = await this.registry
       .getAdvancedConfigRepository()
       .create(dto);

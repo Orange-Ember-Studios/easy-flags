@@ -135,6 +135,11 @@ export class PricingService {
       feature_name: "API access",
       sort_order: 5,
     });
+    await featureRepo.create({
+      pricing_plan_id: basicPlan.id,
+      feature_name: "API access",
+      sort_order: 5,
+    });
 
     // Basic Limits
     await limitRepo.create({
@@ -194,6 +199,11 @@ export class PricingService {
       pricing_plan_id: proPlan.id,
       feature_name: "Advanced API",
       sort_order: 5,
+    });
+    await featureRepo.create({
+      pricing_plan_id: proPlan.id,
+      feature_name: "Team collaboration",
+      sort_order: 6,
     });
     await featureRepo.create({
       pricing_plan_id: proPlan.id,
@@ -368,9 +378,12 @@ export class PricingService {
 
     const subscription = await subRepo.findByUserId(space.owner_id);
     if (!subscription) {
-      // If no subscription, check if they have a 'lab' (free) plan by default
-      // Or return null which usually means falling back to a free tier in the caller
-      return null;
+      // Default to Lab (Free) plan limits if no subscription
+      const labPlan = await registry.getPricingPlanRepository().findBySlug("lab");
+      if (!labPlan) return null;
+      
+      const limit = await limitRepo.findLimitByPlanAndName(labPlan.id, limitName);
+      return limit ? limit.limit_value : null;
     }
 
     const limit = await limitRepo.findLimitByPlanAndName(
@@ -378,5 +391,56 @@ export class PricingService {
       limitName,
     );
     return limit ? limit.limit_value : null;
+  }
+
+  /**
+   * Check if a space has a specific feature enabled (based on the space owner's subscription)
+   */
+  async hasSpaceFeature(
+    spaceId: number,
+    featureName: string,
+  ): Promise<boolean> {
+    const registry = getRepositoryRegistry();
+    const spaceRepo = registry.getSpaceRepository();
+    const subRepo = registry.getUserSubscriptionRepository();
+    const planRepo = registry.getPricingPlanRepository();
+
+    const space = await spaceRepo.findById(spaceId);
+    if (!space) return false;
+
+    const subscription = await subRepo.findByUserId(space.owner_id);
+    
+    let planSlug: string;
+    if (!subscription) {
+      planSlug = "lab";
+    } else {
+      const plan = await planRepo.findById(subscription.pricing_plan_id);
+      planSlug = plan?.slug || "lab";
+    }
+
+    // Logic based on plan capabilities (not just marketing text)
+    const normalizedFeature = featureName.toLowerCase();
+    
+    if (normalizedFeature.includes("targeting") || normalizedFeature.includes("scheduling")) {
+      return planSlug === "basic" || planSlug === "pro";
+    }
+    
+    if (normalizedFeature.includes("collaboration")) {
+      return planSlug === "pro";
+    }
+    
+    if (normalizedFeature.includes("analytics")) {
+      return true; // All plans have at least basic analytics
+    }
+    
+    if (normalizedFeature.includes("api")) {
+      return planSlug === "basic" || planSlug === "pro";
+    }
+
+    // Fallback to checking marketing features list if any custom ones are added
+    const features = await registry.getPricingPlanFeatureRepository().findByPricingPlanId(
+      subscription?.pricing_plan_id || (await planRepo.findBySlug("lab"))?.id || 0
+    );
+    return features.some(f => f.feature_name.toLowerCase().includes(normalizedFeature));
   }
 }

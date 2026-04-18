@@ -91,10 +91,31 @@ export default function EnvironmentsView({
   const [newEnvDescription, setNewEnvDescription] = useState("");
   const [newEnvType, setNewEnvType] = useState<EnvironmentType>("other");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [limits, setLimits] = useState<{max_flags: number | null, max_environments: number | null} | null>(null);
+  const [isLimitReached, setIsLimitReached] = useState(false);
 
   useEffect(() => {
-    fetchEnvironments();
+    const init = async () => {
+      await fetchLimits();
+      await fetchEnvironments();
+    };
+    init();
   }, [spaceId]);
+
+  const fetchLimits = async () => {
+    if (!spaceId) return;
+    try {
+      const response = await fetch(`/api/spaces/${spaceId}/limits`, {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setLimits(data.limits);
+      }
+    } catch (error) {
+      console.error("Failed to fetch limits:", error);
+    }
+  };
 
   const fetchEnvironments = async () => {
     if (!spaceId) return;
@@ -112,6 +133,11 @@ export default function EnvironmentsView({
           type: env.type || "other",
         }));
         setEnvironments(envs);
+        
+        // Update limit status
+        if (limits && limits.max_environments !== null && limits.max_environments !== -1) {
+          setIsLimitReached(envs.length >= limits.max_environments);
+        }
       } else {
         setError(t('environments.fetchError'));
       }
@@ -276,14 +302,16 @@ export default function EnvironmentsView({
             </div>
             <button
               onClick={() => {
+                if (isLimitReached) return;
                 resetForms();
                 setShowCreateModal(true);
               }}
-              disabled={isLoading}
-              className="btn-primary flex items-center gap-2 px-8! py-4! shadow-xl shadow-cyan-500/20"
+              disabled={isLoading || isLimitReached}
+              className={`btn-primary flex items-center gap-2 px-8! py-4! shadow-xl shadow-cyan-500/20 ${isLimitReached ? "opacity-50 cursor-not-allowed grayscale" : ""}`}
+              title={isLimitReached ? `Limit of ${limits?.max_environments} environments reached` : ""}
             >
-              <Icon name="Plus" size={20} />
-              {t('environments.newEnv')}
+              <Icon name={isLimitReached ? "Lock" : "Plus"} size={20} />
+              {isLimitReached ? "Limit Reached" : t('environments.newEnv')}
             </button>
           </div>
 

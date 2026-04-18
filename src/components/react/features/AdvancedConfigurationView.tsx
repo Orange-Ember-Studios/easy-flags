@@ -59,7 +59,30 @@ export default function AdvancedConfigurationView({
   const [scheduleEndDate, setScheduleEndDate] = useState("");
   const [scheduleEndTime, setScheduleEndTime] = useState("23:59");
 
+  const [features, setFeatures] = useState<{scheduling: boolean, targeting: boolean} | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [showSaveNotification, setShowSaveNotification] = useState(false);
+
+  useState(() => {
+    const fetchFeatures = async () => {
+      if (!spaceId) return;
+      try {
+        const response = await fetch(`/api/spaces/${spaceId}/limits`, {
+          credentials: "include",
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setFeatures(data.features);
+        }
+      } catch (error) {
+        console.error("Failed to fetch features:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFeatures();
+  });
 
   const handleAddRule = () => {
     if (!newRuleValue.trim()) return;
@@ -315,10 +338,12 @@ export default function AdvancedConfigurationView({
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white tracking-tight">
-                        Targeting Logic
+                        Targeting Logic {!features?.targeting && <span className="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded ml-2">PRO</span>}
                       </h3>
                       <p className="text-xs text-slate-500 font-medium">
-                        Define precise segments for exclusion or inclusion
+                        {features?.targeting 
+                          ? "Define precise segments for exclusion or inclusion"
+                          : "Target specific users or domains with premium rules"}
                       </p>
                     </div>
                   </div>
@@ -329,108 +354,121 @@ export default function AdvancedConfigurationView({
                   </div>
                 </div>
 
-                <div className="space-y-4 mb-10">
-                  {targetingRules.length === 0 ? (
-                    <div className="bg-black/20 border border-dashed border-white/10 rounded-2xl py-12 text-center">
-                      <p className="text-slate-600 text-sm italic font-medium">
-                        No targeting rules defined. Feature matches all users by
-                        default.
-                      </p>
+                {!features?.targeting ? (
+                  <div className="bg-purple-500/5 border border-purple-500/10 rounded-2xl p-8 text-center flex flex-col items-center gap-4">
+                    <Icon name="Lock" size={32} className="text-purple-500/50" />
+                    <div>
+                      <p className="text-white font-bold text-sm mb-1">Targeting rules are locked</p>
+                      <p className="text-slate-500 text-xs">Upgrade your workspace to the Basic or Pro plan to use advanced targeting.</p>
                     </div>
-                  ) : (
-                    targetingRules.map((rule, idx) => (
-                      <div
-                        key={rule.id}
-                        className="group/rule flex items-center gap-4 bg-white/5 border border-white/5 rounded-2xl p-4 hover:border-purple-500/30 transition-all"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-black/40 flex items-center justify-center text-[10px] font-black text-slate-500">
-                          {idx + 1}
-                        </div>
-                        <div className="flex-1 flex flex-wrap items-center gap-2">
-                          <span className="text-xs font-bold text-purple-400 bg-purple-400/10 px-2 py-1 rounded-md">
-                            {getRuleTypeLabel(rule.type)}
-                          </span>
-                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                            {getOperatorLabel(rule.operator)}
-                          </span>
-                          <span className="text-xs font-mono font-bold text-white bg-black/40 px-3 py-1 rounded-md border border-white/5">
-                            "{rule.value}"
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => handleRemoveRule(rule.id)}
-                          className="opacity-0 group-hover/rule:opacity-100 w-8 h-8 rounded-lg hover:bg-red-500/20 text-slate-500 hover:text-red-400 transition-all flex items-center justify-center"
-                        >
-                          <Icon name="Trash" size={14} />
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className="bg-black/30 border border-white/5 rounded-2xl p-6 space-y-6">
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                    Craft New Segment Rule
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-bold text-slate-600 ml-1 uppercase">
-                        Attribute
-                      </label>
-                      <select
-                        value={newRuleType}
-                        onChange={(e) =>
-                          setNewRuleType(
-                            e.target.value as TargetingRule["type"],
-                          )
-                        }
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-hidden focus:ring-2 focus:ring-purple-500/50 transition-all"
-                      >
-                        <option value="email_domain">Email Domain</option>
-                        <option value="user_id">User ID</option>
-                        <option value="user_segment">User Segment</option>
-                        <option value="percentage">Percentage</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-bold text-slate-600 ml-1 uppercase">
-                        Operator
-                      </label>
-                      <select
-                        value={newRuleOperator}
-                        onChange={(e) =>
-                          setNewRuleOperator(
-                            e.target.value as TargetingRule["operator"],
-                          )
-                        }
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-hidden focus:ring-2 focus:ring-purple-500/50 transition-all"
-                      >
-                        <option value="equals">Equals</option>
-                        <option value="contains">Contains</option>
-                        <option value="greater_than">Greater than</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-bold text-slate-600 ml-1 uppercase">
-                        Value
-                      </label>
-                      <input
-                        type="text"
-                        value={newRuleValue}
-                        onChange={(e) => setNewRuleValue(e.target.value)}
-                        placeholder="e.g. enterprise.com"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs placeholder-slate-600 outline-hidden focus:ring-2 focus:ring-purple-500/50 transition-all"
-                      />
-                    </div>
+                    <a href="/billing" className="text-[10px] font-bold text-purple-400 uppercase tracking-widest hover:text-purple-300 transition-colors">View Plans &rightarrow;</a>
                   </div>
-                  <button
-                    onClick={handleAddRule}
-                    className="w-full py-3 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-400 rounded-xl text-xs font-bold uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
-                  >
-                    <Icon name="PlusCircle" size={16} />
-                    Append Targeting Rule
-                  </button>
-                </div>
+                ) : (
+                  <>
+                    <div className="space-y-4 mb-10">
+                      {targetingRules.length === 0 ? (
+                        <div className="bg-black/20 border border-dashed border-white/10 rounded-2xl py-12 text-center">
+                          <p className="text-slate-600 text-sm italic font-medium">
+                            No targeting rules defined. Feature matches all users by
+                            default.
+                          </p>
+                        </div>
+                      ) : (
+                        targetingRules.map((rule, idx) => (
+                          <div
+                            key={rule.id}
+                            className="group/rule flex items-center gap-4 bg-white/5 border border-white/5 rounded-2xl p-4 hover:border-purple-500/30 transition-all"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-black/40 flex items-center justify-center text-[10px] font-black text-slate-500">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1 flex flex-wrap items-center gap-2">
+                              <span className="text-xs font-bold text-purple-400 bg-purple-400/10 px-2 py-1 rounded-md">
+                                {getRuleTypeLabel(rule.type)}
+                              </span>
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                {getOperatorLabel(rule.operator)}
+                              </span>
+                              <span className="text-xs font-mono font-bold text-white bg-black/40 px-3 py-1 rounded-md border border-white/5">
+                                "{rule.value}"
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => handleRemoveRule(rule.id)}
+                              className="opacity-0 group-hover/rule:opacity-100 w-8 h-8 rounded-lg hover:bg-red-500/20 text-slate-500 hover:text-red-400 transition-all flex items-center justify-center"
+                            >
+                              <Icon name="Trash" size={14} />
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="bg-black/30 border border-white/5 rounded-2xl p-6 space-y-6">
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                        Craft New Segment Rule
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-slate-600 ml-1 uppercase">
+                            Attribute
+                          </label>
+                          <select
+                            value={newRuleType}
+                            onChange={(e) =>
+                              setNewRuleType(
+                                e.target.value as TargetingRule["type"],
+                              )
+                            }
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-hidden focus:ring-2 focus:ring-purple-500/50 transition-all"
+                          >
+                            <option value="email_domain">Email Domain</option>
+                            <option value="user_id">User ID</option>
+                            <option value="user_segment">User Segment</option>
+                            <option value="percentage">Percentage</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-slate-600 ml-1 uppercase">
+                            Operator
+                          </label>
+                          <select
+                            value={newRuleOperator}
+                            onChange={(e) =>
+                              setNewRuleOperator(
+                                e.target.value as TargetingRule["operator"],
+                              )
+                            }
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs outline-hidden focus:ring-2 focus:ring-purple-500/50 transition-all"
+                          >
+                            <option value="equals">Equals</option>
+                            <option value="contains">Contains</option>
+                            <option value="greater_than">Greater than</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-bold text-slate-600 ml-1 uppercase">
+                            Value
+                          </label>
+                          <input
+                            type="text"
+                            value={newRuleValue}
+                            onChange={(e) => setNewRuleValue(e.target.value)}
+                            placeholder="e.g. enterprise.com"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-xs placeholder-slate-600 outline-hidden focus:ring-2 focus:ring-purple-500/50 transition-all"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleAddRule}
+                        className="w-full py-3 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-400 rounded-xl text-xs font-bold uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                      >
+                        <Icon name="PlusCircle" size={16} />
+                        Append Targeting Rule
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </section>
           </div>
@@ -506,8 +544,12 @@ export default function AdvancedConfigurationView({
                   </h4>
                 </div>
                 <div
-                  onClick={() => setSchedulingEnabled(!schedulingEnabled)}
-                  className={`w-12 h-6 rounded-full border border-white/10 relative cursor-pointer transition-all ${schedulingEnabled ? "bg-amber-500/40" : "bg-white/5"}`}
+                  onClick={() => {
+                    if (features?.scheduling) {
+                      setSchedulingEnabled(!schedulingEnabled);
+                    }
+                  }}
+                  className={`w-12 h-6 rounded-full border border-white/10 relative transition-all ${!features?.scheduling ? "bg-slate-800 cursor-not-allowed grayscale" : "cursor-pointer"} ${schedulingEnabled ? "bg-amber-500/40" : "bg-white/5"}`}
                 >
                   <div
                     className={`absolute top-1 w-4 h-4 rounded-full transition-all ${schedulingEnabled ? "right-1 bg-white shadow-2xl" : "left-1 bg-slate-700"}`}
@@ -515,7 +557,13 @@ export default function AdvancedConfigurationView({
                 </div>
               </div>
 
-              {schedulingEnabled ? (
+              {!features?.scheduling ? (
+                <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4 text-center">
+                   <p className="text-amber-500/80 font-bold text-[10px] uppercase tracking-widest mb-1">Premium Feature</p>
+                   <p className="text-slate-400 text-[10px] mb-2 leading-relaxed">Upgrade to enable automated scheduling for your flags.</p>
+                   <a href="/billing" className="text-[9px] font-bold text-amber-500 uppercase tracking-widest hover:underline">View Plans &rightarrow;</a>
+                </div>
+              ) : schedulingEnabled ? (
                 <div className="space-y-6 pt-2 animate-in fade-in slide-in-from-top-2">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">

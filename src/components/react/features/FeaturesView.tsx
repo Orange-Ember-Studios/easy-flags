@@ -102,6 +102,8 @@ export default function FeaturesView({ spaceId, spaceName }: FeaturesViewProps) 
   const [newFeatureName, setNewFeatureName] = useState("");
   const [newFeatureDescription, setNewFeatureDescription] = useState("");
   const [newFeatureType, setNewFeatureType] = useState<"boolean" | "string" | "json">("boolean");
+  const [limits, setLimits] = useState<{max_flags: number | null, max_environments: number | null} | null>(null);
+  const [isLimitReached, setIsLimitReached] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -111,9 +113,23 @@ export default function FeaturesView({ spaceId, spaceName }: FeaturesViewProps) 
     if (!spaceId) return;
     try {
       setIsLoading(true);
-      await Promise.all([fetchEnvironments(), fetchFeatures()]);
+      await Promise.all([fetchEnvironments(), fetchFeatures(), fetchLimits()]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchLimits = async () => {
+    try {
+      const response = await fetch(`/api/spaces/${spaceId}/limits`, {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setLimits(data.limits);
+      }
+    } catch (error) {
+      console.error("Failed to fetch limits:", error);
     }
   };
 
@@ -156,6 +172,11 @@ export default function FeaturesView({ spaceId, spaceName }: FeaturesViewProps) 
           })),
         }));
         setFeatures(transformedFeatures);
+        
+        // Update limit status
+        if (limits && limits.max_flags !== null && limits.max_flags !== -1) {
+          setIsLimitReached(transformedFeatures.length >= limits.max_flags);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch features:", error);
@@ -284,13 +305,16 @@ export default function FeaturesView({ spaceId, spaceName }: FeaturesViewProps) 
           </div>
           <button
             onClick={() => {
+              if (isLimitReached) return;
               resetForm();
               setShowCreateModal(true);
             }}
-            className="btn-primary"
+            disabled={isLimitReached}
+            className={`btn-primary flex items-center ${isLimitReached ? "opacity-50 cursor-not-allowed grayscale" : ""}`}
+            title={isLimitReached ? `Limit of ${limits?.max_flags} flags reached` : ""}
           >
-            <Icon name="Plus" size={20} className="mr-2" />
-            Create Flag
+            <Icon name={isLimitReached ? "Lock" : "Plus"} size={20} className="mr-2" />
+            {isLimitReached ? "Limit Reached" : "Create Flag"}
           </button>
         </section>
 
