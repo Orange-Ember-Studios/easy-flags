@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { getLocale } from "./infrastructure/i18n/astro";
+import { SUPPORTED_LOCALES } from "./infrastructure/i18n/locales";
 
 export const onRequest = defineMiddleware((context, next) => {
   const { url, request, redirect, cookies } = context;
@@ -15,8 +16,7 @@ export const onRequest = defineMiddleware((context, next) => {
 
   const pathParts = url.pathname.split("/");
   const firstPart = pathParts[1];
-  const supportedLocales = ["en", "es", "fr"];
-  const isSupportedLocale = supportedLocales.includes(firstPart);
+  const isSupportedLocale = (SUPPORTED_LOCALES as string[]).includes(firstPart);
 
   // If already has a supported locale prefix, we are good
   if (isSupportedLocale) {
@@ -26,11 +26,7 @@ export const onRequest = defineMiddleware((context, next) => {
   }
 
   // No localized prefix found, decide where to redirect
-  const localeFromCookie = cookies.get("lang")?.value;
-  const finalLocale =
-    localeFromCookie && supportedLocales.includes(localeFromCookie)
-      ? localeFromCookie
-      : "en";
+  const finalLocale = getLocale(request);
 
   // Redirect to the prefixed version
   // e.g., /billing -> /en/billing

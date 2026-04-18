@@ -5,6 +5,7 @@ import {
 import {
   translations,
   DEFAULT_LANGUAGE,
+  SUPPORTED_LOCALES,
   type AvailableLanguages,
 } from "./locales";
 
@@ -44,6 +45,21 @@ export function getLocale(request: Request): AvailableLanguages {
     }
   }
 
+  // 4. Check Accept-Language header
+  const acceptLanguage = request.headers.get("accept-language");
+  if (acceptLanguage) {
+    const preferredLocales = acceptLanguage
+      .split(",")
+      .map((lang) => lang.split(";")[0].trim().split("-")[0].toLowerCase());
+
+    const matchedLocale = preferredLocales.find(
+      (lang) => translations[lang as AvailableLanguages],
+    );
+    if (matchedLocale) {
+      return matchedLocale as AvailableLanguages;
+    }
+  }
+
   return DEFAULT_LANGUAGE;
 }
 
@@ -52,8 +68,7 @@ export function getLocale(request: Request): AvailableLanguages {
  * It removes any existing locale prefix if present.
  */
 export function getLocalizedPath(path: string, locale: AvailableLanguages): string {
-  const supportedLocales = Object.keys(translations);
-  return sharedGetLocalizedPath(path, locale as string, supportedLocales);
+  return sharedGetLocalizedPath(path, locale as string, SUPPORTED_LOCALES as string[]);
 }
 
 /**

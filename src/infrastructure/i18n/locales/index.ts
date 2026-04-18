@@ -1,14 +1,16 @@
 import { en } from "./en";
 import { es } from "./es";
 import { fr } from "./fr";
-import type { LanguagesMap } from "../translator";
+import type { TranslationMap } from "../translator";
 
-export const translations: LanguagesMap = {
+export type AvailableLanguages = "en" | "es" | "fr";
+
+export const translations: Record<AvailableLanguages, TranslationMap> = {
   en,
   es,
   fr,
 };
 
-export type AvailableLanguages = "en" | "es" | "fr";
+export const SUPPORTED_LOCALES: AvailableLanguages[] = ["en", "es", "fr"];
 
 export const DEFAULT_LANGUAGE: AvailableLanguages = "en";

@@ -3,7 +3,7 @@
  * Supports nesting and interpolation like {key}.
  */
 
-export type TranslationMap = { [key: string]: string | TranslationMap };
+export type TranslationMap = { [key: string]: string | string[] | TranslationMap };
 export type LanguagesMap = { [lang: string]: TranslationMap };
 
 /**
@@ -25,7 +25,7 @@ export function createTranslator(
   /**
    * Helper to get a value from a nested path like 'nested.key'
    */
-  const getNestedValue = (obj: TranslationMap, path: string): string | undefined => {
+  const getNestedValue = (obj: TranslationMap, path: string): string | string[] | undefined => {
     const keys = path.split('.');
     let current: any = obj;
 
@@ -34,13 +34,13 @@ export function createTranslator(
       current = current[key];
     }
 
-    return typeof current === 'string' ? current : undefined;
+    return (typeof current === 'string' || Array.isArray(current)) ? current : undefined;
   };
 
   /**
    * Translates a key, interpolating variables if provided.
    */
-  return (key: string, variables?: Record<string, string | number>): string => {
+  return (key: string, variables?: Record<string, string | number>): any => {
     let value = getNestedValue(currentTranslations, key);
 
     // Fallback if not found in current language
@@ -51,6 +51,11 @@ export function createTranslator(
     // Return key if still not found
     if (value === undefined) {
       return key;
+    }
+
+    // Array return (no interpolation supported for arrays yet)
+    if (Array.isArray(value)) {
+      return value;
     }
 
     // Direct string return if no variables

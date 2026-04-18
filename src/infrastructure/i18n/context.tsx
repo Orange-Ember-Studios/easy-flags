@@ -8,12 +8,13 @@ import { createTranslator, getLocalizedPath as sharedGetLocalizedPath } from "./
 import {
   translations,
   DEFAULT_LANGUAGE,
+  SUPPORTED_LOCALES,
   type AvailableLanguages,
 } from "./locales";
 
 interface I18nContextType {
   locale: AvailableLanguages;
-  t: (key: string, variables?: Record<string, string | number>) => string;
+  t: (key: string, variables?: Record<string, string | number>) => any;
   getLocalizedPath: (path: string, locale?: AvailableLanguages) => string;
 }
 
@@ -40,8 +41,7 @@ export function I18nProvider({
 
   const getLocalizedPath = useMemo(
     () => (path: string, locale: AvailableLanguages = initialLocale) => {
-      const supportedLocales = Object.keys(translations);
-      return sharedGetLocalizedPath(path, locale, supportedLocales);
+      return sharedGetLocalizedPath(path, locale, SUPPORTED_LOCALES as string[]);
     },
     [initialLocale],
   );
@@ -102,7 +102,6 @@ export function useLocalizedPath() {
 
   // Fallback if no context
   return (path: string, locale: AvailableLanguages = DEFAULT_LANGUAGE) => {
-    const supportedLocales = Object.keys(translations);
-    return sharedGetLocalizedPath(path, locale, supportedLocales);
+    return sharedGetLocalizedPath(path, locale, SUPPORTED_LOCALES as string[]);
   };
 }
