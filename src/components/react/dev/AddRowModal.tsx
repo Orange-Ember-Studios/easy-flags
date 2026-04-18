@@ -189,7 +189,5 @@ export function AddRowModal({
         </div>
       </div>
     </div>
-      </div>
-    </div>
   );
 }
