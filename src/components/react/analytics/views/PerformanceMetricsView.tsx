@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { AnalyticsFilters } from "../AnalyticsManager";
-import { Activity, TrendingUp, AlertCircle } from "lucide-react";
+import { Icon } from "@/components/react/shared/Icon";
 import { useTranslate } from "@/infrastructure/i18n/context";
 import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
@@ -129,7 +129,7 @@ export default function PerformanceMetricsView({
         <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
           <div className="flex items-center justify-between mb-2">
             <p className="text-slate-400 text-sm">{t('analytics.avgResponseTime')}</p>
-            <Activity className="w-4 h-4 text-blue-400" />
+            <Icon name="Activity" size={16} className="text-blue-400" />
           </div>
           <p className="text-2xl font-bold text-white">
             {aggregateMetrics.avgResponseTime.toFixed(2)}ms
@@ -138,7 +138,7 @@ export default function PerformanceMetricsView({
         <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
           <div className="flex items-center justify-between mb-2">
             <p className="text-slate-400 text-sm">{t('analytics.totalRequests')}</p>
-            <TrendingUp className="w-4 h-4 text-green-400" />
+            <Icon name="Rocket" size={16} className="text-green-400" />
           </div>
           <p className="text-2xl font-bold text-white">
             {aggregateMetrics.totalRequests.toLocaleString()}
@@ -147,7 +147,7 @@ export default function PerformanceMetricsView({
         <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
           <div className="flex items-center justify-between mb-2">
             <p className="text-slate-400 text-sm">{t('analytics.avgErrorRate')}</p>
-            <AlertCircle className="w-4 h-4 text-red-400" />
+            <Icon name="AlertCircle" size={16} className="text-red-400" />
           </div>
           <p className="text-2xl font-bold text-white">
             {aggregateMetrics.avgErrorRate.toFixed(2)}%
@@ -162,7 +162,7 @@ export default function PerformanceMetricsView({
       {/* Error State */}
       {error && (
         <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-red-400" />
+          <Icon name="AlertCircle" size={20} className="text-red-400" />
           <p className="text-red-400">{error}</p>
         </div>
       )}

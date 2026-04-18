@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { AnalyticsFilters } from "../AnalyticsManager";
-import { TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
+import { Icon } from "@/components/react/shared/Icon";
 import { useTranslate } from "@/infrastructure/i18n/context";
 import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 
@@ -55,9 +55,9 @@ const MetricCard: React.FC<{
           }`}
         >
           {isPositive ? (
-            <TrendingUp className="w-4 h-4" />
+            <Icon name="Activity" size={16} />
           ) : (
-            <TrendingDown className="w-4 h-4" />
+            <Icon name="ChevronDown" size={16} />
           )}
           <span className="text-sm font-semibold">
             {isPositive ? "+" : ""}{change.toFixed(1)}%
@@ -147,7 +147,7 @@ export default function ComparisonView({ filters, initialLocale }: ComparisonVie
       {/* Error State */}
       {error && (
         <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-red-400" />
+          <Icon name="AlertCircle" size={20} className="text-red-400" />
           <p className="text-red-400">{error}</p>
         </div>
       )}
