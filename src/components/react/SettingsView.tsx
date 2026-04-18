@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useTranslate } from "@/infrastructure/i18n/context";
 import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
+import { SettingsSidebar } from "./settings/SettingsSidebar";
+import { ProfileSection } from "./settings/ProfileSection";
+import { SecuritySection } from "./settings/SecuritySection";
+import { ApiKeySection } from "./settings/ApiKeySection";
+import { PreferenceSection } from "./settings/PreferenceSection";
+import { SessionSection } from "./settings/SessionSection";
+import { Icon } from "@/components/react/shared/Icon";
 
 interface User {
   id: number;
@@ -38,48 +45,6 @@ interface UserPreferences {
   updated_at: string;
 }
 
-// Toggle Component
-interface ToggleProps {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  disabled?: boolean;
-  loading?: boolean;
-}
-
-function Toggle({
-  checked,
-  onChange,
-  disabled = false,
-  loading = false,
-}: ToggleProps) {
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        if (!disabled && !loading) onChange(!checked);
-      }}
-      disabled={disabled || loading}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-        checked
-          ? "bg-cyan-500 hover:bg-cyan-600 shadow-lg shadow-cyan-500/25"
-          : "bg-white/10 hover:bg-white/20"
-      } ${disabled || loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-      aria-pressed={checked}
-    >
-      <span
-        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-          checked ? "translate-x-5" : "translate-x-0.5"
-        }`}
-      />
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="animate-spin h-3 w-3 border-2 border-transparent border-t-white rounded-full"></div>
-        </div>
-      )}
-    </button>
-  );
-}
-
 interface SettingsViewProps {
   initialLocale?: AvailableLanguages;
 }
@@ -100,9 +65,9 @@ export default function SettingsView({ initialLocale }: SettingsViewProps) {
   // Form states
   const [emailForm, setEmailForm] = useState({ email: "" });
   const [passwordForm, setPasswordForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+    currentPassword: "" as any,
+    newPassword: "" as any,
+    confirmPassword: "" as any,
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [showNewApiKeyForm, setShowNewApiKeyForm] = useState(false);
@@ -422,634 +387,127 @@ export default function SettingsView({ initialLocale }: SettingsViewProps) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4">
-        <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">{t('common.fetching')}</p>
+      <div className="flex flex-col items-center justify-center py-48 gap-6 animate-in fade-in duration-700">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-cyan-500/10 border-t-cyan-500 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 w-16 h-16 border-4 border-cyan-500/5 rounded-full blur-sm"></div>
+        </div>
+        <p className="text-slate-500 font-bold uppercase tracking-[0.3em] text-[10px] animate-pulse">
+            {t('common.fetching')}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-4xl">
-        <h1 className="text-4xl font-bold text-gradient mb-8">{t('settings.title')}</h1>
+    <div className="min-h-screen pt-12 pb-24 relative overflow-x-hidden">
+      {/* Aurora Background Effects */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 blur-[120px] rounded-full -z-10 animate-pulse duration-[10s]" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-indigo-500/10 blur-[100px] rounded-full -z-10 animate-pulse duration-[8s]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%] h-[50%] bg-purple-500/5 blur-[150px] rounded-full -z-10" />
 
-        {/* Alert Messages */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-900/30 border border-red-500/30 rounded-lg text-red-300">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="mb-6 p-4 bg-green-900/30 border border-green-500/30 rounded-lg text-green-300">
-            {success}
-          </div>
-        )}
+      <div className="max-w-6xl mx-auto px-4 relative z-10">
+        {/* Header Section */}
+        <header className="mb-12 animate-in slide-in-from-top-4 duration-500">
+          <h1 className="text-5xl font-extrabold text-white tracking-tight mb-3">
+             {t('settings.title')}
+             <span className="text-cyan-500">.</span>
+          </h1>
+          <p className="text-slate-400 text-lg max-w-2xl">
+            {t('settings.subtitle') || "Configure your personal experience and manage account security."}
+          </p>
+        </header>
 
-        {/* Tabs */}
-        <div className="flex gap-4 mb-8 border-b border-slate-700">
-          {(
-            [
-              { id: "profile", label: t('settings.profile') },
-              { id: "security", label: t('settings.security') },
-              { id: "api-keys", label: t('settings.apiKeys') },
-              { id: "preferences", label: t('settings.preferences') },
-              { id: "sessions", label: t('settings.sessions') },
-            ] as const
-          ).map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-3 border-b-2 transition ${
-                activeTab === tab.id
-                  ? "border-cyan-500 text-cyan-300"
-                  : "border-transparent text-slate-400 hover:text-cyan-300"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Status Messages */}
+        <div className="fixed top-24 right-8 z-50 flex flex-col gap-3 pointer-events-none">
+          {error && (
+            <div className="bg-red-950/80 backdrop-blur-xl border border-red-500/30 px-6 py-4 rounded-2xl text-red-300 shadow-2xl shadow-red-500/10 flex items-center gap-3 animate-in fade-in slide-in-from-right-4 pointer-events-auto">
+              <Icon name="AlertTriangle" size={20} />
+              <p className="font-medium">{error}</p>
+              <button onClick={() => setError("")} className="ml-4 opacity-50 hover:opacity-100 transition-opacity">
+                <Icon name="X" size={16} />
+              </button>
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-950/80 backdrop-blur-xl border border-green-500/30 px-6 py-4 rounded-2xl text-green-300 shadow-2xl shadow-green-500/10 flex items-center gap-3 animate-in fade-in slide-in-from-right-4 pointer-events-auto">
+              <Icon name="Check" size={20} />
+              <p className="font-medium">{success}</p>
+              <button onClick={() => setSuccess("")} className="ml-4 opacity-50 hover:opacity-100 transition-opacity">
+                 <Icon name="X" size={16} />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Profile Tab */}
-        {activeTab === "profile" && (
-          <div className="space-y-6">
-            <div className="card">
-              <h2 className="text-2xl font-bold text-cyan-300 mb-6">
-                {t('settings.profileInfo')}
-              </h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                      {t('settings.username')}
-                    </label>
-                    <div className="text-slate-100 mt-2 font-medium">
-                      {user?.username}
-                    </div>
-                  </div>
-                  <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                      {t('settings.emailAddress')}
-                    </label>
-                    <div className="text-slate-100 mt-2 font-medium">
-                      {user?.email}
-                    </div>
-                  </div>
-                  <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                      {t('settings.subscription')}
-                    </label>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="text-slate-100 font-medium">
-                        {subscription?.plan?.name || "Free"}
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                          subscription?.status === "active"
-                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                            : subscription?.status === "trial"
-                            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                            : "bg-red-500/20 text-red-400 border border-red-500/30"
-                        }`}
-                      >
-                        {subscription?.status || "Free"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                      {t('settings.memberSince')}
-                    </label>
-                    <div className="text-slate-100 mt-2 font-medium">
-                      {user?.created_at
-                        ? new Date(user.created_at).toLocaleDateString(
-                            undefined,
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            },
-                          )
-                        : t('common.noResults')}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          {/* Sidebar Navigation */}
+          <aside className="lg:col-span-3 sticky top-32 animate-in slide-in-from-left-4 duration-500">
+            <SettingsSidebar 
+                activeTab={activeTab} 
+                setActiveTab={setActiveTab} 
+                t={t} 
+            />
+          </aside>
 
-            {/* Email Update */}
-            <div className="card">
-              <h2 className="text-2xl font-bold text-cyan-300 mb-6">
-                {t('settings.updateEmail')}
-              </h2>
-              <form onSubmit={handleEmailUpdate} className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="text-sm font-semibold text-slate-300 block mb-2"
-                  >
-                    {t('settings.newEmail')}
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={emailForm.email}
-                    onChange={(e) => setEmailForm({ email: e.target.value })}
-                    className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition"
-                    placeholder="your.email@example.com"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isUpdating}
-                  className="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 text-white rounded-lg transition font-medium"
-                >
-                  {isUpdating ? t('settings.updating') : t('settings.updateButton')}
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Security Tab */}
-        {activeTab === "security" && (
-          <div className="card">
-            <h2 className="text-2xl font-bold text-cyan-300 mb-6">
-              {t('settings.changePassword')}
-            </h2>
-            <form onSubmit={handlePasswordUpdate} className="space-y-5">
-              <div>
-                <label
-                  htmlFor="currentPassword"
-                  className="text-sm font-semibold text-slate-300 block mb-2"
-                >
-                  {t('settings.currentPassword')}
-                </label>
-                <input
-                  id="currentPassword"
-                  type="password"
-                  value={passwordForm.currentPassword}
-                  onChange={(e) =>
-                    setPasswordForm({
-                      ...passwordForm,
-                      currentPassword: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition"
-                  placeholder={t('settings.currentPasswordPlaceholder')}
+          {/* Main Content Area */}
+          <main className="lg:col-span-9 min-h-[600px]">
+            {activeTab === "profile" && (
+                <ProfileSection 
+                    user={user}
+                    subscription={subscription}
+                    emailForm={emailForm}
+                    setEmailForm={setEmailForm}
+                    isUpdating={isUpdating}
+                    handleEmailUpdate={handleEmailUpdate}
+                    t={t}
                 />
-              </div>
-              <div className="border-t border-slate-700 pt-5">
-                <label
-                  htmlFor="newPassword"
-                  className="text-sm font-semibold text-slate-300 block mb-2"
-                >
-                  {t('settings.newPassword')}
-                </label>
-                <input
-                  id="newPassword"
-                  type="password"
-                  value={passwordForm.newPassword}
-                  onChange={(e) =>
-                    setPasswordForm({
-                      ...passwordForm,
-                      newPassword: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition"
-                  placeholder={t('settings.newPasswordPlaceholder')}
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="text-sm font-semibold text-slate-300 block mb-2"
-                >
-                  {t('settings.confirmPassword')}
-                </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordForm({
-                      ...passwordForm,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition"
-                  placeholder={t('settings.confirmPasswordPlaceholder')}
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isUpdating}
-                className="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 text-white rounded-lg transition font-medium"
-              >
-                {isUpdating ? t('settings.updating') : t('settings.changePasswordButton')}
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* API Keys Tab */}
-        {activeTab === "api-keys" && (
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-cyan-300">{t('settings.apiKeysTitle')}</h2>
-                  <p className="text-sm text-slate-400 mt-1">
-                    {t('settings.apiKeysDesc')}
-                  </p>
-                </div>
-                {!showNewApiKeyForm && (
-                  <button
-                    onClick={() => setShowNewApiKeyForm(true)}
-                    className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition font-medium"
-                  >
-                    {t('common.create')}
-                  </button>
-                )}
-              </div>
-
-              {showNewApiKeyForm && (
-                <div className="card mb-6">
-                  <h3 className="text-lg font-semibold text-cyan-300 mb-4">
-                    {t('settings.createNewApiKey')}
-                  </h3>
-                  <form onSubmit={handleCreateApiKey} className="space-y-4">
-                    <div className="p-3 bg-cyan-900/20 border border-cyan-700/30 rounded-lg">
-                      <p className="text-sm text-cyan-200">
-                        {t('settings.apiKeySecurityNotice')}
-                      </p>
-                    </div>
-                    <div className="flex gap-3">
-                      <button
-                        type="submit"
-                        disabled={isUpdating}
-                        className="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 disabled:opacity-50 text-white rounded-lg transition font-medium"
-                      >
-                        {isUpdating ? t('common.loading') : t('settings.generateKey')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowNewApiKeyForm(false)}
-                        className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition font-medium"
-                      >
-                        {t('common.cancel')}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              )}
-            </div>
-
-            {apiKeys.length === 0 ? (
-              <div className="card text-center py-12">
-                <div className="text-4xl mb-3">🔐</div>
-                <p className="text-slate-400 font-medium">{t('settings.noApiKeys')}</p>
-                <p className="text-slate-500 text-sm mt-1">
-                  {t('settings.noApiKeysDesc')}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {apiKeys.map((key) => (
-                  <div
-                    key={key.id}
-                    className="card flex justify-between items-start hover:border-cyan-600/50 transition"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="font-mono text-xs text-cyan-400 bg-slate-900/50 p-2 rounded border border-slate-700 break-all">
-                        {key.key}
-                      </div>
-                      <div className="flex gap-4 text-xs text-slate-500 mt-3">
-                        <span>
-                          📅 {t('settings.createdLabel')}:{" "}
-                          {new Date(key.created_at).toLocaleDateString()}
-                        </span>
-                        {key.last_used && (
-                          <span>
-                            🕐 {t('settings.lastUsedLabel')}:{" "}
-                            {new Date(key.last_used).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteApiKey(key.id)}
-                      className="ml-4 px-3 py-1 bg-red-900/30 hover:bg-red-900/50 border border-red-500/30 text-red-400 rounded transition text-sm font-medium shrink-0"
-                    >
-                      {t('common.delete')}
-                    </button>
-                  </div>
-                ))}
-              </div>
             )}
-          </div>
-        )}
-
-        {/* Preferences Tab */}
-        {activeTab === "preferences" && (
-          <div className="space-y-4">
-            <div className="card">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-cyan-300">
-                    {t('settings.preferences')}
-                  </h2>
-                  <p className="text-sm text-slate-400 mt-1">
-                    {t('settings.preferencesDesc')}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Language Selection */}
-                <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-lg border border-slate-700/50 hover:border-slate-700 transition">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-100 text-base">
-                      🌐 {t('settings.language')}
-                    </h3>
-                    <p className="text-sm text-slate-400 mt-1">
-                      {t('settings.languageDesc')}
-                    </p>
-                  </div>
-                  <div className="ml-4 shrink-0 flex gap-2">
-                    {(['en', 'es', 'fr'] as const).map((lang) => (
-                      <button
-                        key={lang}
-                        onClick={() => {
-                          const currentPath = window.location.pathname + window.location.search + window.location.hash;
-                          window.location.href = `/api/i18n/set-language?lang=${lang}&redirect=${encodeURIComponent(currentPath)}`;
-                        }}
-                        className={`px-3 py-1 rounded-md text-sm font-medium transition ${
-                          (initialLocale || 'en') === lang
-                            ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
-                            : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-cyan-300"
-                        }`}
-                      >
-                        {lang.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {preferences && (
-                  <div className="space-y-6">
-                    {/* Email Notifications */}
-                    <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-lg border border-slate-700/50 hover:border-slate-700 transition">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-slate-100 text-base">
-                          📧 {t('settings.emailNotifications')}
-                        </h3>
-                        <p className="text-sm text-slate-400 mt-1">
-                          {t('settings.emailNotificationsDesc')}
-                        </p>
-                      </div>
-                      <div className="ml-4 shrink-0">
-                        <Toggle
-                          checked={preferences.email_notifications}
-                          onChange={(value) =>
-                            handleTogglePreference("email_notifications", value)
-                          }
-                          loading={togglingPreference === "email_notifications"}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Security Alerts */}
-                    <div className="flex items-center justify-between p-4 bg-slate-800/30 rounded-lg border border-slate-700/50 hover:border-slate-700 transition">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-slate-100 text-base">
-                          🔒 {t('settings.securityAlerts')}
-                        </h3>
-                        <p className="text-sm text-slate-400 mt-1">
-                          {t('settings.securityAlertsDesc')}
-                        </p>
-                      </div>
-                      <div className="ml-4 shrink-0">
-                        <Toggle
-                          checked={preferences.security_alerts}
-                          onChange={(value) =>
-                            handleTogglePreference("security_alerts", value)
-                          }
-                          loading={togglingPreference === "security_alerts"}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Coming Soon Features */}
-            <div className="card opacity-60 pointer-events-none">
-              <h3 className="font-semibold text-slate-400 mb-4">{t('settings.comingSoon')}</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-slate-800/20 rounded-lg">
-                  <div>
-                    <p className="text-slate-400 text-sm">
-                      🔐 {t('settings.tfa')}
-                    </p>
-                  </div>
-                  <span className="text-xs text-slate-500 font-medium">
-                    2FA
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-slate-800/20 rounded-lg">
-                  <div>
-                    <p className="text-slate-400 text-sm">
-                      🌙 {t('settings.darkMode')}
-                    </p>
-                  </div>
-                  <span className="text-xs text-slate-500 font-medium">
-                    Theme
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Sessions Tab */}
-        {activeTab === "sessions" && (
-          <div className="space-y-6">
-            {/* Revoke My Tokens */}
-            <div className="card border-l-4 border-orange-500/50">
-              <h2 className="text-2xl font-bold text-orange-400 mb-2">
-                🔐 {t('settings.activeSessions')}
-              </h2>
-              <p className="text-slate-400 text-sm mb-6">
-                {t('settings.activeSessionsDesc')}
-              </p>
-
-              <div className="space-y-4">
-                <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                  <h3 className="text-lg font-semibold text-cyan-300 mb-3">
-                    {t('settings.currentSession')}
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-400">{t('settings.status')}</span>
-                      <span className="text-green-400 font-medium">{t('settings.active')}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-400">{t('settings.username')}</span>
-                      <span className="text-cyan-300">{user?.username}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-400">{t('settings.loginTime')}</span>
-                      <span className="text-slate-300">
-                        {user?.created_at
-                          ? new Date(user.created_at).toLocaleDateString(
-                              undefined,
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              },
-                            )
-                          : "N/A"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleRevokeMyTokens}
-                  disabled={isRevokingTokens}
-                  className="w-full px-6 py-3 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white rounded-lg transition font-medium flex items-center justify-center gap-2"
-                >
-                  {isRevokingTokens ? (
-                    <>
-                      <div className="animate-spin h-4 w-4 border-2 border-transparent border-t-white rounded-full"></div>
-                      {t('settings.revoking')}
-                    </>
-                  ) : (
-                    <>
-                      <span>🚪</span>
-                      {t('settings.revokeAllSessions')}
-                    </>
-                  )}
-                </button>
-
-                <div className="p-3 bg-orange-900/20 border border-orange-700/30 rounded-lg">
-                  <p className="text-xs text-orange-200">
-                    {t('settings.revokeAllNotice')}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Super User Token Revocation */}
-            {user && user.role_id === 1 && (
-              <div className="card border-l-4 border-red-500/50">
-                <h2 className="text-2xl font-bold text-red-400 mb-2">
-                  🔑 {t('settings.adminRevokeTitle')}
-                </h2>
-                <p className="text-slate-400 text-sm mb-6">
-                  {t('settings.adminRevokeDesc')}
-                </p>
-
-                <div className="space-y-4">
-                  <div className="p-4 bg-red-900/10 border border-red-700/30 rounded-lg">
-                    <p className="text-sm text-red-300">
-                      {t('settings.adminRevokeNotice')}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor="userId"
-                        className="text-sm font-semibold text-slate-300 block mb-2"
-                      >
-                        {t('settings.userId')}
-                      </label>
-                      <input
-                        id="userId"
-                        type="number"
-                        value={revokeTargetUserId}
-                        onChange={(e) => setRevokeTargetUserId(e.target.value)}
-                        className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition"
-                        placeholder={t('settings.userIdPlaceholder')}
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="username"
-                        className="text-sm font-semibold text-slate-300 block mb-2"
-                      >
-                        {t('settings.usernameLabel')}
-                      </label>
-                      <input
-                        id="username"
-                        type="text"
-                        value={revokeTargetUsername}
-                        onChange={(e) =>
-                          setRevokeTargetUsername(e.target.value)
-                        }
-                        className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition"
-                        placeholder={t('settings.usernamePlaceholder')}
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      if (!revokeTargetUserId) {
-                        setError(t('settings.enterValidUserId'));
-                        return;
-                      }
-                      handleRevokeUserTokens(parseInt(revokeTargetUserId, 10));
-                    }}
-                    disabled={isRevokingTokens || !revokeTargetUserId}
-                    className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg transition font-medium flex items-center justify-center gap-2"
-                  >
-                    {isRevokingTokens ? (
-                      <>
-                        <div className="animate-spin h-4 w-4 border-2 border-transparent border-t-white rounded-full"></div>
-                        {t('settings.revoking')}
-                      </>
-                    ) : (
-                      <>
-                        <span>⚡</span>
-                        {t('settings.revokeUserTokens')}
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
+            {activeTab === "security" && (
+                <SecuritySection 
+                    passwordForm={passwordForm}
+                    setPasswordForm={setPasswordForm}
+                    isUpdating={isUpdating}
+                    handlePasswordUpdate={handlePasswordUpdate}
+                    t={t}
+                />
             )}
-
-            {/* Info Card */}
-            <div className="card bg-slate-800/20 border-l-4 border-cyan-500/50">
-              <h3 className="font-semibold text-cyan-300 mb-3">
-                ℹ️ {t('settings.howRevocationWorks')}
-              </h3>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li>
-                  ✅ {t('settings.revocationStep1')}
-                </li>
-                <li>
-                  ✅ {t('settings.revocationStep2')}
-                </li>
-                <li>✅ {t('settings.revocationStep3')}</li>
-                <li>
-                  ✅ {t('settings.revocationStep4')}
-                </li>
-                <li>
-                  ⏰ {t('settings.revocationStep5')}
-                </li>
-              </ul>
-            </div>
-          </div>
-        )}
+            {activeTab === "api-keys" && (
+                <ApiKeySection 
+                    apiKeys={apiKeys}
+                    showNewApiKeyForm={showNewApiKeyForm}
+                    setShowNewApiKeyForm={setShowNewApiKeyForm}
+                    isUpdating={isUpdating}
+                    handleCreateApiKey={handleCreateApiKey}
+                    handleDeleteApiKey={handleDeleteApiKey}
+                    t={t}
+                />
+            )}
+            {activeTab === "preferences" && (
+                <PreferenceSection 
+                    preferences={preferences}
+                    togglingPreference={togglingPreference}
+                    handleTogglePreference={handleTogglePreference}
+                    initialLocale={initialLocale}
+                    t={t}
+                />
+            )}
+            {activeTab === "sessions" && (
+                <SessionSection 
+                    user={user}
+                    isRevokingTokens={isRevokingTokens}
+                    handleRevokeMyTokens={handleRevokeMyTokens}
+                    handleRevokeUserTokens={handleRevokeUserTokens}
+                    revokeTargetUserId={revokeTargetUserId}
+                    setRevokeTargetUserId={setRevokeTargetUserId}
+                    revokeTargetUsername={revokeTargetUsername}
+                    setRevokeTargetUsername={setRevokeTargetUsername}
+                    setError={setError}
+                    t={t}
+                />
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );

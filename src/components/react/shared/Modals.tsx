@@ -120,34 +120,43 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-x-hidden overflow-y-auto outline-none focus:outline-none scroll-smooth">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-[#06080f]/70 backdrop-blur-md animate-in fade-in duration-300"
+        className="fixed inset-0 bg-slate-950/80 backdrop-blur-xl animate-in fade-in duration-500"
         onClick={onClose}
       />
       
       {/* Modal Container */}
-      <div className="relative bg-[#0b0e14]/95 border border-white/10 rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden">
-        {/* Fixed Top Gradient Line - now centered and faded at the edges to avoid corner issues */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-linear-to-r from-transparent via-cyan-500/50 to-transparent"></div>
-        
-        {/* Background Glow */}
-        <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 blur-[60px] rounded-full pointer-events-none"></div>
+      <div className="relative bg-[#0b0e14]/80 backdrop-blur-2xl border border-white/10 rounded-[40px] shadow-3xl max-w-lg w-full animate-in zoom-in-95 duration-500 overflow-hidden flex flex-col my-auto">
+        {/* Internal Aurora Effects */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 blur-[100px] -z-10" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[100px] -z-10" />
 
-        <div className="flex justify-between items-center mb-10">
-          <h2 className="text-2xl font-bold font-display tracking-tight text-white">{title}</h2>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all active:scale-90"
-            aria-label={t('common.close')}
-          >
-            <Icon name="X" size={18} strokeWidth={3} />
-          </button>
-        </div>
+        {/* Header Highlight */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-[2px] bg-linear-to-r from-transparent via-cyan-500/50 to-transparent"></div>
         
-        <div className="relative z-10">
-          {children}
+        <div className="p-12 font-sans overflow-y-auto max-h-[85vh] custom-scrollbar flex flex-col">
+          <div className="flex justify-between items-start mb-10 shrink-0">
+            <h2 className="text-3xl font-black tracking-tight text-white leading-none">
+              {title.split(' ').map((word, i) => (
+                i === title.split(' ').length - 1 ? (
+                  <span key={i} className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent ml-2">{word}</span>
+                ) : <span key={i}>{word} </span>
+              ))}
+            </h2>
+            <button
+              onClick={onClose}
+              className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all active:scale-95 border border-white/5"
+              aria-label={t('common.close')}
+            >
+              <Icon name="X" size={20} />
+            </button>
+          </div>
+          
+          <div className="relative z-10">
+            {children}
+          </div>
         </div>
       </div>
     </div>

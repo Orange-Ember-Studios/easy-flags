@@ -4,8 +4,11 @@ import { requireAuth, getLoginUrl } from "@/utils/auth-redirect";
 import { checkResourceExists } from "@/utils/resource-validation";
 import FeaturesView from "@/components/react/features/FeaturesView";
 import { SpaceService } from "@application/services";
+import { getLocale } from "@/infrastructure/i18n/astro";
 
 export const prerender = false;
+
+const initialLocale = getLocale(Astro.request);
 
 // Require authentication (includes redirect parameter)
 if (!requireAuth(Astro)) {
@@ -23,5 +26,5 @@ if (!checkResourceExists(space, Astro, "Space")) {
 ---
 
 <BaseLayout title="Features" includeHeader={true}>
-  <FeaturesView client:load spaceId={spaceSlug} spaceName={space.name} />
+  <FeaturesView client:load spaceId={spaceSlug} spaceName={space.name} initialLocale={initialLocale} />
 </BaseLayout>

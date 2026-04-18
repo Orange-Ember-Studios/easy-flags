@@ -604,27 +604,41 @@ const locale = getLocale(Astro.request);
         </div>
 
         <!-- Support Footer -->
-        <div
-          class="mt-32 p-12 rounded-[2.5rem] bg-linear-to-br from-cyan-500 to-blue-600 relative overflow-hidden group"
-        >
-          <div
-            class="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2"
-          >
-          </div>
-          <div class="relative z-10 text-center max-w-xl mx-auto">
-            <h3 class="text-3xl font-bold text-white mb-4 tracking-tight">
-              {t('docs.stuckTitle')}
-            </h3>
-            <p class="text-white/80 mb-8 font-medium">
-              {t('docs.stuckDesc')}
-            </p>
-            <a
-              href="/contact"
-              class="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-3.5 rounded-full font-bold shadow-xl hover:scale-105 active:scale-95 transition-all"
-            >
-              {t('docs.talkExpert')}
-              <Icon name="ArrowRight" size={18} strokeWidth={2.5} />
-            </a>
+        <div class="mt-40 relative group">
+          {/* Internal Aurora for the CTA */}
+          <div class="absolute -inset-20 bg-blue-500/5 blur-[120px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+          
+          <div class="relative z-10 p-12 md:p-20 rounded-[48px] bg-white/[0.02] backdrop-blur-3xl border border-white/5 overflow-hidden shadow-2xl transition-all duration-700 hover:bg-white/[0.04] hover:border-white/10">
+            <div class="absolute top-0 right-0 w-full h-full bg-linear-to-br from-blue-500/[0.03] to-transparent pointer-events-none"></div>
+            
+            <div class="relative z-10 text-center max-w-2xl mx-auto">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-8">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                Direct Assistance
+              </div>
+              
+              <h3 class="text-4xl md:text-5xl font-black text-white mb-6 tracking-tighter leading-tight">
+                {t('docs.stuckTitle')}
+              </h3>
+              
+              <p class="text-slate-400 text-lg md:text-xl font-medium mb-12 leading-relaxed">
+                {t('docs.stuckDesc')}
+              </p>
+              
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                <a href="/contact" class="btn-primary px-10! py-5! flex items-center justify-center gap-3 shadow-2xl shadow-blue-500/20 group/btn w-full sm:w-auto">
+                  <span class="font-black text-xs uppercase tracking-widest">{t('docs.talkExpert')}</span>
+                  <Icon client:load name="ArrowRight" size={18} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
+                </a>
+                <a href="/api-reference" class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] hover:text-white transition-colors">
+                  API Reference
+                </a>
+              </div>
+            </div>
+            
+            <div class="mt-16 pt-8 border-t border-white/5 flex flex-col items-center">
+               <p class="text-[9px] font-black text-slate-800 uppercase tracking-[0.5em]">SUPPORT_TUNNEL: ACTIVE &bull; STATUS: ONLINE</p>
+            </div>
           </div>
         </div>
 

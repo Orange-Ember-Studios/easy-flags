@@ -22,7 +22,7 @@ export default function PageContainer({
   initialLocale,
 }: PageContainerProps) {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full relative overflow-x-hidden">
       <div className="max-w-7xl mx-auto pt-12 pb-24 px-6 animate-in fade-in duration-700">
         <SpaceNavigation
           spaceId={spaceId}

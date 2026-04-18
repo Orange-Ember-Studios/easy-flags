@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslate } from "@/infrastructure/i18n/context";
 import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
+import { Icon } from "@/components/react/shared/Icon";
 
 interface MetricsData {
   spaceId: string;
@@ -26,8 +27,6 @@ interface MetricsMonitorProps {
   userId: string | number;
   initialLocale?: AvailableLanguages;
 }
-
-import { Icon } from "@/components/react/shared/Icon";
 
 // Helper function to get date range based on time range selection
 function getDateRange(timeRange: "24h" | "7d" | "30d"): { from: string; to: string } {
@@ -64,7 +63,6 @@ export default function MetricsMonitor({ userId, initialLocale }: MetricsMonitor
     const fetchMetrics = async () => {
       try {
         setLoading(true);
-        // Get the current space ID from URL or pass it as a prop
         const spaceId = new URL(window.location.href).searchParams.get("spaceId") || "1";
         
         const params = new URLSearchParams({
@@ -80,7 +78,6 @@ export default function MetricsMonitor({ userId, initialLocale }: MetricsMonitor
         }
         const rawData = await response.json();
         
-        // Transform flat metrics array into the expected structure
         const metricsArray = Array.isArray(rawData) ? rawData : [];
         const spacesMap = new Map<string, MetricsData>();
         
@@ -138,111 +135,133 @@ export default function MetricsMonitor({ userId, initialLocale }: MetricsMonitor
   ];
 
   return (
-    <div className="px-4 py-8 md:p-8 w-full max-w-7xl mx-auto animate-in fade-in duration-700">
-      {/* Header */}
-      <div className="mb-10 text-center md:text-left relative">
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-cyan-500/10 blur-[100px] rounded-full"></div>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-          {t('metrics.title').split(" Dashboard")[0]} <span className="text-gradient">{t('metrics.title').includes("Dashboard") ? "Dashboard" : "Tablero"}</span>
-        </h1>
-        <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto md:mx-0">
-          {t('metrics.description')}
-        </p>
-      </div>
+    <div className="max-w-7xl mx-auto space-y-10 py-10 animate-in fade-in duration-1000 px-6">
+      {/* Header Section */}
+      <div className="relative group overflow-hidden bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-[32px] p-8 md:p-12 transition-all hover:bg-white/[0.04] hover:border-white/10 shadow-2xl">
+        <div className="absolute top-0 right-0 w-full h-full bg-linear-to-br from-cyan-500/[0.05] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
 
-      {/* Time Range Selector */}
-      <div className="flex items-center gap-2 sm:gap-3 mb-10 pb-2 overflow-x-auto no-scrollbar">
-        {timeRangeOptions.map((option) => (
-          <button
-            key={option.key}
-            onClick={() => setTimeRange(option.key)}
-            className={`shrink-0 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-sm sm:base font-semibold transition-all duration-300 border ${
-              timeRange === option.key
-                ? "bg-cyan-500 border-cyan-400 text-white shadow-lg shadow-cyan-500/25"
-                : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <span className="sm:hidden">{option.short}</span>
-            <span className="hidden sm:inline">{option.label}</span>
-          </button>
-        ))}
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
+              Live Telemetry
+            </div>
+            <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight leading-tight">
+              {t('metrics.title').split(" Dashboard")[0]} <span className="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{t('metrics.title').includes("Dashboard") ? "Dashboard" : "Tablero"}</span>
+            </h1>
+            <p className="text-slate-400 text-lg md:text-xl leading-relaxed font-medium">
+              {t('metrics.description')}
+            </p>
+          </div>
+
+          {/* Time Range Selector */}
+          <div className="flex p-1 bg-slate-950/40 border border-white/5 rounded-full shadow-inner lg:shrink-0 overflow-x-auto no-scrollbar">
+            {timeRangeOptions.map((option) => (
+              <button
+                key={option.key}
+                onClick={() => setTimeRange(option.key)}
+                className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
+                  timeRange === option.key
+                    ? "bg-cyan-500 text-white shadow-[0_10px_20px_rgba(6,182,212,0.3)]"
+                    : "text-slate-500 hover:text-white"
+                }`}
+              >
+                <span className="md:hidden">{option.short}</span>
+                <span className="hidden md:inline">{option.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-in slide-in-from-bottom-6 duration-1000 delay-200">
         <SummaryCard
           title={t('metrics.totalEvaluations')}
           value={totalEvaluations.toLocaleString(initialLocale || "en-US")}
-          icon={<Icon name="Activity" size={20} />}
+          icon="Activity"
           color="cyan"
+          subtext="Total system load"
         />
         <SummaryCard
           title={t('metrics.spacesMonitored')}
           value={metrics.length.toString()}
-          icon={<Icon name="Layers" size={20} />}
+          icon="Layers"
           color="blue"
+          subtext="Attached namespaces"
         />
         <SummaryCard
           title={t('metrics.errorRate')}
           value={`${(totalErrors / Math.max(totalEvaluations, 1)).toFixed(2)}%`}
-          icon={<Icon name="AlertCircle" size={20} />}
-          color={totalErrors > 0 ? "red" : "green"}
+          icon="AlertCircle"
+          color={totalErrors > 0 ? "red" : "emerald"}
+          subtext="Critical failures"
         />
         <SummaryCard
           title={t('metrics.avgResponseTime')}
           value={`${avgResponseTime}ms`}
-          icon={<Icon name="Clock" size={20} />}
+          icon="Clock"
           color="purple"
+          subtext="Evaluation latency"
         />
       </div>
 
-      {/* Error State */}
+      {/* Error & Loading States */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 backdrop-blur-md rounded-2xl p-6 mb-8 flex items-center gap-4 animate-in slide-in-from-top-4">
-          <div className="text-red-500"><Icon name="AlertCircle" size={20} /></div>
-          <p className="text-red-400 font-medium">{error}</p>
+        <div className="bg-red-500/10 border border-red-500/20 rounded-[32px] p-8 flex items-center gap-6 animate-in fade-in duration-500">
+          <div className="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center text-red-500 shadow-inner">
+            <Icon name="AlertTriangle" size={24} />
+          </div>
+          <div>
+            <p className="text-red-400 font-black text-[10px] uppercase tracking-widest mb-1">DATA_FETCH_FAILURE</p>
+            <p className="text-white font-bold">{error}</p>
+          </div>
         </div>
       )}
 
-      {/* Loading State */}
       {loading && (
-        <div className="flex flex-col justify-center items-center py-24 gap-4">
-          <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
-          <p className="text-slate-400 font-medium">{t('metrics.fetching')}</p>
+        <div className="bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-[40px] p-24 text-center">
+          <div className="w-16 h-16 border-4 border-cyan-500/10 border-t-cyan-500 border-l-cyan-500 rounded-full animate-spin mx-auto mb-8 shadow-inner"></div>
+          <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.3em]">{t('metrics.fetching')}</p>
         </div>
       )}
 
       {/* Metrics by Space */}
       {!loading && metrics.length > 0 && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-white mb-6 px-1">{t('metrics.monitoredSpaces')}</h2>
-          {metrics.map((space) => (
-            <SpaceMetricsCard
-              key={space.spaceId}
-              space={space}
-              isSelected={selectedSpace === space.spaceId}
-              initialLocale={initialLocale}
-              onSelect={() =>
-                setSelectedSpace(
-                  selectedSpace === space.spaceId ? null : space.spaceId
-                )
-              }
-            />
-          ))}
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+          <div className="flex items-center justify-between px-4">
+             <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">{t('metrics.monitoredSpaces')}</h2>
+             <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-white/5 border border-white/10 px-4 py-1.5 rounded-full">ACTIVE NODES: {metrics.length}</span>
+          </div>
+          <div className="space-y-6">
+            {metrics.map((space) => (
+              <SpaceMetricsCard
+                key={space.spaceId}
+                space={space}
+                isSelected={selectedSpace === space.spaceId}
+                initialLocale={initialLocale}
+                onSelect={() =>
+                  setSelectedSpace(
+                    selectedSpace === space.spaceId ? null : space.spaceId
+                  )
+                }
+              />
+            ))}
+          </div>
         </div>
       )}
 
       {/* Empty State */}
       {!loading && metrics.length === 0 && !error && (
-        <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-12 text-center max-w-2xl mx-auto">
-          <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 text-slate-500">
-             <Icon name="Activity" size={20} />
+        <div className="bg-white/[0.02] backdrop-blur-xl border border-dashed border-white/10 rounded-[32px] p-24 text-center group">
+          <div className="w-20 h-20 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-600 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+             <Icon name="Activity" size={32} />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">{t('metrics.noData')}</h3>
-          <p className="text-slate-400 mb-8">
+          <h3 className="text-2xl font-extrabold text-white mb-4 tracking-tight">{t('metrics.noData')}</h3>
+          <p className="text-slate-500 max-w-sm mx-auto mb-10 leading-relaxed font-medium">
             {t('metrics.noDataDesc')}
           </p>
-          <a href="/docs" className="btn-primary">{t('metrics.learnHowToIntegrate')}</a>
+          <a href="/docs" className="btn-primary inline-flex items-center gap-3 px-10! py-4!">{t('metrics.learnHowToIntegrate')} <Icon name="ArrowRight" size={16} /></a>
         </div>
       )}
     </div>
@@ -252,39 +271,39 @@ export default function MetricsMonitor({ userId, initialLocale }: MetricsMonitor
 interface SummaryCardProps {
   title: string;
   value: string;
-  icon: React.ReactNode;
+  icon: string;
   trend?: string;
-  color: "cyan" | "blue" | "green" | "red" | "purple";
+  color: "cyan" | "blue" | "emerald" | "red" | "purple";
+  subtext?: string;
 }
 
-function SummaryCard({ title, value, icon, trend, color }: SummaryCardProps) {
+function SummaryCard({ title, value, icon, trend, color, subtext }: SummaryCardProps) {
   const colorMap = {
-    cyan: "from-cyan-400 to-cyan-600 shadow-cyan-500/20",
-    blue: "from-blue-400 to-blue-600 shadow-blue-500/20",
-    green: "from-emerald-400 to-emerald-600 shadow-emerald-500/20",
-    red: "from-rose-400 to-rose-600 shadow-rose-500/20",
-    purple: "from-purple-400 to-purple-600 shadow-purple-500/20",
+    cyan: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+    blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    emerald: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    red: "bg-red-500/10 text-red-400 border-red-500/20",
+    purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
   };
 
   return (
-    <div className="card p-6! group relative overflow-hidden">
-      <div className={`absolute -right-4 -top-4 w-24 h-24 bg-linear-to-br ${colorMap[color]} opacity-[0.03] group-hover:opacity-[0.08] transition-opacity rounded-full`}></div>
-      
-      <div className="flex items-start justify-between mb-6">
-        <div className={`p-3 rounded-xl bg-linear-to-br ${colorMap[color]} shadow-lg text-white`}>
-          {icon}
+    <div className="bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-[32px] p-8 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-500 group relative overflow-hidden shadow-2xl">
+      <div className="flex items-start justify-between mb-8 relative z-10">
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border shadow-inner group-hover:scale-110 transition-transform duration-500 ${colorMap[color]}`}>
+           <Icon name={icon as any} size={24} />
         </div>
         {trend && (
-          <div className="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full text-xs font-bold border border-emerald-500/10">
+          <div className="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-black border border-emerald-500/10 tracking-widest">
             <span>↑</span>
             {trend}
           </div>
         )}
       </div>
       
-      <div>
-        <h3 className="text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">{title}</h3>
-        <p className="text-3xl font-bold text-white tracking-tight">{value}</p>
+      <div className="relative z-10">
+        <h3 className="text-slate-500 text-[9px] font-black mb-2 uppercase tracking-[0.25em]">{title}</h3>
+        <p className="text-4xl font-black text-white tracking-tighter mb-2 group-hover:text-cyan-400 transition-colors">{value}</p>
+        <p className="text-[9px] font-bold text-slate-700 uppercase tracking-widest">{subtext}</p>
       </div>
     </div>
   );
@@ -301,84 +320,91 @@ function SpaceMetricsCard({ space, isSelected, onSelect, initialLocale }: SpaceM
   const t = useTranslate(initialLocale);
   return (
     <div 
-      className={`card p-0! overflow-hidden transition-all duration-500 group ${
-        isSelected ? "ring-2 ring-cyan-500/50" : ""
+      className={`bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-[40px] overflow-hidden transition-all duration-700 group ${
+        isSelected ? "bg-white/[0.05] border-cyan-500/30 shadow-2xl scale-[1.01]" : "hover:bg-white/[0.04] hover:border-white/10"
       }`}
     >
       <div 
-        className="p-6 md:p-8 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-6"
+        className="p-8 md:p-10 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-8"
         onClick={onSelect}
       >
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            <h3 className="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors">
+          <div className="flex items-center gap-4 mb-3">
+             <div className={`w-3 h-3 rounded-full animate-pulse shadow-2xl ${space.errorRate > 5 ? "bg-red-500 shadow-red-500/50" : "bg-emerald-500 shadow-emerald-500/50"}`}></div>
+            <h3 className="text-3xl font-extrabold text-white group-hover:text-cyan-400 transition-colors tracking-tight">
               {space.spaceName}
             </h3>
           </div>
-          <p className="text-slate-400 font-medium flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-slate-600"></span>
+          <p className="text-slate-400 font-bold text-sm tracking-tight px-1">
             {t('metrics.activeFeatureFlags', { count: space.flagCount })}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:flex md:items-center gap-8 md:gap-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-14">
           <MetricItem label={t('metrics.evaluations')} value={space.totalEvaluations.toLocaleString(initialLocale || "en-US")} />
           <MetricItem label={t('metrics.users')} value={space.uniqueUsers.toLocaleString(initialLocale || "en-US")} />
-          <MetricItem label={t('metrics.latency')} value={`${space.averageEvaluationTime.toFixed(1)}ms`} />
+          <MetricItem label={t('metrics.latency')} value={`${space.averageEvaluationTime.toFixed(1)}ms`} color="purple" />
           <MetricItem 
             label={t('metrics.errors')} 
             value={`${space.errorRate.toFixed(2)}%`} 
             highlight={space.errorRate > 0} 
           />
           
-          <div className={`hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-white/5 text-slate-400 transition-all duration-300 ${
-            isSelected ? "rotate-180 bg-cyan-500/20 text-cyan-400" : "group-hover:bg-white/10 group-hover:text-white"
+          <div className={`hidden md:flex items-center justify-center w-12 h-12 rounded-2xl bg-white/5 border border-white/10 text-slate-500 transition-all duration-700 ${
+            isSelected ? "rotate-180 bg-cyan-500/10 border-cyan-500/20 text-cyan-400" : "group-hover:bg-white/10 group-hover:text-white"
           }`}>
-            <Icon name="ChevronDown" size={20} />
+            <Icon name="ChevronDown" size={24} />
           </div>
         </div>
       </div>
 
       {/* Expanded Content: Top Flags */}
-      <div className={`transition-all duration-500 ease-in-out border-t border-white/5 bg-black/20 ${
-        isSelected ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+      <div className={`transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] border-t border-white/5 bg-slate-950/20 overflow-hidden ${
+        isSelected ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
       }`}>
-        <div className="p-6 md:p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h4 className="text-lg font-bold text-white">{t('metrics.topPerformingFlags')}</h4>
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('metrics.usageDistribution')}</span>
+        <div className="p-10 md:p-14">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12">
+            <div>
+               <h4 className="text-xl font-extrabold text-white tracking-tight mb-2">{t('metrics.topPerformingFlags')}</h4>
+               <p className="text-slate-500 text-xs font-medium">Evaluation distribution across your core feature set</p>
+            </div>
+            <div className="px-5 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-slate-600 uppercase tracking-widest">{t('metrics.usageDistribution')}</div>
           </div>
 
           {space.topFlags.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {space.topFlags.map((flag) => (
-                <div key={flag.key} className="bg-white/5 border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-sm font-mono text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded ring-1 ring-cyan-500/20">{flag.key}</p>
-                    <p className="text-xs font-bold text-slate-500">
-                      {flag.evaluations.toLocaleString(initialLocale || "en-US")} {t('metrics.evaluations').toLowerCase()}
+                <div key={flag.key} className="bg-white/[0.03] border border-white/5 rounded-[32px] p-8 hover:bg-white/[0.06] hover:border-cyan-500/20 transition-all duration-500 shadow-inner group/flag">
+                  <div className="flex items-center justify-between mb-8">
+                    <p className="text-xs font-mono font-black text-cyan-400 bg-cyan-500/5 px-4 py-2 rounded-xl border border-cyan-500/10 group-hover/flag:shadow-[0_0_20px_rgba(6,182,212,0.1)] transition-all uppercase tracking-tighter">{flag.key}</p>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                       {flag.evaluations.toLocaleString(initialLocale || "en-US")} <span className="text-[9px] opacity-60">REQS</span>
                     </p>
                   </div>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <ProgressItem 
                       label={t('metrics.enabled')} 
+                      value={flag.enabled}
+                      total={flag.evaluations}
                       percentage={(flag.enabled / flag.evaluations) * 100} 
                       color="bg-emerald-500" 
                     />
                     <ProgressItem 
                       label={t('metrics.disabled')} 
+                      value={flag.disabled}
+                      total={flag.evaluations}
                       percentage={(flag.disabled / flag.evaluations) * 100} 
-                      color="bg-slate-500" 
+                      color="bg-slate-600" 
                     />
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="py-8 text-center border-2 border-dashed border-white/5 rounded-3xl">
-              <p className="text-slate-500">{t('metrics.detailsNotAvailable')}</p>
+            <div className="py-20 text-center border-2 border-dashed border-white/5 rounded-[40px] bg-white/[0.01]">
+              <Icon name="Search" size={32} className="text-slate-700 mx-auto mb-6" />
+              <p className="text-slate-600 font-bold tracking-tight">{t('metrics.detailsNotAvailable')}</p>
             </div>
           )}
         </div>
@@ -387,27 +413,31 @@ function SpaceMetricsCard({ space, isSelected, onSelect, initialLocale }: SpaceM
   );
 }
 
-function MetricItem({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
+function MetricItem({ label, value, highlight = false, color }: { label: string; value: string; highlight?: boolean; color?: string }) {
   return (
     <div>
-      <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">{label}</p>
-      <p className={`text-lg font-bold tracking-tight ${highlight ? "text-rose-400" : "text-white"}`}>
+      <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2 px-1">{label}</p>
+      <p className={`text-2xl font-black tracking-tighter ${highlight ? "text-red-500" : color === 'purple' ? "text-purple-400" : "text-white"}`}>
         {value}
       </p>
     </div>
   );
 }
 
-function ProgressItem({ label, percentage, color }: { label: string; percentage: number; color: string }) {
+function ProgressItem({ label, value, total, percentage, color }: { label: string; value: number, total: number, percentage: number; color: string }) {
   return (
     <div>
-      <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">
-        <span>{label}</span>
-        <span>{percentage.toFixed(1)}%</span>
+      <div className="flex justify-between items-end text-[10px] font-black mb-3 px-1">
+        <span className="text-slate-500 uppercase tracking-widest">{label}</span>
+        <div className="flex items-center gap-2">
+           <span className="text-white font-mono">{value.toLocaleString()}</span>
+           <span className="text-slate-700 opacity-60">/</span>
+           <span className="text-slate-600">{percentage.toFixed(1)}%</span>
+        </div>
       </div>
-      <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden" title={`${percentage.toFixed(1)}%`}>
+      <div className="w-full bg-slate-950/50 rounded-full h-2 overflow-hidden shadow-inner">
         <div
-          className={`h-full rounded-full transition-all duration-1000 ${color}`}
+          className={`h-full rounded-full transition-all duration-1000 cubic-bezier(0.34, 1.56, 0.64, 1) ${color} shadow-[0_0_15px_rgba(255,255,255,0.05)]`}
           style={{ width: `${percentage}%` }}
         />
       </div>

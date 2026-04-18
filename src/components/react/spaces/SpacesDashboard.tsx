@@ -90,12 +90,15 @@ export default function SpacesDashboard({ initialLocale }: SpacesDashboardProps)
   );
 
   return (
-    <div className="space-y-10 py-10 animate-in fade-in duration-700">
+    <div className="max-w-7xl mx-auto px-6 space-y-10 py-10 animate-in fade-in duration-700">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-8">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-10">
         <div className="max-w-2xl relative">
-          <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight leading-[1.1]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-widest mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
+            Overview
+          </div>
+          <h1 className="text-4xl md:text-7xl font-extrabold text-white mb-6 tracking-tight leading-[1.05]">
             {(() => {
               const val = t('spaces.yourSpaces');
               const parts = val.split(' ');
@@ -103,7 +106,7 @@ export default function SpacesDashboard({ initialLocale }: SpacesDashboardProps)
                 return (
                   <>
                     {parts[0]}{" "}
-                    <span className="text-gradient">
+                    <span className="text-gradient drop-shadow-[0_0_15px_rgba(34,211,238,0.3)]">
                       {parts.slice(1).join(" ")}
                     </span>
                   </>
@@ -112,7 +115,7 @@ export default function SpacesDashboard({ initialLocale }: SpacesDashboardProps)
               return val;
             })()}
           </h1>
-          <p className="text-slate-400 text-lg leading-relaxed">
+          <p className="text-slate-400 text-lg leading-relaxed font-medium">
             {t('spaces.dashboardDescription')}
           </p>
         </div>
@@ -127,41 +130,40 @@ export default function SpacesDashboard({ initialLocale }: SpacesDashboardProps)
               placeholder={t('spaces.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-medium"
+              className="w-full bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all font-bold"
             />
           </div>
           <button
             onClick={() => {
-              console.log("Opening create space modal...");
               setShowCreateModal(true);
             }}
-            className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2 py-3.5 px-8 shadow-xl shadow-cyan-500/20 relative z-20"
+            className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2.5 py-3.5 px-8 shadow-2xl shadow-cyan-500/20 relative z-20 group text-[10px] font-black uppercase tracking-[0.2em]"
           >
-            <Icon name="Plus" size={18} />
+            <Icon name="Plus" size={16} className="group-hover:rotate-90 transition-transform duration-300" />
             {t('spaces.createButton')}
           </button>
         </div>
       </div>
 
       {/* Hierarchy Schematic */}
-      <div className="relative group overflow-hidden bg-[#0b0e14]/50 border border-white/5 rounded-4xl p-8 md:p-10 transition-all hover:border-white/10">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[100px] rounded-full group-hover:bg-cyan-500/10 transition-colors"></div>
+      <div className="relative group overflow-hidden bg-white/[0.02] backdrop-blur-md border border-white/5 rounded-[40px] p-8 md:p-12 transition-all hover:border-white/10 hover:bg-white/[0.03]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/[0.03] blur-[120px] rounded-full group-hover:bg-cyan-500/[0.05] transition-colors"></div>
         
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
-           <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20">
-              <Icon name="Folder" size={24} />
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-8 mb-10">
+           <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20 shadow-inner">
+              <Icon name="Folder" size={28} />
            </div>
            <div>
-              <h3 className="text-xl font-bold text-white tracking-tight">{t('spaces.systemArch')}</h3>
-              <p className="text-slate-500 text-sm">{t('spaces.archDesc')}</p>
+              <h3 className="text-2xl font-bold text-white tracking-tight mb-1">{t('spaces.systemArch')}</h3>
+              <p className="text-slate-500 font-medium">{t('spaces.archDesc')}</p>
            </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-[11px] sm:text-xs">
-          <HierNode icon={<Icon name="Box" size={18} />} label={t('spaces.hierSpace')} value="Acme Corp" color="text-cyan-400" />
-          <HierNode icon={<Icon name="Globe" size={18} />} label={t('spaces.hierEnv')} value="Production" color="text-emerald-400" />
-          <HierNode icon={<Icon name="Globe" size={18} />} label={t('spaces.hierEnv')} value="Staging" color="text-blue-400" />
-          <HierNode icon={<Icon name="Settings" size={18} />} label={t('spaces.hierFlags')} value="Ruleset" color="text-purple-400" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 font-mono text-[11px] sm:text-xs">
+          <HierNode icon={<Icon name="Box" size={20} />} label={t('spaces.hierSpace')} value="Acme Corp" color="text-cyan-400" />
+          <HierNode icon={<Icon name="Globe" size={20} />} label={t('spaces.hierEnv')} value="Production" color="text-emerald-400" />
+          <HierNode icon={<Icon name="Globe" size={20} />} label={t('spaces.hierEnv')} value="Staging" color="text-blue-400" />
+          <HierNode icon={<Icon name="Settings" size={20} />} label={t('spaces.hierFlags')} value="Ruleset" color="text-purple-400" />
         </div>
       </div>
 
@@ -184,22 +186,25 @@ export default function SpacesDashboard({ initialLocale }: SpacesDashboardProps)
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredSpaces.map((space) => (
             <a
               key={space.id}
               href={`/spaces/${space.slug}`}
-              className="group relative bg-white/5 border border-white/5 rounded-4xl p-8 transition-all duration-500 hover:bg-white/8 hover:border-cyan-500/30 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/10 flex flex-col h-full"
+              className="group relative bg-white/[0.02] backdrop-blur-md border border-white/5 rounded-[32px] p-8 transition-all duration-500 hover:bg-white/[0.04] hover:border-cyan-500/30 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(6,182,212,0.1)] flex flex-col h-full overflow-hidden"
             >
-              <div className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-500 opacity-0 group-hover:opacity-100 transition-all rotate-45 group-hover:rotate-0">
+              {/* Hover Glow Effect */}
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+              <div className="absolute top-8 right-8 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-500 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
                  <Icon name="ChevronRight" size={16} />
               </div>
  
-               <div className="mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-cyan-400/20 to-blue-600/20 flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 transition-transform">
-                     <Icon name="Folder" size={24} />
+               <div className="mb-8">
+                  <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-cyan-400/10 to-blue-600/10 flex items-center justify-center text-cyan-400 mb-8 group-hover:scale-110 transition-transform duration-500 border border-cyan-500/10">
+                     <Icon name="Folder" size={28} />
                   </div>
-                  <h3 className="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors mb-2 wrap-break-word tracking-tight">
+                  <h3 className="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors mb-3 wrap-break-word tracking-tight leading-tight">
                     {space.name}
                  </h3>
                  {space.description ? (
@@ -211,14 +216,14 @@ export default function SpacesDashboard({ initialLocale }: SpacesDashboardProps)
                  )}
               </div>
 
-              <div className="mt-auto pt-6 border-t border-white/5 flex items-center gap-6">
+              <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-400 transition-colors">
                   <Icon name="Calendar" size={14} />
                   <span className="text-[10px] font-bold uppercase tracking-widest">{new Date(space.created_at).toLocaleDateString()}</span>
                 </div>
                 {space.members_count !== undefined && (
-                  <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-400 transition-colors">
-                    <Icon name="Users" size={14} />
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-slate-500 group-hover:text-cyan-400 group-hover:bg-cyan-500/10 transition-all">
+                    <Icon name="Users" size={12} />
                     <span className="text-[10px] font-bold uppercase tracking-widest">{t('spaces.teamCount', { count: space.members_count })}</span>
                   </div>
                 )}
@@ -319,11 +324,13 @@ export default function SpacesDashboard({ initialLocale }: SpacesDashboardProps)
 
 function HierNode({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string; color: string }) {
   return (
-    <div className="flex items-center gap-3 bg-white/2 border border-white/5 rounded-2xl p-4 transition-all hover:bg-white/5">
-       <div className="text-xl">{icon}</div>
+    <div className="flex items-center gap-4 bg-white/[0.03] border border-white/5 rounded-2xl p-6 transition-all hover:bg-white/[0.06] hover:border-white/10 group/node">
+       <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover/node:scale-110 transition-transform duration-300 shadow-inner">
+          {icon}
+       </div>
        <div>
-          <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em]">{label}</p>
-          <p className={`font-bold tracking-tight ${color}`}>{value}</p>
+          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-0.5">{label}</p>
+          <p className={`font-bold tracking-tight text-sm ${color}`}>{value}</p>
        </div>
     </div>
   );

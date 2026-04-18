@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Icon } from "@/components/react/shared/Icon";
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -20,25 +21,22 @@ export default function RegisterForm() {
     setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passphrase mismatch detected.");
       return;
     }
 
-    // Client-side validation
     if (
       !formData.username.trim() ||
       !formData.email.trim() ||
       !formData.password.trim()
     ) {
-      setError("Please fill in all fields");
+      setError("Incomplete data profile.");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      console.log("Attempting registration with email:", formData.email);
-
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -50,137 +48,163 @@ export default function RegisterForm() {
         }),
       });
 
-      console.log("Registration response status:", response.status);
-
       const data = await response.json();
 
-      console.log("Registration response data:", data);
-
       if (!response.ok) {
-        const errorMsg = data.error || data.message || "Registration failed";
-        console.error("Registration error:", errorMsg);
-        setError(errorMsg);
+        setError(data.error || data.message || "Enrollment failed.");
         return;
       }
 
-      console.log("Registration successful, redirecting to spaces...");
-      // Redirect to dashboard
       window.location.href = "/spaces";
     } catch (err) {
-      const errorMsg =
-        err instanceof Error
-          ? err.message
-          : "An error occurred. Please try again.";
-      console.error("Registration exception:", err);
-      setError(errorMsg);
-      console.error(err);
+      setError("Network uplink failure.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="card bg-slate-800/80 p-6">
+    <div className="bg-white/[0.02] backdrop-blur-3xl border border-white/5 rounded-[40px] p-10 md:p-14 shadow-2xl relative overflow-hidden group">
+      {/* Aurora glow effect inside card */}
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 blur-[80px] rounded-full translate-y-1/2 -translate-x-1/2 group-hover:bg-purple-500/10 transition-colors duration-1000"></div>
+
+      <form onSubmit={handleSubmit} className="relative z-10 space-y-8">
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-            {error}
+          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 animate-in slide-in-from-top-2">
+            <div className="text-red-500 shrink-0">
+               <Icon name="AlertTriangle" size={18} />
+            </div>
+            <p className="text-red-400 font-bold text-xs tracking-tight">
+              {error}
+            </p>
           </div>
         )}
 
-        <div className="space-y-4">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="group/input col-span-1 md:col-span-2">
             <label
-              htmlFor="username"
-              className="block text-sm font-medium text-slate-300 mb-2"
+                htmlFor="email"
+                className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] mb-3 px-1 group-focus-within/input:text-purple-400 transition-colors"
             >
-              Username
+                Digital Mailbox
             </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-              placeholder="your-username"
-            />
-          </div>
+            <div className="relative">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-purple-400 transition-colors">
+                    <Icon name="Mail" size={18} />
+                </div>
+                <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full bg-slate-950/40 border border-white/5 border-b-white/10 rounded-2xl pl-14 pr-6 py-4 text-white font-medium placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500/50 transition-all shadow-inner"
+                placeholder="operative@domain.com"
+                />
+            </div>
+            </div>
 
-          <div>
+            <div className="group/input col-span-1 md:col-span-2">
             <label
-              htmlFor="email"
-              className="block text-sm font-medium text-slate-300 mb-2"
+                htmlFor="username"
+                className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] mb-3 px-1 group-focus-within/input:text-cyan-400 transition-colors"
             >
-              Email
+                Unique Codename
             </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-              placeholder="your@email.com"
-            />
-          </div>
+            <div className="relative">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-cyan-400 transition-colors">
+                    <Icon name="User" size={18} />
+                </div>
+                <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                className="w-full bg-slate-950/40 border border-white/5 border-b-white/10 rounded-2xl pl-14 pr-6 py-4 text-white font-medium placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-500/50 transition-all shadow-inner"
+                placeholder="ghost-protocol"
+                />
+            </div>
+            </div>
 
-          <div>
+            <div className="group/input">
             <label
-              htmlFor="password"
-              className="block text-sm font-medium text-slate-300 mb-2"
+                htmlFor="password"
+                className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] mb-3 px-1 group-focus-within/input:text-white transition-colors"
             >
-              Password
+                Security Key
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-              placeholder="••••••••"
-            />
-          </div>
+            <div className="relative">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-white transition-colors">
+                    <Icon name="Lock" size={18} />
+                </div>
+                <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full bg-slate-950/40 border border-white/5 border-b-white/10 rounded-2xl pl-14 pr-6 py-4 text-white font-medium placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-white/10 focus:border-white/30 transition-all shadow-inner"
+                placeholder="••••••••"
+                />
+            </div>
+            </div>
 
-          <div>
+            <div className="group/input">
             <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-slate-300 mb-2"
+                htmlFor="confirmPassword"
+                className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.25em] mb-3 px-1 group-focus-within/input:text-white transition-colors"
             >
-              Confirm Password
+                Verify Key
             </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-              placeholder="••••••••"
-            />
-          </div>
+            <div className="relative">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-white transition-colors">
+                    <Icon name="Shield" size={18} />
+                </div>
+                <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                className="w-full bg-slate-950/40 border border-white/5 border-b-white/10 rounded-2xl pl-14 pr-6 py-4 text-white font-medium placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-white/10 focus:border-white/30 transition-all shadow-inner"
+                placeholder="••••••••"
+                />
+            </div>
+            </div>
         </div>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full btn-primary mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-linear-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-2xl shadow-purple-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:grayscale"
         >
-          {isLoading ? "Creating Account..." : "Create Account"}
+          {isLoading ? (
+            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+          ) : (
+            <>
+              <span className="font-black text-xs uppercase tracking-widest text-white">Initialize Account</span>
+              <Icon name="Rocket" size={16} className="text-white" />
+            </>
+          )}
         </button>
 
-        <p className="text-center text-slate-400 text-sm mt-4">
-          Already have an account?{" "}
-          <a href="/login" className="text-cyan-400 hover:text-cyan-300">
-            Sign in
-          </a>
-        </p>
-      </div>
-    </form>
+        <div className="pt-8 border-t border-white/5 text-center">
+          <p className="text-slate-500 text-xs font-medium">
+            Existing operator?{" "}
+            <a
+              href="/login"
+              className="text-white font-bold hover:text-cyan-400 transition-colors underline underline-offset-4 decoration-white/20"
+            >
+              Sign In
+            </a>
+          </p>
+        </div>
+      </form>
+    </div>
   );
 }

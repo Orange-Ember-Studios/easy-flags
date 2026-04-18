@@ -23,9 +23,7 @@ if (!hasAccess) {
 ---
 
 <BaseLayout seoKey="analytics" includeHeader={true}>
-    <div
-        class="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900"
-    >
-        <AnalyticsDashboard client:load spaceId={undefined} />
-    </div>
+  <div class="py-12">
+    <AnalyticsDashboard client:load spaceId={undefined} />
+  </div>
 </BaseLayout>

@@ -1,31 +1,47 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getTranslator } from "@/infrastructure/i18n/astro";
+import { Icon } from "@/components/react/shared/Icon";
 
 const { t } = getTranslator(Astro.request);
 ---
 
-<BaseLayout title={`404 - ${t('errors.404.title')}`} includeHeader={true}>
-  <div class="min-h-screen flex items-center justify-center px-4">
-    <div class="max-w-md w-full text-center">
-      <div class="mb-8">
-        <div class="text-6xl font-bold text-cyan-500 mb-4">404</div>
-        <h1 class="text-4xl font-bold text-white mb-4">{t('errors.404.title')}</h1>
-        <p class="text-slate-400 mb-8">
-          {t('errors.404.description')}
-        </p>
+<BaseLayout seoKey="notFound" includeHeader={true}>
+  <div class="min-h-[80vh] flex items-center justify-center px-4 relative overflow-hidden">
+    {/* Background Glows */}
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full animate-pulse pointer-events-none -z-10"></div>
+    
+    <div class="max-w-2xl w-full text-center relative z-10 animate-in fade-in zoom-in duration-1000">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/5 border border-white/10 text-slate-500 mb-10 shadow-2xl">
+         <Icon client:load name="Search" size={32} />
       </div>
 
-      <div class="space-y-3">
-        <a href="/spaces" class="btn-primary block w-full text-center py-3">
-          {t('errors.404.goBackSpaces')}
+      <div class="relative mb-12">
+        <div class="text-[150px] md:text-[220px] font-black text-white/[0.03] leading-none mb-4 select-none">404</div>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-2">
+                {t('errors.404.title').split(' ')[0]} <span class="bg-linear-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">{t('errors.404.title').split(' ').slice(1).join(' ') || 'Node Not Found'}</span>
+            </h1>
+            <div class="h-1 w-20 bg-linear-to-r from-cyan-500 to-blue-500 rounded-full"></div>
+        </div>
+      </div>
+      
+      <p class="text-slate-400 text-lg md:text-xl font-medium mb-12 max-w-lg mx-auto leading-relaxed">
+        {t('errors.404.description')}
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+        <a href="/spaces" class="w-full sm:w-auto btn-primary px-10! py-5! flex items-center justify-center gap-3 shadow-2xl shadow-cyan-500/20">
+          <Icon client:load name="ArrowRight" size={18} />
+          <span class="font-black text-xs uppercase tracking-widest">{t('errors.404.goBackSpaces')}</span>
         </a>
-        <a
-          href="/"
-          class="btn-secondary block w-full text-center py-3 border border-slate-600"
-        >
+        <a href="/" class="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-slate-400 text-xs font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
           {t('errors.404.goHome')}
         </a>
+      </div>
+
+      <div class="mt-24 pt-8 border-t border-white/5">
+         <p class="text-[9px] font-black text-slate-700 uppercase tracking-[0.5em]">SYSTEM_RESPONSE: 404_ERR &bull; TRACEBACK_NULL &bull; NODE_DISCONNECTED</p>
       </div>
     </div>
   </div>

@@ -20,27 +20,31 @@ export function DataTable({
   onEditRow,
 }: DataTableProps) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/5 bg-white/1">
-      <table className="w-full text-left">
+    <div className="overflow-x-auto bg-white/[0.01] rounded-[24px] border border-white/[0.05] relative group/table">
+      <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-white/5 border-b border-white/10">
-            <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-500 w-24">
+          <tr className="bg-white/[0.03] border-b border-white/[0.05]">
+            <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 w-32">
               Actions
             </th>
             {schema.map((col) => (
               <th
                 key={col.name}
-                className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-500 whitespace-nowrap"
+                className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 whitespace-nowrap"
               >
                 <div className="flex items-center gap-2">
-                  <span className={col.pk ? 'text-cyan-500' : ''}>{col.name}</span>
-                  {col.pk && <span className="text-[10px] bg-cyan-500/10 text-cyan-500 px-1.5 py-0.5 rounded-md">PK</span>}
+                  <span className={col.pk ? 'text-cyan-400' : ''}>{col.name}</span>
+                  {!!col.pk && (
+                    <span className="text-[9px] bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/20 font-black">
+                      PK
+                    </span>
+                  )}
                 </div>
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5">
+        <tbody className="divide-y divide-white/[0.03]">
           {paginatedData.map((row, idx) => {
             const primaryKeyColumn = schema.find((c) => c.pk);
             const rowId = (
@@ -50,9 +54,9 @@ export function DataTable({
             return (
               <tr
                 key={idx}
-                className="group hover:bg-white/3 transition-colors"
+                className="group/row hover:bg-white/[0.02] transition-colors duration-300"
               >
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-8 py-4 whitespace-nowrap">
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
@@ -62,7 +66,7 @@ export function DataTable({
                         });
                         onEditRow(rowId, rowData);
                       }}
-                      className="p-2 text-blue-400 bg-blue-500/10 rounded-xl hover:bg-blue-500/20 transition-all border border-blue-500/20"
+                      className="p-2.5 text-blue-400 bg-blue-500/10 rounded-xl hover:bg-blue-500/20 transition-all border border-blue-500/20 hover:scale-105 active:scale-95"
                       title="Edit Row"
                     >
                       <Icon name="Edit" size={16} />
@@ -76,7 +80,7 @@ export function DataTable({
                         onRequestDeleteRow(rowId, rowData);
                       }}
                       disabled={deleting === rowId}
-                      className="p-2 text-red-400 bg-red-500/10 rounded-xl hover:bg-red-500/20 transition-all border border-red-500/20 disabled:opacity-50"
+                      className="p-2.5 text-red-400 bg-red-500/10 rounded-xl hover:bg-red-500/20 transition-all border border-red-500/20 disabled:opacity-50 hover:scale-105 active:scale-95"
                       title="Delete Row"
                     >
                       {deleting === rowId ? (
@@ -90,17 +94,17 @@ export function DataTable({
                 {schema.map((col) => (
                   <td
                     key={col.name}
-                    className="px-6 py-4 text-slate-300 max-w-xs overflow-hidden text-ellipsis font-mono text-sm"
+                    className="px-8 py-4 text-slate-300 max-w-sm overflow-hidden text-ellipsis font-mono text-xs border-r border-white/0 group-hover/row:border-white/[0.02]"
                     title={String(row[col.name] ?? "")}
                   >
-                    {row[col.name] ? (
-                      <span className={col.pk ? 'text-cyan-400 font-bold' : ''}>
+                    {row[col.name] !== null && row[col.name] !== undefined ? (
+                      <span className={`${col.pk ? 'text-cyan-400 font-bold' : 'group-hover/row:text-white transition-colors'}`}>
                         {typeof row[col.name] === "object"
                           ? JSON.stringify(row[col.name])
                           : String(row[col.name])}
                       </span>
                     ) : (
-                      <span className="text-slate-600 italic text-xs">null</span>
+                      <span className="text-slate-700 italic text-[10px] font-sans">null</span>
                     )}
                   </td>
                 ))}

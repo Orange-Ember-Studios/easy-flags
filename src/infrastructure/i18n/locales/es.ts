@@ -270,6 +270,7 @@ export const es = {
     username: "Nombre de usuario",
     userId: "ID de Usuario",
     emailAddress: "Correo electrónico",
+    subscription: "Plan de Suscripción",
     memberSince: "Miembro desde",
     updateEmail: "Actualizar correo",
     newEmail: "Nuevo correo electrónico",
@@ -332,6 +333,9 @@ export const es = {
     tokensRevoked: "Todos los tokens revocados para {username}",
     confirmRevokeUser:
       "¿Revocar todos los tokens de {username}? Esto cerrará su sesión en todos los dispositivos.",
+    subtitle: "Configura tu experiencia personal y gestiona la seguridad de tu cuenta.",
+    profileDesc: "Gestiona los detalles de tu cuenta personal y tu plan de suscripción.",
+    securityDesc: "Actualiza tu contraseña y gestiona los ajustes de seguridad de la cuenta.",
     howRevocationWorks: "Cómo Funciona la Revocación de Tokens",
     revocationStep1:
       "Revocar tus tokens cierra tu sesión en todos los dispositivos al instante",

@@ -40,58 +40,62 @@ export function EditRowModal({
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-[#06080f]/70 backdrop-blur-md animate-in fade-in duration-300"
+        className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl animate-in fade-in duration-500"
         onClick={onClose}
       />
       
       {/* Modal Container */}
-      <div className="relative bg-[#0b0e14]/95 border border-white/10 rounded-4xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col animate-in zoom-in-95 duration-300 overflow-hidden">
-        {/* Header Highlight - centered and faded at edges */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[2px] bg-linear-to-r from-transparent via-blue-500/50 to-transparent"></div>
+      <div className="relative bg-[#0b0e14]/80 backdrop-blur-2xl border border-white/10 rounded-[40px] shadow-3xl max-w-2xl w-full max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-500 overflow-hidden">
+        {/* Internal Aurora Effects */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[100px] -z-10" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[100px] -z-10" />
+
+        {/* Header Highlight */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-[2px] bg-linear-to-r from-transparent via-blue-500/50 to-transparent"></div>
         
-        <div className="shrink-0 p-10 flex justify-between items-start">
-          <div className="pt-2">
-            <h2 className="text-3xl font-bold text-white tracking-tight font-display mb-1">
-              Update Record
+        <div className="shrink-0 p-12 flex justify-between items-start">
+          <div className="space-y-1">
+            <h2 className="text-3xl font-black text-white tracking-tight leading-none mb-4">
+              Update <span className="bg-linear-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">Record</span>
             </h2>
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest">
-               <span className="w-1 h-1 rounded-full bg-blue-400 animate-pulse"></span>
-               EDITING / {selectedTable}
+            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 text-slate-400 text-[9px] font-black uppercase tracking-[0.2em]">
+               <div className="w-1 h-1 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)] animate-pulse"></div>
+               EDITING / <span className="text-white font-mono">{selectedTable}</span>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-slate-500 hover:text-white transition-all hover:bg-white/10 active:scale-90"
+            className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/5 text-slate-400 hover:text-white transition-all hover:bg-white/10 active:scale-95 border border-white/5"
             aria-label="Close"
           >
-             <Icon name="X" size={18} strokeWidth={3} />
+             <Icon name="X" size={20} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-10 py-2 no-scrollbar space-y-8 pb-10 font-sans">
+        <div className="flex-1 overflow-y-auto px-12 py-2 custom-scrollbar space-y-10 pb-12 font-sans">
           {schema
             .filter((col) => !col.pk)
             .map((col) => {
               const isPasswordField = col.name.toLowerCase().includes("password");
 
               return (
-                <div key={col.name} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                  <div className="flex items-center justify-between mb-2.5 px-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                <div key={col.name} className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <div className="flex items-center justify-between mb-3 px-1">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
                       {col.name}
-                      {col.notnull && <span className="text-rose-500 ml-1 font-bold">*</span>}
+                      {!!col.notnull && <span className="text-rose-500 ml-1.5">*</span>}
                     </label>
-                    <span className="text-[9px] font-bold text-slate-600 bg-white/5 px-2 py-0.5 rounded-full uppercase border border-white/5">{col.type}</span>
+                    <span className="text-[9px] font-black text-slate-600 bg-white/5 px-2.5 py-1 rounded-lg uppercase border border-white/5 tracking-widest leading-none">{col.type}</span>
                   </div>
 
                   {isPasswordField ? (
-                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-4xl p-5 space-y-4 relative group">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 flex items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
-                          <Icon name="Lock" size={14} strokeWidth={3} />
+                    <div className="bg-blue-500/5 border border-blue-500/10 rounded-[28px] p-6 space-y-5 relative group ring-1 ring-blue-500/5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 flex items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          <Icon name="Lock" size={16} />
                         </div>
-                        <span className="text-[10px] font-bold text-blue-400/80 uppercase tracking-widest px-1">
-                          Secured Field (Bcrypt)
+                        <span className="text-[10px] font-black text-blue-400/60 uppercase tracking-[0.2em]">
+                          Secure Mutation (Bcrypt)
                         </span>
                       </div>
                       <div className="relative">
@@ -100,17 +104,17 @@ export function EditRowModal({
                           value={formData[col.name] || ""}
                           onChange={(e) => onFormChange(col.name, e.target.value)}
                           placeholder="Leave empty to keep existing password..."
-                          className="w-full px-5 py-4 pr-12 bg-slate-950/40 border border-blue-500/30 rounded-2xl text-white placeholder-blue-950/30 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 font-mono text-sm transition-all shadow-inner"
+                          className="w-full px-6 py-4.5 pr-14 bg-slate-950/60 border border-blue-500/20 rounded-2xl text-white placeholder-blue-950/30 focus:outline-none focus:border-blue-500/50 transition-all font-mono text-xs shadow-2xl"
                         />
                         <button
                           type="button"
                           onClick={() => togglePasswordVisibility(col.name)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-950/40 hover:text-blue-400 transition-colors"
+                          className="absolute right-5 top-1/2 -translate-y-1/2 text-blue-950/40 hover:text-blue-400 transition-colors"
                         >
                           {visiblePasswords[col.name] ? (
-                            <Icon name="EyeOff" size={16} strokeWidth={2.5} />
+                            <Icon name="EyeOff" size={18} />
                           ) : (
-                            <Icon name="Eye" size={16} strokeWidth={2.5} />
+                            <Icon name="Eye" size={18} />
                           )}
                         </button>
                       </div>
@@ -120,7 +124,7 @@ export function EditRowModal({
                       value={formData[col.name] || ""}
                       onChange={(e) => onFormChange(col.name, e.target.value)}
                       placeholder={`Update content for ${col.name.toLowerCase()}...`}
-                      className="w-full h-32 px-5 py-4 bg-slate-950/40 border border-white/5 rounded-4xl text-white placeholder-slate-700 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 font-mono text-sm leading-relaxed transition-all resize-none shadow-inner"
+                      className="w-full h-40 px-6 py-4.5 bg-slate-950/40 border border-white/5 rounded-[24px] text-white placeholder-slate-700 focus:outline-none focus:border-blue-500/40 transition-all font-mono text-xs leading-relaxed resize-none shadow-inner"
                     />
                   ) : (
                     <input
@@ -128,8 +132,8 @@ export function EditRowModal({
                       step={ col.type.toLowerCase().includes("real") ? "0.01" : undefined }
                       value={formData[col.name] || ""}
                       onChange={(e) => onFormChange(col.name, e.target.value)}
-                      placeholder={`New val: ${col.name.toLowerCase()}`}
-                      className="w-full px-5 py-4 bg-slate-950/40 border border-white/5 rounded-2xl text-white placeholder-slate-700 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 font-mono text-sm transition-all shadow-inner"
+                      placeholder={`New val: ${col.name.toLowerCase()}...`}
+                      className="w-full px-6 py-4.5 bg-slate-950/40 border border-white/5 rounded-2xl text-white placeholder-slate-700 focus:outline-none focus:border-blue-500/40 transition-all font-mono text-xs shadow-inner"
                     />
                   )}
                 </div>
@@ -137,27 +141,29 @@ export function EditRowModal({
             })}
         </div>
 
-        <div className="shrink-0 p-10 border-t border-white/5 flex gap-4 mt-auto">
+        <div className="shrink-0 p-12 bg-white/[0.01] border-t border-white/5 flex gap-5 mt-auto">
           <button
             onClick={onClose}
             disabled={loading}
-            className="flex-1 py-4 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-white transition-colors"
+            className="flex-1 py-4.5 text-slate-500 font-black uppercase tracking-[0.3em] text-[10px] hover:text-white transition-colors border border-transparent hover:bg-white/5 rounded-2xl"
           >
             Cancel
           </button>
           <button
             onClick={onEditRow}
             disabled={loading}
-            className="flex-1 btn-primary py-4! shadow-xl shadow-blue-500/20 bg-linear-to-r! from-blue-500! to-indigo-600!"
+            className="flex-[1.5] py-4.5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] text-slate-950 bg-linear-to-r from-blue-500 to-indigo-600 shadow-2xl shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
           >
             {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                 <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                 Saving...
+              <span className="flex items-center justify-center gap-3">
+                 <div className="w-3.5 h-3.5 border-2 border-slate-950/20 border-t-slate-950 rounded-full animate-spin"></div>
+                 Pushing Changes...
               </span>
             ) : "Save Changes"}
           </button>
         </div>
+      </div>
+    </div>
       </div>
     </div>
   );
