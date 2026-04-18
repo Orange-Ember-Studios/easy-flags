@@ -18,18 +18,20 @@ export function getLocale(request: Request): AvailableLanguages {
 
   // 1. Check URL path prefix (e.g., /es/...)
   const pathParts = pathname.split("/");
-  const firstPart = pathParts[1]; // pathParts[0] is empty because path starts with /
-  if (firstPart && translations[firstPart as AvailableLanguages]) {
+  const firstPart = pathParts[1];
+  if (firstPart && SUPPORTED_LOCALES.includes(firstPart as AvailableLanguages)) {
     return firstPart as AvailableLanguages;
   }
 
-  // 2. Fallback to URL query params
+  // 2. Fallback to URL query params (e.g., ?lang=es)
   try {
     const langParam = url.searchParams.get("lang");
-    if (langParam && translations[langParam as AvailableLanguages]) {
+    if (langParam && SUPPORTED_LOCALES.includes(langParam as AvailableLanguages)) {
       return langParam as AvailableLanguages;
     }
-  } catch (e) {}
+  } catch (e) {
+    // Ignore URL parsing errors
+  }
 
   // 3. Check for a 'lang' cookie
   const cookieHeader = request.headers.get("cookie");
@@ -40,26 +42,30 @@ export function getLocale(request: Request): AvailableLanguages {
         return [key, v.join("=")];
       }),
     );
-    if (cookies.lang && translations[cookies.lang as AvailableLanguages]) {
+    if (cookies.lang && SUPPORTED_LOCALES.includes(cookies.lang as AvailableLanguages)) {
       return cookies.lang as AvailableLanguages;
     }
   }
 
-  // 4. Check Accept-Language header
+  // 4. Check Accept-Language header (Browser preference)
   const acceptLanguage = request.headers.get("accept-language");
   if (acceptLanguage) {
+    // Parse the header (e.g., "es-ES,es;q=0.9,en;q=0.8")
     const preferredLocales = acceptLanguage
       .split(",")
       .map((lang) => lang.split(";")[0].trim().split("-")[0].toLowerCase());
 
+    // Find the first one that we support
     const matchedLocale = preferredLocales.find(
-      (lang) => translations[lang as AvailableLanguages],
+      (lang) => SUPPORTED_LOCALES.includes(lang as AvailableLanguages),
     );
+    
     if (matchedLocale) {
       return matchedLocale as AvailableLanguages;
     }
   }
 
+  // 5. Default fallback to English (as per requirement)
   return DEFAULT_LANGUAGE;
 }
 
