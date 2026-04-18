@@ -51,9 +51,14 @@ export function getLocale(request: Request): AvailableLanguages {
   const acceptLanguage = request.headers.get("accept-language");
   if (acceptLanguage) {
     // Parse the header (e.g., "es-ES,es;q=0.9,en;q=0.8")
+    // Handling both "-" and "_" as separators
     const preferredLocales = acceptLanguage
       .split(",")
-      .map((lang) => lang.split(";")[0].trim().split("-")[0].toLowerCase());
+      .map((lang) => {
+        const fullTag = lang.split(";")[0].trim().toLowerCase();
+        return fullTag.split(/[-_]/)[0]; // Get the base language code (es, en, etc.)
+      })
+      .filter(Boolean);
 
     // Find the first one that we support
     const matchedLocale = preferredLocales.find(

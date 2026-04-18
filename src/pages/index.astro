@@ -1,0 +1,13 @@
+---
+import { getLocale } from "../infrastructure/i18n/astro";
+
+export const prerender = false;
+
+const locale = getLocale(Astro.request);
+
+// CRITICAL: Add Vary header to tell Vercel/CDNs that this response 
+// depends on the browser language and cookies.
+Astro.response.headers.set("Vary", "Accept-Language, Cookie");
+
+return Astro.redirect(`/${locale}/`);
+---

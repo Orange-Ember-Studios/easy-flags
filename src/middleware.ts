@@ -30,6 +30,12 @@ export const onRequest = defineMiddleware((context, next) => {
 
   // Redirect to the prefixed version
   // e.g., /billing -> /en/billing
-  const newPathname = `/${finalLocale}${url.pathname === "/" ? "" : url.pathname}`;
-  return redirect(newPathname + url.search + url.hash);
+  // Use trailing slash for the root to avoid double redirects on some platforms
+  const newPathname = `/${finalLocale}${url.pathname === "/" ? "/" : url.pathname}`;
+  const response = redirect(newPathname + url.search + url.hash);
+  
+  // CRITICAL: Tell CDNs (like Vercel) that this response depends on Accept-Language and Cookie
+  response.headers.set("Vary", "Accept-Language, Cookie");
+  
+  return response;
 });
