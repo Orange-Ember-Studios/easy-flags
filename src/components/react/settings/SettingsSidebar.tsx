@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon, type IconName } from "@/components/react/shared/Icon";
 
-type TabId = "profile" | "security" | "api-keys" | "preferences" | "sessions";
+type TabId = "profile" | "security" | "api-keys" | "preferences" | "sessions" | "billing";
 
 interface NavItem {
   id: TabId;
@@ -26,31 +26,37 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
       id: "profile", 
       label: t("settings.profile"), 
       icon: "User", 
-      description: "Personal account information" 
+      description: t("settings.profileSidebarDesc")
+    },
+    { 
+      id: "billing", 
+      label: t("navigation.billing"), 
+      icon: "CreditCard", 
+      description: t("settings.billingSidebarDesc")
     },
     { 
       id: "security", 
       label: t("settings.security"), 
       icon: "Lock", 
-      description: "Password and security" 
+      description: t("settings.securitySidebarDesc")
     },
     { 
       id: "api-keys", 
       label: t("settings.apiKeys"), 
       icon: "Key", 
-      description: "Manage access tokens" 
+      description: t("settings.apiKeysSidebarDesc")
     },
     { 
       id: "preferences", 
       label: t("settings.preferences"), 
       icon: "Shield", 
-      description: "Emails and notifications" 
+      description: t("settings.preferencesSidebarDesc")
     },
     { 
       id: "sessions", 
       label: t("settings.sessions"), 
       icon: "Activity", 
-      description: "Active login sessions" 
+      description: t("settings.sessionsSidebarDesc")
     },
   ];
 

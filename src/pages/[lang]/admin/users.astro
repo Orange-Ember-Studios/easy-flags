@@ -1,0 +1,32 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getUserFromContext, isSuperUser } from "@/utils/auth";
+import { getLocale, getTranslator } from "@/infrastructure/i18n/astro";
+import { UsersManagementView } from "@/components/react/admin/UsersManagementView";
+import { PricingService } from "@/application/services/pricing.service";
+import PageContainer from "@/components/react/shared/PageContainer";
+
+const lang = getLocale(Astro.request);
+const { t } = getTranslator(Astro.request);
+const user = getUserFromContext(Astro);
+
+// Security: Only super users can access this page
+if (!user || !isSuperUser(user)) {
+  return Astro.redirect(`/${lang}/404`);
+}
+
+const pricingService = PricingService.getInstance();
+const availablePlans = await pricingService.getAllPricingPlans();
+---
+
+<BaseLayout seoKey="admin" includeHeader={true}>
+  <div class="h-[calc(100vh-96px)] overflow-hidden">
+    <PageContainer spaceId={undefined} initialLocale={lang}>
+      <UsersManagementView 
+        client:load 
+        availablePlans={availablePlans} 
+        initialLocale={lang}
+      />
+    </PageContainer>
+  </div>
+</BaseLayout>

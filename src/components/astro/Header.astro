@@ -293,9 +293,14 @@ const getNavLinkClass = (href: string) => {
 
           <div class="flex flex-col items-center gap-4 mt-2">
             {isSuperUser(user) && (
-              <a href={getLocalizedPath("/admin/db-inspector", lang)} class="px-8 py-3 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 font-bold uppercase tracking-widest text-sm hover:bg-cyan-500 hover:text-white transition-all">
-                Inspector
-              </a>
+              <>
+                <a href={getLocalizedPath("/admin/db-inspector", lang)} class="px-8 py-3 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 font-bold uppercase tracking-widest text-sm hover:bg-cyan-500 hover:text-white transition-all">
+                  Inspector
+                </a>
+                <a href={getLocalizedPath("/admin/users", lang)} class="px-8 py-3 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 font-bold uppercase tracking-widest text-sm hover:bg-cyan-500 hover:text-white transition-all">
+                  {t('navigation.members') || "Users"}
+                </a>
+              </>
             )}
             
             <a href={getLocalizedPath("/billing", lang)} class="text-slate-400 hover:text-white transition-colors uppercase tracking-widest text-xs font-bold">Billing</a>

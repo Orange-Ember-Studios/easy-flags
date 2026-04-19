@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useTranslate } from "@/infrastructure/i18n/context";
+import { useTranslate, useLocalizedPath } from "@/infrastructure/i18n/context";
 import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 import { Icon } from "@/components/react/shared/Icon";
 
@@ -15,6 +15,7 @@ export default function HeaderDropdown({
   initialLocale,
 }: HeaderDropdownProps) {
   const t = useTranslate(initialLocale);
+  const getLocalizedPath = useLocalizedPath();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -67,19 +68,31 @@ export default function HeaderDropdown({
             </div>
             <div className="py-3">
               {isSuperUser && (
-                <a
-                  href="/admin/db-inspector"
-                  className="flex items-center gap-3 px-5 py-3 text-[11px] font-bold text-slate-400 hover:bg-cyan-500/10 hover:text-cyan-400 transition-all group/item uppercase tracking-widest"
-                >
-                  <Icon name="Database" size={16} className="text-slate-500 group-hover/item:text-cyan-400 transition-colors" />
-                  <span>{t('admin.dbInspector')}</span>
-                  <span className="ml-auto text-[8px] font-black uppercase tracking-tighter bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/20">
-                    S-USER
-                  </span>
-                </a>
+                <>
+                  <a
+                    href={getLocalizedPath("/admin/db-inspector", initialLocale)}
+                    className="flex items-center gap-3 px-5 py-3 text-[11px] font-bold text-slate-400 hover:bg-cyan-500/10 hover:text-cyan-400 transition-all group/item uppercase tracking-widest"
+                  >
+                    <Icon name="Database" size={16} className="text-slate-500 group-hover/item:text-cyan-400 transition-colors" />
+                    <span>{t('admin.dbInspector')}</span>
+                    <span className="ml-auto text-[8px] font-black uppercase tracking-tighter bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/20">
+                      S-USER
+                    </span>
+                  </a>
+                  <a
+                    href={getLocalizedPath("/admin/users", initialLocale)}
+                    className="flex items-center gap-3 px-5 py-3 text-[11px] font-bold text-slate-400 hover:bg-cyan-500/10 hover:text-cyan-400 transition-all group/item uppercase tracking-widest"
+                  >
+                    <Icon name="Users" size={16} className="text-slate-500 group-hover/item:text-cyan-400 transition-colors" />
+                    <span>{t('admin.usersManagement')}</span>
+                    <span className="ml-auto text-[8px] font-black uppercase tracking-tighter bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/20">
+                      S-USER
+                    </span>
+                  </a>
+                </>
               )}
               <a
-                href="/billing"
+                href={getLocalizedPath("/billing", initialLocale)}
                 className="flex items-center gap-3 px-5 py-3 text-[11px] font-bold text-slate-400 hover:bg-white/5 hover:text-white transition-all group/item uppercase tracking-widest"
               >
                 <Icon name="CreditCard" size={16} className="text-slate-500 group-hover/item:text-white transition-colors" />

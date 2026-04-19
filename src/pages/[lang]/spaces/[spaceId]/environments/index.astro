@@ -5,7 +5,7 @@ import { checkResourceExists } from "@/utils/resource-validation";
 import EnvironmentsView from "@/components/react/environments/EnvironmentsView";
 import { SpaceService } from "@application/services";
 
-import { getLocale } from "@/infrastructure/i18n/astro";
+import { getLocale, getLocalizedPath } from "@/infrastructure/i18n/astro";
 
 export const prerender = false;
 
@@ -14,23 +14,24 @@ if (!requireAuth(Astro)) {
   return Astro.redirect(getLoginUrl(Astro));
 }
 
+const lang = getLocale(Astro.request);
 const { spaceId: spaceSlug } = Astro.params;
 
 // Verify space exists
 const spaceService = new SpaceService();
 const space = await spaceService.getSpaceBySlug(spaceSlug as string);
 if (!checkResourceExists(space, Astro, "Space")) {
-  return Astro.redirect(getLocalizedPath("/404", lang as any));
+  return Astro.redirect(getLocalizedPath("/404", lang));
 }
 
-const initialLocale = getLocale(Astro.request);
+const initialLocale = lang;
 ---
 
 <BaseLayout title="Environments" includeHeader={true}>
   <EnvironmentsView 
     client:load 
-    spaceId={spaceSlug} 
-    spaceName={space.name} 
+    spaceId={space?.id || 0} 
     initialLocale={initialLocale}
   />
+</BaseLayout>
 </BaseLayout>

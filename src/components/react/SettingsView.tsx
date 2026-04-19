@@ -3,6 +3,7 @@ import { useTranslate } from "@/infrastructure/i18n/context";
 import type { AvailableLanguages } from "@/infrastructure/i18n/locales";
 import { SettingsSidebar } from "./settings/SettingsSidebar";
 import { ProfileSection } from "./settings/ProfileSection";
+import { BillingSection } from "./settings/BillingSection";
 import { SecuritySection } from "./settings/SecuritySection";
 import { ApiKeySection } from "./settings/ApiKeySection";
 import { PreferenceSection } from "./settings/PreferenceSection";
@@ -26,6 +27,7 @@ interface UserSubscription {
   plan?: {
     name: string;
     description: string;
+    slug?: string;
   };
 }
 
@@ -57,7 +59,7 @@ export default function SettingsView({ initialLocale }: SettingsViewProps) {
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    "profile" | "security" | "api-keys" | "preferences" | "sessions"
+    "profile" | "security" | "api-keys" | "preferences" | "sessions" | "billing"
   >("profile");
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -460,6 +462,12 @@ export default function SettingsView({ initialLocale }: SettingsViewProps) {
                     setEmailForm={setEmailForm}
                     isUpdating={isUpdating}
                     handleEmailUpdate={handleEmailUpdate}
+                    t={t}
+                />
+            )}
+            {activeTab === "billing" && (
+                <BillingSection 
+                    subscription={subscription}
                     t={t}
                 />
             )}

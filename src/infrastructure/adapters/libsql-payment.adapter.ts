@@ -92,4 +92,13 @@ export class LibSqlPaymentRepository implements PaymentRepository {
     });
     return (result.rows[0] as unknown as PaymentTransaction) || null;
   }
+
+  async findByUserId(userId: number): Promise<PaymentTransaction[]> {
+    const db = await this.getDb();
+    const result = await db.execute({
+      sql: "SELECT * FROM payments WHERE user_id = ? ORDER BY created_at DESC",
+      args: [userId],
+    });
+    return (result.rows as unknown as PaymentTransaction[]) || [];
+  }
 }

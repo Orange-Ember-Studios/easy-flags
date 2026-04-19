@@ -24,13 +24,15 @@ export default function PageContainer({
   return (
     <div className="min-h-screen w-full relative overflow-x-hidden">
       <div className="max-w-7xl mx-auto pt-12 pb-24 px-6 animate-in fade-in duration-700">
-        <SpaceNavigation
-          spaceId={spaceId}
-          spaceName={spaceName}
-          currentTab={currentTab}
-          subPage={subPage}
-          initialLocale={initialLocale}
-        />
+        {spaceId && (
+          <SpaceNavigation
+            spaceId={spaceId}
+            spaceName={spaceName}
+            currentTab={currentTab}
+            subPage={subPage}
+            initialLocale={initialLocale}
+          />
+        )}
         {children}
       </div>
     </div>

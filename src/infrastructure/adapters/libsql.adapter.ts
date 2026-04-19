@@ -74,6 +74,37 @@ export class LibSqlUserRepository implements UserRepository {
     return (result.rows[0] as never as User) || null;
   }
 
+  async findAll(filters: {
+    search?: string;
+    limit: number;
+    offset: number;
+  }): Promise<{ users: User[]; total: number }> {
+    const db = await this.getDb();
+    let sql = "SELECT * FROM users";
+    let countSql = "SELECT COUNT(*) as total FROM users";
+    const args: any[] = [];
+
+    if (filters.search) {
+      const searchPattern = `%${filters.search}%`;
+      sql += " WHERE username LIKE ? OR email LIKE ?";
+      countSql += " WHERE username LIKE ? OR email LIKE ?";
+      args.push(searchPattern, searchPattern);
+    }
+
+    sql += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    const queryArgs = [...args, filters.limit, filters.offset];
+
+    const [usersResult, countResult] = await Promise.all([
+      db.execute({ sql, args: queryArgs }),
+      db.execute({ sql: countSql, args }),
+    ]);
+
+    return {
+      users: usersResult.rows as never as User[],
+      total: Number(countResult.rows[0]?.total || 0),
+    };
+  }
+
   async create(user: Partial<User>): Promise<User> {
     const db = await this.getDb();
     const result = await db.execute({

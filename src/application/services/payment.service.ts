@@ -240,6 +240,27 @@ export class PaymentService {
     return wompiTx;
   }
 
+  async syncTransactionStatus(transactionId: number): Promise<void> {
+    const registry = getRepositoryRegistry();
+    const paymentRepo = registry.getPaymentRepository();
+    
+    const transaction = await paymentRepo.findById(transactionId);
+    if (!transaction) {
+      throw new Error("Transaction not found");
+    }
+
+    if (!transaction.external_id) {
+       return;
+    }
+
+    const wompiTx = await this.paymentGateway.getTransactionStatus(transaction.external_id);
+    const newStatus = this.mapWompiStatus(wompiTx.status);
+
+    if (newStatus !== transaction.status) {
+      await this.updatePaymentStatus(transaction.id, newStatus);
+    }
+  }
+
   private async detectCountry(ip: string): Promise<string> {
     // In production, use Cloudflare CF-IPCountry header or a GeoIP service
     // For this implementation, we will check if the user is in Colombia

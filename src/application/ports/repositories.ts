@@ -58,6 +58,7 @@ export interface UserRepository {
   findByEmail(email: string): Promise<User | null>;
   findByUsername(username: string): Promise<User | null>;
   findByVerificationToken(token: string): Promise<User | null>;
+  findAll(filters: { search?: string; limit: number; offset: number }): Promise<{ users: User[]; total: number }>;
   create(user: Partial<User>): Promise<User>;
   update(id: number, updates: Partial<User>): Promise<User>;
   delete(id: number): Promise<void>;
@@ -416,6 +417,7 @@ export interface PaymentRepository {
   ): Promise<PaymentTransaction>;
   findById(id: number): Promise<PaymentTransaction | null>;
   findByReference(reference: string): Promise<PaymentTransaction | null>;
+  findByUserId(userId: number): Promise<PaymentTransaction[]>;
 }
 
 // ====================
